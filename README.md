@@ -6,7 +6,7 @@ A full stack web application designed to empower refugees by providing personali
 
 ## 📖 Description
 
-Empower Refugees is a platform that helps refugees build brighter futures by:
+Refugees Techpreneurs is a platform that helps refugees build brighter futures by:
 - Recommending personalized career paths using AI
 - Connecting users with mentors
 - Offering interactive learning modules and toolkits
