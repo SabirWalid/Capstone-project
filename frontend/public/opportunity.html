@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Opportunities - Empower Refugees</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container mt-5">
+    <h2>Opportunities Portal</h2>
+    <form id="opportunity-filter" class="row mb-3">
+      <div class="col-md-4">
+        <input type="text" id="country" class="form-control" placeholder="Country">
+      </div>
+      <div class="col-md-4">
+        <input type="text" id="category" class="form-control" placeholder="Category">
+      </div>
+      <div class="col-md-4">
+        <button type="submit" class="btn btn-primary w-100">Filter</button>
+      </div>
+    </form>
+    <div id="opportunity-list"></div>
+  </div>
+  <script src="js/main.js"></script>
+</body>
+</html>
