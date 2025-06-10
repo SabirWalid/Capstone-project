@@ -16,8 +16,7 @@ Refugees Techpreneurs is a platform that helps refugees build brighter futures b
 
 ## 🔗 GitHub Repository
 
-[GitHub Repo Link](https://github.com/your-username/Capstone-project)  
-*Replace with your actual GitHub repo URL.*
+[GitHub Repo Link](https://github.com/SabirWalid/Capstone-project) 
 
 ---
 
@@ -26,7 +25,7 @@ Refugees Techpreneurs is a platform that helps refugees build brighter futures b
 ### **Backend Setup**
 1. **Clone the repository:**
    ```sh
-   git clone https://github.com/your-username/Capstone-project.git
+   git clone https://github.com/SabirWalid/Capstone-project.git
    cd Capstone-project/backend
 
 2. Install dependencies
@@ -34,6 +33,7 @@ npm install
 
 3. Set up environment variaables
 Create .env file in your backend folder
+
 MONGO_URI=mongodb://localhost:27017/refugee_app
 PORT=5000
 
@@ -61,13 +61,13 @@ Screensshots:
 
 🚀 Deployment Plan
 1. Backend Deployment
-Deploy the backend to a cloud service (e.g., Render, Heroku, Railway, or Vercel for APIs).
-Set up environment variables for production (MongoDB Atlas URI, JWT secrets, etc.).
+Deploy the backend to a cloud service Heroku, Railway.
+Set up environment variables for production MongoDB Compass.
 Ensure CORS is configured to allow frontend requests.
 
 2. Frontend Deployment
 
-Host static files on Vercel, Netlify, or GitHub Pages.
+Host static files on Netlify, or GitHub Pages.
 Update API URLs in frontend JS to point to the deployed backend.
 
 3. Domain & SSL
@@ -80,3 +80,8 @@ Regularly update dependencies and monitor security.
 
 📞 Contact
 For questions or contributions, please open an issue or pull request on the GitHub repo https://github.com/SabirWalid/Capstone-project.
+
+
+Demo Video
+
+https://youtu.be/4_8D3hckKVY
