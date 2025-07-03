@@ -3,7 +3,7 @@ const router = express.Router();
 const axios = require('axios');
 
 // Replace with your actual OpenAI API key
-const OPENAI_API_KEY = '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';
+const OPENAI_API_KEY = ''
 
 router.post('/chatbot', async (req, res) => {
   const { message } = req.body;
