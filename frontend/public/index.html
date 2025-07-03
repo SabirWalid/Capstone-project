@@ -139,9 +139,9 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav mx-auto">
         <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
-        <li class="nav-item"><a class="nav-link" href="#">Learning Path</a></li>
-        <li class="nav-item"><a class="nav-link" href="#">Mentorship</a></li>
-        <li class="nav-item"><a class="nav-link" href="#">Opportunities</a></li>
+        <li class="nav-item"><a class="nav-link" href="register.html">Learning Path</a></li>
+        <li class="nav-item"><a class="nav-link" href="register.html">Mentorship</a></li>
+        <li class="nav-item"><a class="nav-link" href="register.html">Opportunities</a></li>
       </ul>
       <div class="nav-btns d-flex">
         <a href="login.html" class="btn btn-login">LOGIN</a>
@@ -265,5 +265,23 @@
       .footer-links { gap: 0.7rem; }
     }
 </style>
+<!-- Floating Chatbot Button -->
+  <button id="open-chatbot" style="position:fixed;bottom:30px;right:30px;z-index:999;" class="btn btn-primary rounded-circle">
+    <span class="material-icons">chat</span>
+  </button>
+
+  <!-- Hidden Chat Widget -->
+  <div id="chatbot-widget" style="display:none;position:fixed;bottom:90px;right:30px;max-width:400px;z-index:1000;">
+    <div id="chatbot-messages" style="height:300px;overflow-y:auto;border:1px solid #ccc;padding:1rem;background:#fafafa;"></div>
+    <form id="chatbot-form" style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+      <input type="text" id="chatbot-input" class="form-control" placeholder="Type your message..." required autocomplete="off">
+      <button type="submit" class="btn btn-primary">Send</button>
+    </form>
+    </div>
+  </div>
+
+  <!-- Material Icons (if not already included) -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="js/chatbot.js"></script>
 </body>
 </html>

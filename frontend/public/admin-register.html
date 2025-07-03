@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Register</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container mt-5" style="max-width:400px;">
+    <h3>Admin Register</h3>
+    <form id="admin-register-form">
+      <input type="text" id="admin-register-name" class="form-control mb-2" placeholder="Name" required>
+      <input type="email" id="admin-register-email" class="form-control mb-2" placeholder="Email" required>
+      <input type="password" id="admin-register-password" class="form-control mb-2" placeholder="Password" required>
+      <button class="btn btn-success w-100">Register</button>
+      <div id="admin-register-msg" class="mt-2"></div>
+    </form>
+    <div class="mt-2">
+      <a href="admin-login.html">Already have an account? Login</a>
+    </div>
+  </div>
+  <script>
+    document.getElementById('admin-register-form').onsubmit = async function(e) {
+      e.preventDefault();
+      console.log('Admin registration form submitted'); // Debugging line
+      const name = document.getElementById('admin-register-name').value;
+      const email = document.getElementById('admin-register-email').value;
+      const password = document.getElementById('admin-register-password').value;
+      const res = await fetch('http://localhost:5000/api/admin/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('admin-register-msg').textContent = 'Registration successful! You can now log in.';
+      } else {
+        document.getElementById('admin-register-msg').textContent = data.error || 'Registration failed';
+      }
+    };
+  </script>
+</body>
+</html>

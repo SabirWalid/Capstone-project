@@ -60,104 +60,108 @@ if (document.getElementById('user-name')) {
 }
 
 // Example: Career Test
+
+const interestsList = [
+  "Business", "Design", "Programming", "Marketing", "Data Science", 
+  "AI", "Healthcare", "Education", "Finance", "Engineering", 
+  "Social Impact", "Entrepreneurship", "Creative Arts", "Writing", 
+  "Research", "Public Speaking", "Project Management", "Cybersecurity", 
+  "Blockchain", "Sustainability", "Robotics", "Gaming", "Travel", "Photography", 
+  "Sports", "Law", "Politics", "Community Service", "Mental Health", 
+  "Environmental Science", "Fashion Design", 
+  "Architecture", "Journalism", "Human Resources", "Sales", "Customer Service", 
+  "Event Planning", "Nonprofit Management", "Public Relations", 
+  "Consulting", "Supply Chain Management", "Logistics", "Real Estate", 
+  "Retail Management", "E-commerce"
+];
+
+function renderInterestCheckboxes() {
+  const container = document.getElementById('interests-checkboxes');
+  if (!container) return;
+  container.innerHTML = interestsList.map(interest =>
+    `<label class="form-check-label me-3">
+      <input type="checkbox" class="form-check-input" name="interests" value="${interest}"> ${interest}
+    </label>`
+  ).join('');
+}
+
+document.addEventListener('DOMContentLoaded', renderInterestCheckboxes);
+
 if (document.getElementById('career-test-form')) {
   document.getElementById('career-test-form').onsubmit = async (e) => {
     e.preventDefault();
-    const skills = document.getElementById('skills').value.split(',');
-    const interests = document.getElementById('interests').value.split(',');
+    const skills = document.getElementById('skills').value.split(',').map(s => s.trim());
+    // Get checked interests
+    const interests = Array.from(document.querySelectorAll('input[name="interests"]:checked')).map(cb => cb.value);
     const res = await fetch(`${api}/career/test`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ skills, interests })
     });
     const data = await res.json();
-    document.getElementById('career-suggestion').innerText =
-      `Suggested Path: ${data.path}, Suggestion: ${data.suggestion}`;
+    const suggestionDiv = document.getElementById('career-suggestion');
+    if (data.matches && data.matches.length > 0) {
+      suggestionDiv.innerHTML = data.matches.map(match => `
+        <div class="alert alert-success mb-2">
+          <h4>${match.path} (Score: ${match.score})</h4>
+          <strong>Recommended Courses:</strong>
+          <ul>${match.courses.map(c => `<li>${c}</li>`).join('')}</ul>
+        </div>
+      `).join('');
+    } else {
+      suggestionDiv.innerHTML = `<div class="alert alert-warning">No matching career path found. Try entering more or different skills/interests.</div>`;
+    }
   };
 }
 
 //  Add similar JS for courses, mentorship, chat, toolkit, opportunities, admin, etc.
 
 // Example: Courses
-const courses = [
-  {
-    title: "Introduction to Coding",
-    description: "Learn programming fundamentals with Python and JavaScript",
-    image: "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=600&q=80",
-    progress: 75
-  },
-  {
-    title: "Green Tech Basics",
-    description: "Sustainable technology and environmental solutions",
-    image: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=600&q=80",
-    progress: 40
-  },
-  {
-    title: "Entrepreneurship 101",
-    description: "Start your own business with proven strategies",
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80",
-    progress: 20
-  },
-  {
-    title: "Digital Marketing",
-    description: "Master online marketing and social media strategies",
-    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80",
-    progress: 60
-  }
-];
+const courses = []; // TODO: Replace with the hardcoded array of courses
 
 function renderCourses() {
-  const courseList = document.getElementById('course-list');
-  courseList.innerHTML = '';
-  courses.forEach(course => {
-    courseList.innerHTML += `
-      <div class="col-md-3 mb-4">
-        <div class="card h-100 shadow-sm">
-          <img src="${course.image}" class="card-img-top" alt="${course.title}">
-          <div class="card-body">
-            <h5 class="card-title">${course.title}</h5>
-            <p class="card-text">${course.description}</p>
-            <div class="progress mb-2" style="height: 6px;">
-              <div class="progress-bar bg-info" role="progressbar" style="width: ${course.progress}%"></div>
-            </div>
-            <small class="text-muted">${course.progress}% Complete</small>
-          </div>
-        </div>
-      </div>
-    `;
-  });
+  // TODO: Implement rendering logic for courses
 }
 
-document.addEventListener('DOMContentLoaded', renderCourses);
+document.addEventListener('DOMContentLoaded', () => {
+  renderCourses();
+  updateNotifications();
+});
+
 
 // Example: Mentorship
 const mentors = [
   {
-    name: "Sarah Johnson",
-    title: "Tech Entrepreneur, 15+ years experience",
+    name: "Sabir Abdurahman",
+    title: "Tech Entrepreneur, Software Engineer",
     tags: ["Coding", "Startup"],
     color: "green",
-    btnClass: "btn-green"
+    btnClass: "btn-green",
+    bookingLink: "https://cal.com/sabirwalid/"
   },
   {
-    name: "Michael Chen",
+    name: "Ochan LOKIDORMOI",
     title: "Green Tech Specialist, Environmental Engineer",
-    tags: ["GreenTech", "Sustainability"],
+    tags: ["ML Engineer"],
     color: "blue",
-    btnClass: "btn-blue"
+    btnClass: "btn-blue",
+    bookingLink: "https://cal.com/ochan-lokidormoi/"
   },
   {
-    name: "Emily Rodriguez",
+    name: "Mohammed Y. Sharif",
     title: "Marketing Director, Digital Strategy Expert",
     tags: ["Marketing", "Strategy"],
     color: "orange",
-    btnClass: "btn-orange"
+    btnClass: "btn-orange",
+    bookingLink: "https://calendly.com/mohammed-sharif/mentorship"
   },
   {
-    name: "David Kim",
+    name: "Brian M. Mouki",
     title: "Financial Advisor, Investment Specialist",
     tags: ["Finance", "Investment"],
     color: "purple",
-    btnClass: "btn-purple"
+    btnClass: "btn-purple",
+    bookingLink: "https://calendly.com/brian-mouki/mentorship"
   }
 ];
 
@@ -171,7 +175,7 @@ const colorMap = {
 function renderMentors() {
   const mentorList = document.getElementById('mentor-list');
   mentorList.innerHTML = '';
-  mentors.forEach(mentor => {
+  mentors.forEach((mentor, idx) => {
     mentorList.innerHTML += `
       <div class="col-md-3">
         <div class="mentor-card">
@@ -183,12 +187,66 @@ function renderMentors() {
           <div class="mentor-tags">
             ${mentor.tags.map(tag => `<span class="mentor-tag">${tag}</span>`).join('')}
           </div>
-          <button class="btn btn-book ${mentor.btnClass}">BOOK SESSION</button>
+          <a href="${mentor.bookingLink}" target="_blank" class="btn btn-book ${mentor.btnClass} book-session-btn" data-idx="${idx}">BOOK SESSION</a>
         </div>
       </div>
     `;
   });
+
+  // Attach booking listeners for notifications and offline sync
+  document.querySelectorAll('.book-session-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const idx = this.getAttribute('data-idx');
+      bookMentorSession(idx);
+    });
+  });
 }
+
+// Save mentorship booking for offline sync
+function saveMentorBookingOffline(mentor) {
+  let bookings = JSON.parse(localStorage.getItem('mentorBookings') || '[]');
+  bookings.push({ name: mentor.name, time: new Date().toISOString(), synced: false });
+  localStorage.setItem('mentorBookings', JSON.stringify(bookings));
+}
+
+// Show notification in dashboard
+function addNotification(message) {
+  let notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+  notifications.unshift({ message, time: new Date().toLocaleTimeString() });
+  localStorage.setItem('notifications', JSON.stringify(notifications));
+  if (typeof updateNotifications === "function") updateNotifications();
+}
+
+// Booking handler
+function bookMentorSession(idx) {
+  const mentor = mentors[idx];
+  saveMentorBookingOffline(mentor);
+  addNotification(`You booked a session with ${mentor.name}.`);
+  // Optionally: trigger sync if online
+  if (navigator.onLine) syncMentorBookings();
+}
+
+// Sync mentor bookings with backend when online
+function syncMentorBookings() {
+  let bookings = JSON.parse(localStorage.getItem('mentorBookings') || '[]');
+  if (bookings.length === 0) return;
+  fetch('/api/sync-mentor-bookings', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ bookings })
+  }).then(res => {
+    if (res.ok) {
+      bookings.forEach(b => b.synced = true);
+      localStorage.setItem('mentorBookings', JSON.stringify(bookings));
+      addNotification('Your mentor bookings have been synced.');
+    }
+  }).catch(() => {
+    // If offline or error, keep for next sync
+  });
+}
+
+// Auto-sync when back online
+window.addEventListener('online', syncMentorBookings);
 
 // Use Google Material Icons
 const iconLink = document.createElement('link');
@@ -199,60 +257,224 @@ document.head.appendChild(iconLink);
 document.addEventListener('DOMContentLoaded', renderMentors);
 
 // Example: opportunities
-const opportunities = [
-  {
-    type: "Scholarship",
-    badgeClass: "",
-    icon: `<svg width="22" height="22" fill="#388e3c" viewBox="0 0 24 24"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zm0 2.18L18.09 9 12 12.82 5.91 9 12 5.18zM3 17v2c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-2l-9 4.91L3 17z"/></svg>`,
-    title: "Tech Innovators Scholarship",
-    desc: "$5,000 scholarship for underrepresented students in STEM fields",
-    url: "https://preview.uxpin.com/external-url",
-    btnText: "LEARN MORE",
-    btnClass: "btn-outline-success"
-  },
-  {
-    type: "Funding",
-    badgeClass: "funding",
-    icon: `<svg width="22" height="22" fill="#1976d2" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-2.83.48-5.48-1.51-5.96-4.34-.08-.5.36-.93.87-.93.41 0 .76.31.85.71.35 1.6 1.8 2.76 3.44 2.76 1.93 0 3.5-1.57 3.5-3.5 0-1.61-1.08-2.96-2.61-3.36V7.5c0-.55-.45-1-1-1s-1 .45-1 1v1c0 .55.45 1 1 1s1-.45 1-1v-.5c0-.28.22-.5.5-.5s.5.22.5.5v.5c0 1.1-.9 2-2 2s-2-.9-2-2V7.5c0-.55.45-1 1-1s1 .45 1 1v1c0 .55.45 1 1 1s1-.45 1-1v-.5c0-.28.22-.5.5-.5s.5.22.5.5v.5c0 1.1-.9 2-2 2s-2-.9-2-2V7.5c0-.55.45-1 1-1s1 .45 1 1v1c0 .55.45 1 1 1s1-.45 1-1v-.5c0-.28.22-.5.5-.5s.5.22.5.5v.5c0 1.1-.9 2-2 2s-2-.9-2-2V7.5c0-.55.45-1 1-1s1 .45 1 1v1c0 .55.45 1 1 1s1-.45 1-1v-.5c0-.28.22-.5.5-.5s.5.22.5.5v.5c0 1.1-.9 2-2 2s-2-.9-2-2V7.5c0-.55.45-1 1-1s1 .45 1 1v1c0 .55.45 1 1 1s1-.45 1-1v-.5c0-.28.22-.5.5-.5s.5.22.5.5v.5c0 1.1-.9 2-2 2s-2-.9-2-2V7.5c0-.55.45-1 1-1s1 .45 1 1v1c0 .55.45 1 1 1s1-.45 1-1v-.5c0-.28.22-.5.5-.5s.5.22.5.5v.5c0 1.1-.9 2-2 2s-2-.9-2-2V7.5c0-.55.45-1 1-1s1 .45 1 1v1c0 .55.45 1 1 1s1-.45 1-1v-.5c0-.28.22-.5.5-.5s.5.22.5.5v.5c0 1.1-.9 2-2 2s-2-.9-2-2V7.5c0-.55.45-1 1-1s1 .45 1 1v1c0 .55.45 1 1 1s1-.45 1-1v-.5c0-.28.22-.5.5-.5s.5.22.5.5v.5c0 1.1-.9 2-2 2s-2-.9-2-2V7.5c0-.55.45-1 1-1s1 .45 1 1v1c0 .55.45 1 1 1s1-.45 1-1v-.5c0-.28.22-.5.5-.5s.5.22.5.5v.5c0 1.1-.9 2-2 2s-2-.9-2-2V7.5c0-.55.45-1 1-1s1 .45 1 1v1c0 .55.45 1 1 1s1-.45 1-1v-.5c0-.28.22-.5.5-.5s.5.22.5.5v.5c0 1.1-.9 2-2 2s-2-.9-2-2V7.5c0-.55.45-1 1-1s1 .45 1 1v1c0 .55.45 1 1 1s1-.45 1-1v-.5c0-.28.22-.5.5-.5s.5.22.5.5v.5c0 1.1-.9 2-2 2s-2-.9-2-2V7.5c0-.55.45-1 1-1s1 .45 1 1v1c0 .55.45 1 1 1s1-.45 1-1v-.5c0-.28.22-.5.5-.5s.5.22.5.5v.5c0 1.1-.9 2-2 2s-2-.9-2-2V7.5c0-.55.45-1 1-1s1 .45 1 1v1c0 .55.45 1 1 1s1-.45 1-1v-.5c0-.28.22-.5.5-.5s.5.22.5.5v.5c0 1.1-.9 2-2 2s-2-.9-2-2V7.5c0-.55.45-1 1-1s1 .45 1 1v1c0 .55.45 1 1 1s1-.45 1-1v-.5c0-.28.22-.5.5-.5s.5.22.5.5v.5c0 1.1-.9 2-2 2s-2-.9-2-2V7.5c0-.55.45-1 1-1s1 .45 1 1v1c0 .55.45 1 1 1s1-.45 1-1v-.5c0-.28.22-.5.5-.5s.5.22.5.5v.5c0 1.1-.9 2-2 2s-2-.9-2-2V7.5c0-.55.45-1 1-1s1 .45 1 1v1c0 .55.45 1 1 1s1-.45 1-1v-.5c0-.28.22-.5.5-.5s.5.22.5.5v.5c0 1.1-.9 2-2 2s-2-.9-2-2V7.5c0-.55.45-1 1-1s1 .45 1 1v1c0 .55.45 1 1 1s1-.45 1-1v-.5c0-.28.22-.5.5-.5s.5.22.5.5v.5c0 1.1-.9 2-2 2s-2-.9-2-2V7.5c0-.55.45-1 1-1s1 .45 1 1v1c0 .55.45 1 1 1s1-.45 1-1v-.5c0-.28.22-.5.5-.5s.5.22.5.5v.5c0 1.1-.9 2-2 2s-2-.9-2-2V7.5c0-.55.45-1 1-1s1 .45 1 1v1c0 .55.45 1 1 1s1-.45 1-1v-.5c0-.28.22-.5.5-.5s.5.22.5.5v.5c0 1.1-.9 2-2 2s-2-.9-2-2V7.5c0-.55.45-1 1-1s1 .45 1 1v1c0 .55.45 1 1 1s1-.45 1-1v-.5c0-.28.22-.5.5-.5s.5.22.5.5v.5c0 1.1-.9 2-2 2s-2-.9-2-2V7.5c0-.55.45-1 1-1s1 .45 1 1v1c0 .55.45 1 1 1s1-.45 1-1v-.5c0-.28.22-.5.5-.5s.5.22.5.5v.5c0 1.1-.9 2-2 2s-2-.9-2-2V7.5c0-.55.45-1 1-1s1 .45 1 1v1c0 .55.45 1 1 1s1-.45 1-1v-.5c0-.28.22-.5.5-.5s.5.22.5.5v.5c0 1.1-.9 2-2 2s-2-.9-2-2z"/></svg>`,
-    title: "Green Startup Grant",
-    desc: "Up to $25,000 for environmentally focused startup ventures",
-    url: "https://preview.uxpin.com/external-url",
-    btnText: "APPLY NOW",
-    btnClass: "btn-outline-primary"
-  },
-  {
-    type: "Job Opportunity",
-    badgeClass: "job",
-    icon: `<svg width="22" height="22" fill="#ffa000" viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.1-.9-2-2-2s-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6 0V4h4v2h-4zm6 14H4V8h16v12zm-8-6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>`,
-    title: "Junior Developer Position",
-    desc: "Entry-level position at a fast-growing tech company",
-    url: "https://preview.uxpin.com/external-url",
-    btnText: "VIEW DETAILS",
-    btnClass: "btn-outline-warning",
-    remote: "Remote • $60,000-$75,000"
-  }
-];
+let allOpportunities = [];
 
-function renderOpportunities() {
+// Fetch opportunities from backend on page load
+async function loadOpportunities() {
+  const res = await fetch('/api/opportunities');
+  allOpportunities = await res.json();
+  renderOpportunities(allOpportunities);
+}
+
+// Filter by type (Scholarship, Job, Funding)
+function filterOpportunities() {
+  const type = document.getElementById('opportunity-filter').value;
+  const filtered = type ? allOpportunities.filter(o => o.type === type) : allOpportunities;
+  renderOpportunities(filtered);
+}
+
+// Render opportunities to the page
+function renderOpportunities(opps) {
   const list = document.getElementById('opportunity-list');
-  list.innerHTML = '';
-  opportunities.forEach(opp => {
-    list.innerHTML += `
-      <div class="col-md-4 mb-4">
-        <div class="opportunity-card h-100">
-          <div class="opportunity-badge ${opp.badgeClass}">
-            ${opp.icon}
-            <span style="margin-left:8px;">${opp.type}</span>
-          </div>
-          <div class="opportunity-title">${opp.title}</div>
-          <div class="opportunity-desc">${opp.desc}</div>
-          <a class="opportunity-link" href="${opp.url}" target="_blank">${opp.url}</a>
-          ${opp.remote ? `<div class="opportunity-remote">${opp.remote}</div>` : ''}
-          <a href="${opp.url}" target="_blank" class="btn ${opp.btnClass}">${opp.btnText}</a>
+  list.innerHTML = opps.map(o => `
+    <div class="col-md-4 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <span class="badge bg-secondary">${o.type}</span>
+          <h5 class="card-title">${o.title}</h5>
+          <p class="card-text">${o.description}</p>
+          <a href="${o.link}" target="_blank" class="btn btn-outline-primary">Learn More / Apply</a>
         </div>
       </div>
-    `;
+    </div>
+  `).join('');
+}
+
+// Load opportunities on page load
+document.addEventListener('DOMContentLoaded', loadOpportunities);
+
+// If you have a filter dropdown, add this:
+document.getElementById('opportunity-filter')?.addEventListener('change', filterOpportunities);
+
+// notification system
+
+// Assume userId is available (from login/session/localStorage)
+const userId = localStorage.getItem('userId');
+
+// Show/hide notification dropdown
+document.getElementById('notification-bell').onclick = function(e) {
+  e.stopPropagation();
+  const list = document.getElementById('notification-list');
+  list.style.display = (list.style.display === 'none' || !list.style.display) ? 'block' : 'none';
+};
+// Hide dropdown when clicking outside
+document.addEventListener('click', function() {
+  document.getElementById('notification-list').style.display = 'none';
+});
+
+// Fetch notifications from backend
+async function fetchNotifications() {
+  if (!userId) return;
+  const res = await fetch(`${api}/notifications/${userId}`);
+  const data = await res.json();
+  updateNotifications(data.notifications || []);
+}
+
+// Update notification UI
+function updateNotifications(notifications) {
+  document.getElementById('notification-count').innerText = notifications.length;
+  const items = notifications.map(n => `<li class="list-group-item">${n.message}<br><small class="text-muted">${n.time}</small></li>`).join('');
+  document.getElementById('notification-items').innerHTML = items || '<li class="list-group-item text-muted">No notifications</li>';
+}
+
+// Add a notification (call backend)
+async function addNotification(message) {
+  if (!userId) return;
+  await fetch(`${api}/notifications/add`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId, message })
+  });
+  fetchNotifications();
+}
+
+// Example: Add notification on login/register (set this after login/register)
+if (localStorage.getItem('justLoggedIn')) {
+  addNotification('Welcome! You have successfully logged in.');
+  localStorage.removeItem('justLoggedIn');
+}
+
+// Example: Call addNotification() when user enrolls, books, etc.
+function onEnrollCourse(courseName) {
+  addNotification(`You enrolled in ${courseName}.`);
+}
+function onBookMentorSession(mentorName) {
+  addNotification(`You booked a session with ${mentorName}.`);
+}
+function onTakeCareerTest() {
+  addNotification('You completed the career test.');
+}
+
+// Fetch notifications on page load
+window.addEventListener('DOMContentLoaded', fetchNotifications);
+
+
+// Use idb for IndexedDB (add <script src="https://unpkg.com/idb@7/build/iife/index-min.js"></script> in your HTML)
+let db;
+async function setupDB() {
+  db = await idb.openDB('empower-db', 1, {
+    upgrade(db) {
+      db.createObjectStore('progress', { keyPath: 'courseId' });
+    }
   });
 }
 
-document.addEventListener('DOMContentLoaded', renderOpportunities);
+// Save progress locally
+async function saveProgress(courseId, completed) {
+  await db.put('progress', { courseId, completed, timestamp: Date.now() });
+}
+
+// Load progress locally
+async function loadProgress() {
+  const tx = db.transaction('progress', 'readonly');
+  return await tx.store.getAll();
+}
+
+// Sync progress with backend
+async function syncProgress(userId) {
+  if (!navigator.onLine) return;
+  const all = await loadProgress();
+  await fetch('/api/sync-progress', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId, progress: all })
+  });
+}
+
+// Auto-sync when online
+window.addEventListener('online', () => {
+  const userId = localStorage.getItem('userId');
+  if (userId) syncProgress(userId);
+});
+
+// Example usage in your course page
+document.getElementById('complete-btn').onclick = () => {
+  saveProgress(courseId, true);
+};
+
+document.getElementById('sync-btn').onclick = () => {
+  const userId = localStorage.getItem('userId');
+  if (userId) syncProgress(userId);
+};
+window.addEventListener('online', () => {
+  document.getElementById('online-banner').style.display = 'block';
+  setTimeout(() => document.getElementById('online-banner').style.display = 'none', 2000);
+});
+window.addEventListener('offline', () => {
+  document.getElementById('offline-banner').style.display = 'block';
+});
+
+// Exampe account
+
+const accountApi = '/api/account';
+// userId is already declared earlier, so do not redeclare it here
+
+// Load user info
+async function loadProfile() {
+  if (!userId) return;
+  const res = await fetch(`${accountApi}/profile?userId=${userId}`);
+  const data = await res.json();
+  if (data.success) {
+    const user = data.user;
+    document.getElementById('profile-name').value = user.name || '';
+    document.getElementById('profile-email').value = user.email || '';
+    document.getElementById('profile-phone').value = user.phone || '';
+    document.getElementById('profile-links').value = (user.links || []).join(', ');
+    document.getElementById('profile-timezone').value = user.timeZone || '';
+    document.getElementById('profile-language').value = user.language || '';
+    if (user.profilePicture) {
+      const img = document.getElementById('profile-img-preview');
+      img.src = user.profilePicture;
+      img.style.display = 'block';
+    }
+  }
+}
+
+document.getElementById('profile-picture').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      const img = document.getElementById('profile-img-preview');
+      img.src = evt.target.result;
+      img.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+document.getElementById('profile-form').onsubmit = async function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form);
+  formData.append('userId', userId);
+  // Convert links to array
+  const links = formData.get('links');
+  if (links) {
+    formData.set('links', links.split(',').map(l => l.trim()).filter(Boolean));
+  }
+  const res = await fetch(`${accountApi}/profile`, {
+    method: 'POST',
+    body: formData
+  });
+  const data = await res.json();
+  const msg = document.getElementById('profile-msg');
+  if (data.success) {
+    msg.textContent = 'Profile updated!';
+    loadProfile();
+  } else {
+    msg.textContent = 'Update failed: ' + (data.error || 'Unknown error');
+  }
+};
+
+document.addEventListener('DOMContentLoaded', loadProfile);

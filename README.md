@@ -48,8 +48,8 @@ cd frontend/public
 
 Open index,html in your browser(You can use Live Server extension in VS Code for a better experience.)
 
-Mockups:
-https://preview.uxpin.com/bff104ae50ec9421680569c4cc804580ef67e6d6#/pages/208304333/simulate/layers?mode=cl
+Mockups Figma:
+https://www.figma.com/design/DkTzOiGUHFvHzZv7aJrWPU/Untitled?node-id=0-1&p=f&t=wbjf9tmkyikpMNqS-0
 
 Screensshots:
 ![alt text](<Screenshot 2025-06-09 165207.png>) ![alt text](<Screenshot 2025-06-09 165304.png>) ![alt text](<Screenshot 2025-06-09 164953.png>) ![alt text](<Screenshot 2025-06-09 165030.png>) ![alt text](<Screenshot 2025-06-09 165059.png>) ![alt text](<Screenshot 2025-06-09 165132.png>)

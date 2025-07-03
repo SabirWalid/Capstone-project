@@ -1,47 +1,207 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Empower Refugees - Home</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">Empower Refugees</a>
-    <div class="ms-auto">
-      <a href="login.html" class="btn btn-outline-primary me-2">Login</a>
-      <a href="register.html" class="btn btn-primary">Sign Up</a>
-    </div>
-  </nav>
-  <header class="container text-center my-5">
-    <h1>Empowering Refugees for a Brighter Future</h1>
-    <p class="lead">Take the first step towards your new career, connect with mentors, and access opportunities.</p>
-    <a href="register.html" class="btn btn-lg btn-success">Get Started</a>
-  </header>
-  <section class="container my-5">
-    <div class="row">
-      <div class="col-md-4 mb-3">
-        <h3>Personalized Career Paths</h3>
-        <p>Discover your strengths and get AI-powered recommendations.</p>
-      </div>
-      <div class="col-md-4 mb-3">
-        <h3>Mentorship & Learning</h3>
-        <p>Connect with mentors and access interactive courses.</p>
-      </div>
-      <div class="col-md-4 mb-3">
-        <h3>Startup & Opportunities</h3>
-        <p>Access business toolkits and apply for scholarships or jobs.</p>
-      </div>
-    </div>
-  </section>
-  <footer class="text-center py-4 bg-light">© 2025 Empower Refugees</footer>
-</body>
-</html>
+<style>
+    html, body {
+      height: 100%;
+      margin: 10px;
+      padding: 10px;
+      background: #f7f7f7;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: row;
+      overflow-x: hidden;
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+    .sidebar {
+      background: #005c3a;
+      color: #fff;
+      min-height: 100vh;
+      width: 90px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 1.5rem;
+    }
+    .sidebar .logo {
+      width: 60px;
+      margin-bottom: 2rem;
+    }
+    .sidebar .profile-img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 1.5rem;
+      border: 2px solid #fff;
+    }
+    .sidebar .nav-link {
+      color: #fff;
+      text-align: center;
+      margin-bottom: 1.2rem;
+      font-size: 1.7rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      transition: color 0.2s;
+      position: relative;
+    }
+    .sidebar .nav-link.active,
+    .sidebar .nav-link:hover {
+      color: #00b0ff;
+    }
+    .sidebar .nav-link .material-icons {
+      font-size: 2rem;
+      margin-bottom: 0.2rem;
+    }
+    .sidebar .badge {
+      position: relative;
+      top: 0;
+      right: 10px;
+      background: #00b0ff;
+      color: #fff;
+      font-size: 0.8rem;
+      border-radius: 50%;
+      padding: 2px 6px;
+    }
+    .sidebar .sidebar-bottom {
+      margin-top: auto;
+      margin-bottom: 1.5rem;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .dashboard-wrapper {
+      flex: 1 1 auto;
+      min-height: 100vh;
+      margin-left: 90px;
+      display: flex;
+      flex-direction: column;
+    }
+    .main-content {
+      flex: 1 0 auto;
+      padding: 2rem 2rem 0 2rem;
+      min-height: 0;
+      padding-left: 5rem;
+    }
+    .dashboard-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      ;
+    }
+    .dashboard-header h2 {
+      font-weight: 700;
+      color: #444;
+      margin: 0;
+    }
+    .user-greeting {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+    .recommendations-label {
+      font-size: 1.2rem;
+      color: #555;
+      margin-bottom: 1.5rem;
+    }
+    .recommendation-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      margin-bottom: 2.2rem;
+    }
+    .recommendation-row .btn {
+      flex: 1 1 220px;
+      font-size: 1.15rem;
+      font-weight: 600;
+      padding: 1rem 0;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .footer {
+      flex-shrink: 0;
+      background: #faf5e0;
+      color: #1d1c1c;
+      font-size: 0.98rem;
+      padding: 0.7rem 0;
+      border-top: 1px solid #333;
+      margin-left: 0;
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+    }
+    .footer .container-fluid {
+      padding: 0 !important;
+    }
+    .footer-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .footer-logo img {
+      height: 28px;
+    }
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .footer-link {
+      color: #302f2f;
+      text-decoration: none;
+      margin-right: 1rem;
+      transition: color 0.2s;
+      font-size: 1rem;
+    }
+    .footer-link:hover {
+      color: #2c2c2c;
+      text-decoration: underline;
+    }
+    .footer-social {
+      display: inline-block;
+      margin-left: 0.5rem;
+      margin-right: 0.5rem;
+      vertical-align: middle;
+      transition: opacity 0.2s;
+    }
+    .footer-social:hover svg {
+      fill: #2e2d2d !important;
+    }
+    @media (max-width: 900px) {
+      .main-content { padding: 1rem 0.5rem 0 0.5rem; }
+      .sidebar { width: 60px; }
+      .dashboard-wrapper { margin-left: 60px; }
+      .footer { margin-left: 0; }
+      .recommendation-row { gap: 0.5rem; }
+    }
+    @media (max-width: 600px) {
+      .dashboard-wrapper, .main-content, .footer { margin-left: 0; padding: 0.5rem; }
+      .dashboard-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+      .recommendation-row { flex-direction: column; }
+      .footer-content { flex-direction: column; gap: 0.5rem; }
+      .footer-links { gap: 0.7rem; }
+    }
+  </style>
 
-// Dashboard
 
+
+//dashboard
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -49,121 +209,679 @@
   <title>Dashboard - Empower Refugees</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: #f7f7f7;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: row;
+    }
+    .sidebar {
+      background: #005c3a;
+      color: #fff;
+      min-height: 100vh;
+      width: 90px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 1.5rem;
+    }
+    .sidebar .logo {
+      width: 60px;
+      margin-bottom: 2rem;
+    }
+    .sidebar .profile-img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 1.5rem;
+      border: 2px solid #fff;
+    }
+    .sidebar .nav-link {
+      color: #fff;
+      text-align: center;
+      margin-bottom: 1.2rem;
+      font-size: 1.7rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      transition: color 0.2s;
+      position: relative;
+    }
+    .sidebar .nav-link.active,
+    .sidebar .nav-link:hover {
+      color: #00b0ff;
+    }
+    .sidebar .nav-link .material-icons {
+      font-size: 2rem;
+      margin-bottom: 0.2rem;
+    }
+    .sidebar .badge {
+      position: relative;
+      top: 0;
+      right: 10px;
+      background: #00b0ff;
+      color: #fff;
+      font-size: 0.8rem;
+      border-radius: 50%;
+      padding: 2px 6px;
+    }
+    .sidebar .sidebar-bottom {
+      margin-top: auto;
+      margin-bottom: 1.5rem;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .dashboard-wrapper {
+      flex: 1 1 auto;
+      min-height: 100vh;
+      margin-left: 90px;
+      display: flex;
+      flex-direction: column;
+    }
+    .main-content {
+      flex: 1 0 auto;
+      padding: 2rem 2rem 0 2rem;
+      min-height: 0;
+    }
+    .dashboard-header {
+    background: #fff;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .dashboard-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    position: relative;
+  }
+  #notification-bell {
+    position: relative;
+    cursor: pointer;
+    color: #005c3a;
+    transition: color 0.2s;
+  }
+  #notification-bell:hover {
+    color: #00b0ff;
+  }
+  #notification-count {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #d32f2f;
+    color: #fff;
+    font-size: 0.8rem;
+    border-radius: 50%;
+    padding: 2px 6px;
+    min-width: 20px;
+    text-align: center;
+    font-weight: bold;
+    border: 2px solid #fff;
+  }
+  #notification-list {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 2.5rem;
+    min-width: 300px;
+    z-index: 999;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    overflow: hidden;
+  }
+  #notification-list ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  #notification-list .list-group-item {
+    border: none;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+  }
+  #notification-list .list-group-item:last-child {
+    border-bottom: none;
+  }
+  .logout-btn {
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1.2rem;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-left: 1.5rem;
+    transition: background 0.2s;
+    box-shadow: 0 2px 8px rgba(211,47,47,0.08);
+  }
+  .logout-btn:hover {
+    background: #b71c1c;
+    color: #fff;
+    text-decoration: none;
+  }
+    .user-greeting {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+    .recommendations-label {
+      font-size: 1.2rem;
+      color: #555;
+      margin-bottom: 1.5rem;
+    }
+    .recommendation-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      margin-bottom: 2.2rem;
+    }
+    .recommendation-row .btn {
+      flex: 1 1 220px;
+      font-size: 1.15rem;
+      font-weight: 600;
+      padding: 1rem 0;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .footer {
+      flex-shrink: 0;
+      background: #faf5e0;
+      color: #1d1c1c;
+      font-size: 0.98rem;
+      padding: 0.7rem 0;
+      border-top: 1px solid #333;
+      margin-left: 0;
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+    }
+    .footer .container-fluid {
+      padding: 0 !important;
+    }
+    .footer-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .footer-logo img {
+      height: 28px;
+    }
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .footer-link {
+      color: #302f2f;
+      text-decoration: none;
+      margin-right: 1rem;
+      transition: color 0.2s;
+      font-size: 1rem;
+    }
+    .footer-link:hover {
+      color: #2c2c2c;
+      text-decoration: underline;
+    }
+    .footer-social {
+      display: inline-block;
+      margin-left: 0.5rem;
+      margin-right: 0.5rem;
+      vertical-align: middle;
+      transition: opacity 0.2s;
+    }
+    .footer-social:hover svg {
+      fill: #2e2d2d !important;
+    }
+    @media (max-width: 900px) {
+      .main-content { padding: 1rem 0.5rem 0 0.5rem; }
+      .sidebar { width: 60px; }
+      .dashboard-wrapper { margin-left: 60px; }
+      .footer { margin-left: 0; }
+      .recommendation-row { gap: 0.5rem; }
+    }
+    @media (max-width: 600px) {
+      .dashboard-wrapper, .main-content, .footer { margin-left: 0; padding: 0.5rem; }
+      .dashboard-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+      .recommendation-row { flex-direction: column; }
+      .footer-content { flex-direction: column; gap: 0.5rem; }
+      .footer-links { gap: 0.7rem; }
+      #notification-list {min-width: 220px;}
+    }
+  </style>
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="index.html">Empower Refugees</a>
-    <div class="ms-auto">
-      <a href="dashboard.html" class="btn btn-outline-primary me-2">Dashboard</a>
-      <a href="logout.html" class="btn btn-danger">Logout</a>
-    </div>
-  </nav>
-  <div class="container mt-4">
-    <h2>Welcome, <span id="user-name"></span>!</h2>
-    <p>Your personalized recommendations:</p>
-    <ul id="recommendations"></ul>
-    <div class="row mt-4">
-      <div class="col-md-4 mb-3">
-        <a href="career-test.html" class="btn btn-info w-100">Take Career Test</a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="courses.html" class="btn btn-success w-100">Explore Courses</a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="mentorship.html" class="btn btn-warning w-100">Find a Mentor</a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="opportunities.html" class="btn btn-primary w-100">View Opportunities</a>
-      </div>
-      <div class="col-md-4 mb-3">
-        <a href="toolkit.html" class="btn btn-secondary w-100">Startup Toolkit</a>
-      </div>
-  </div>
-  <script src="js/main.js"></script>
-
-  <!-- Footer Start -->
-<footer class="footer mt-auto">
-  <div class="container-fluid py-5" style="background:#333;">
-    <div class="row text-light">
-      <div class="col-md-3 mb-4 mb-md-0">
-        <div class="d-flex align-items-center mb-2">
-          <img src="images/logo.png" alt="EmpowerPath Logo" style="height:36px; margin-right:10px;">
-          <span style="font-size:1.5rem; font-weight:700;">EmpowerPath</span>
-        </div>
-        <div style="color:#ccc; font-size:1rem;">
-          Bridging the opportunity gap through education, mentorship, and resources.
-        </div>
-      </div>
-      <div class="col-md-3 mb-4 mb-md-0">
-        <div style="font-weight:700; font-size:1.2rem;">Platform</div>
-        <ul class="list-unstyled mt-2" style="color:#ccc;">
-          <li><a href="#" class="footer-link">Learning Paths</a></li>
-          <li><a href="#" class="footer-link">Mentorship</a></li>
-          <li><a href="#" class="footer-link">Opportunities</a></li>
-          <li><a href="#" class="footer-link">Resources</a></li>
-        </ul>
-      </div>
-      <div class="col-md-3 mb-4 mb-md-0">
-        <div style="font-weight:700; font-size:1.2rem;">Support</div>
-        <ul class="list-unstyled mt-2" style="color:#ccc;">
-          <li><a href="#" class="footer-link">Help Center</a></li>
-          <li><a href="#" class="footer-link">Contact Us</a></li>
-          <li><a href="#" class="footer-link">Community</a></li>
-          <li><a href="#" class="footer-link">FAQs</a></li>
-        </ul>
-      </div>
-      <div class="col-md-3">
-        <div style="font-weight:700; font-size:1.2rem;">Legal</div>
-        <ul class="list-unstyled mt-2" style="color:#ccc;">
-          <li><a href="#" class="footer-link">Privacy Policy</a></li>
-          <li><a href="#" class="footer-link">Terms of Service</a></li>
-          <li><a href="#" class="footer-link">Cookie Policy</a></li>
-          <li><a href="#" class="footer-link">About Us</a></li>
-        </ul>
-      </div>
-    </div>
-    <hr style="border-color:#444; margin:2rem 0 1rem 0;">
-    <div class="row align-items-center">
-      <div class="col-md-6 text-light" style="font-size:1rem;">
-        © 2024 EmpowerPath. All rights reserved.
-      </div>
-      <div class="col-md-6 text-end">
-        <a href="#" class="footer-social me-3" title="Facebook">
-          <svg width="28" height="28" fill="#bbb" viewBox="0 0 24 24"><path d="M22.675 0h-21.35c-.733 0-1.325.592-1.325 1.326v21.348c0 .733.592 1.326 1.325 1.326h11.495v-9.294h-3.125v-3.622h3.125v-2.672c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.797.143v3.24l-1.918.001c-1.504 0-1.797.715-1.797 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.326v-21.349c0-.734-.593-1.326-1.324-1.326z"/></svg>
-        </a>
-        <a href="#" class="footer-social" title="Website">
-          <svg width="28" height="28" fill="#bbb" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 5.523 4.477 10 10 10s10-4.477 10-10c0-5.523-4.477-10-10-10zm0 18c-1.85 0-3.555-.63-4.9-1.69.03-.04.06-.08.09-.12.37-.48.73-.97 1.08-1.47.16-.23.31-.47.46-.7.13-.2.25-.41.37-.62.09-.16.18-.32.27-.48.08-.15.16-.3.23-.45.07-.15.13-.3.19-.45.06-.15.12-.3.17-.45.05-.15.09-.3.13-.45.04-.15.07-.3.1-.45.03-.15.05-.3.07-.45.02-.15.03-.3.04-.45.01-.15.02-.3.02-.45 0-.15-.01-.3-.02-.45-.01-.15-.02-.3-.04-.45-.02-.15-.04-.3-.07-.45-.03-.15-.06-.3-.1-.45-.04-.15-.08-.3-.13-.45-.05-.15-.11-.3-.17-.45-.06-.15-.12-.3-.19-.45-.07-.15-.15-.3-.23-.45-.09-.16-.18-.32-.27-.48-.12-.21-.24-.42-.37-.62-.15-.23-.3-.47-.46-.7-.35-.5-.71-.99-1.08-1.47-.03-.04-.06-.08-.09-.12C8.445 4.63 10.15 4 12 4s3.555.63 4.9 1.69c-.03.04-.06.08-.09.12-.37.48-.73.97-1.08 1.47-.16.23-.31.47-.46.7-.13.2-.25.41-.37.62-.09.16-.18.32-.27.48-.08.15-.16.3-.23.45-.07.15-.13.3-.19.45-.06.15-.12.3-.17.45-.05.15-.09.3-.13.45-.04.15-.07.3-.1.45-.03.15-.05.3-.07.45-.02.15-.03.3-.04.45-.01.15-.02.3-.02.45 0 .15.01.3.02.45.01.15.02.3.04.45.02.15.04.3.07.45.03.15.06.3.1.45.04.15.08.3.13.45.05.15.11.3.17.45.06.15.12.3.19.45.07.15.15.3.23.45.09.16.18.32.27.48.12.21.24.42.37.62.15.23.3.47.46.7.35.5.71.99 1.08 1.47.03.04.06.08.09.12C15.555 19.37 13.85 20 12 20z"/></svg>
-        </a>
-      </div>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <img src="images/logo.png" alt="Logo" class="logo">
+    <img src="images/profile.jpg" alt="Account" class="profile-img">
+    <a href="dashboard.html" class="nav-link active" title="Dashboard">
+      <span class="material-icons">dashboard</span>
+      <span style="font-size:0.85rem;">Dashboard</span>
+    </a>
+    <a href="career-test.html" class="nav-link" title="Career Test">
+      <span class="material-icons">psychology</span>
+      <span style="font-size:0.85rem;">Career Test</span>
+    </a>
+    <a href="courses.html" class="nav-link" title="Courses">
+      <span class="material-icons">menu_book</span>
+      <span style="font-size:0.85rem;">Courses</span>
+    </a>
+    <a href="mentorship.html" class="nav-link" title="Mentorship">
+      <span class="material-icons">group</span>
+      <span style="font-size:0.85rem;">Mentorship</span>
+    </a>
+    <a href="opportunities.html" class="nav-link" title="Opportunities">
+      <span class="material-icons">work</span>
+      <span style="font-size:0.85rem;">Opportunities</span>
+    </a>
+    <a href="toolkit.html" class="nav-link" title="Startup Toolkit">
+      <span class="material-icons">build</span>
+      <span style="font-size:0.85rem;">Toolkit</span>
+    </a>
+    <div class="sidebar-bottom">
+      <a href="notifications.html" class="nav-link" title="Notifications">
+        <span class="material-icons">notifications</span>
+        <span style="font-size:0.85rem;">Notify</span>
+        <span class="badge">3</span>
+      </a>
+      <a href="settings.html" class="nav-link" title="App Settings">
+        <span class="material-icons">settings</span>
+        <span style="font-size:0.85rem;">Settings</span>
+      </a>
+      <a href="logout.html" class="nav-link" title="Logout">
+        <span class="material-icons">logout</span>
+        <span style="font-size:0.85rem;">Logout</span>
+      </a>
     </div>
   </div>
-</footer>
-<!-- Footer End -->
-
-<!-- Footer CSS -->
-<style>
-.footer-link {
-  color: #ccc;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-.footer-link:hover {
-  color: #fff;
-  text-decoration: underline;
-}
-.footer-social {
-  display: inline-block;
-  margin-left: 0.5rem;
-  margin-right: 0.5rem;
-  vertical-align: middle;
-  transition: opacity 0.2s;
-}
-.footer-social:hover svg {
-  fill: #fff !important;
-}
-@media (max-width: 900px) {
-  .footer .row > div { margin-bottom: 2rem; }
-}
-</style>
+  <!-- Main Content Wrapper (for scrolling and sticky footer) -->
+  <div class="dashboard-wrapper">
+    <div class="main-content">
+      <div class="dashboard-header">
+      <h2>Dashboard</h2>
+        <div class="dashboard-header d-flex justify-content-between align-items-center">
+    <div id="notification-bell" style="position:relative; cursor:pointer;">
+      <span class="material-icons" style="font-size:2rem;">notifications</span>
+      <span id="notification-count" class="badge bg-danger" style="position:absolute; top:0; right:0; font-size:0.8rem;">0</span>
+    </div>
+    <div id="notification-list" class="card shadow" style="display:none; position:absolute; right:0; top:2.5rem; min-width:250px; z-index:999;">
+      <ul class="list-group list-group-flush" id="notification-items"></ul>
+    </div>
+    <a href="logout.html" class="btn btn-danger ms-3">Logout</a>
+  </div>
+  <div class="user-greeting">
+        Welcome, <span id="user-name">User</span>!
+    </div>
+      <div class="recommendations-label">
+        Your personalized recommendations:
+      </div>
+      <div class="dashboard-header d-flex justify-content-between align-items-center">
+</div>
+      </div>
+      <!-- You can add more dashboard content here -->
+    </div>
+    <!-- Footer Start -->
+    <footer class="footer mt-auto">
+      <div class="container-fluid">
+        <div class="footer-content">
+          <div class="footer-logo">
+            <img src="images/logo.png" alt="EmpowerPath Logo">
+            <span style="font-size:1.1rem; font-weight:600; color:#fff;">EmpowerPath</span>
+          </div>
+          <div class="footer-links">
+            <a href="courses.html" class="footer-link">Learning Paths</a>
+            <a href="mentorship.html" class="footer-link">Mentorship</a>
+            <a href="opportunities.html" class="footer-link">Opportunities</a>
+            <a href="toolkit.html" class="footer-link">Resources</a>
+            <a href="#" class="footer-link">Help</a>
+            <a href="#" class="footer-link">Privacy</a>
+          </div>
+          <div>
+            <a href="#" class="footer-social" title="Facebook">
+              <svg width="22" height="22" fill="#bbb" viewBox="0 0 24 24"><path d="M22.675 0h-21.35c-.733 0-1.325.592-1.325 1.326v21.348c0 .733.592 1.326 1.325 1.326h11.495v-9.294h-3.125v-3.622h3.125v-2.672c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.797.143v3.24l-1.918.001c-1.504 0-1.797.715-1.797 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.326v-21.349c0-.734-.593-1.326-1.324-1.326z"/></svg>
+            </a>
+            <a href="#" class="footer-social" title="Website">
+              <svg width="22" height="22" fill="#bbb" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 5.523 4.477 10 10 10s10-4.477 10-10c0-5.523-4.477-10-10-10zm0 18c-1.85 0-3.555-.63-4.9-1.69.03-.04.06-.08.09-.12.37-.48.73-.97 1.08-1.47.16-.23.31-.47.46-.7.13-.2.25-.41.37-.62.09-.16-.18-.32-.27-.48-.08-.15-.16-.3-.23-.45-.07-.15-.13-.3-.19-.45-.06-.15-.12-.3-.17-.45-.05-.15-.09-.3-.13-.45-.04-.15-.07-.3-.1-.45-.03-.15-.05-.3-.07-.45-.02-.15-.03-.3-.04-.45-.01-.15-.02-.3-.02-.45 0-.15.01-.3.02-.45.01-.15.02-.3.04-.45.02-.15.04-.3.07-.45.03-.15.06-.3.1-.45.04-.15.08-.3.13-.45.05-.15.11-.3.17-.45.06-.15.12-.3.19-.45.07-.15.15-.3.23-.45.09-.16.18-.32.27-.48.12-.21.24-.42.37-.62.15-.23.3-.47.46-.7.35-.5.71-.99 1.08-1.47.03-.04.06-.08.09-.12C15.555 19.37 13.85 20 12 20z"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="text-center mt-2" style="font-size:0.95rem; color:#bbb;">
+          © 2024 EmpowerPath. All rights reserved.
+        </div>
+      </div>
+    </footer>
+    <!-- Footer End -->
+  </div>
+  <script>
+    // Example: Set user name dynamically if you have it in localStorage
+    document.addEventListener('DOMContentLoaded', function() {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user && user.name) {
+        document.getElementById('user-name').textContent = user.name;
+      }
+    });
+  </script>
 </body>
 </html>
+
+
+//Course List
+
+// Example: Courses
+const courses = [
+  {
+    title: "Introduction to Coding",
+    description: "Learn programming fundamentals with Python and JavaScript",
+    image: "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=600&q=80",
+    progress: 75
+  },
+  {
+    title: "Green Tech Basics",
+    description: "Sustainable technology and environmental solutions",
+    image: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=600&q=80",
+    progress: 40
+  },
+  {
+    title: "Entrepreneurship 101",
+    description: "Start your own business with proven strategies",
+    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80",
+    progress: 20
+  },
+  {
+    title: "Digital Marketing",
+    description: "Master online marketing and social media strategies",
+    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80",
+    progress: 60
+  }
+];
+
+function renderCourses() {
+  const courseList = document.getElementById('course-list');
+  courseList.innerHTML = '';
+  courses.forEach(course => {
+    courseList.innerHTML += `
+      <div class="col-md-3 mb-4">
+        <div class="card h-100 shadow-sm">
+          <img src="${course.image}" class="card-img-top" alt="${course.title}">
+          <div class="card-body">
+            <h5 class="card-title">${course.title}</h5>
+            <p class="card-text">${course.description}</p>
+            <div class="progress mb-2" style="height: 6px;">
+              <div class="progress-bar bg-info" role="progressbar" style="width: ${course.progress}%"></div>
+            </div>
+            <small class="text-muted">${course.progress}% Complete</small>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+document.addEventListener('DOMContentLoaded', renderCourses);
+
+// Example: Fetch and render courses
+async function loadCourses() {
+  const res = await fetch('/api/courses');
+  const courses = await res.json();
+  const courseList = document.getElementById('course-list');
+  courseList.innerHTML = '';
+  courses.forEach(course => {
+    const col = document.createElement('div');
+    col.className = 'col-md-4 mb-4';
+    col.innerHTML = `
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title">${course.title}</h5>
+          <p class="card-text">${course.description || ''}</p>
+          <button class="btn btn-primary enroll-btn" data-id="${course.id}">Enroll</button>
+        </div>
+      </div>
+    `;
+    courseList.appendChild(col);
+  });
+
+  // Add event listeners for enroll buttons
+  document.querySelectorAll('.enroll-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      enrollInCourse(this.getAttribute('data-id'));
+    });
+  });
+}
+
+// Example enroll handler
+function enrollInCourse(courseId) {
+  // You can POST to your backend or store locally for offline
+  alert('Enrolled in course ID: ' + courseId);
+  // Optionally, save to IndexedDB/localStorage for offline support
+}
+
+// Call loadCourses on page load
+document.addEventListener('DOMContentLoaded', loadCourses);
+
+// Example: Mentorship
+const mentors = [
+  {
+    name: "Sarah Johnson",
+    title: "Tech Entrepreneur, 15+ years experience",
+    tags: ["Coding", "Startup"],
+    color: "green",
+    btnClass: "btn-green"
+  },
+  {
+    name: "Michael Chen",
+    title: "Green Tech Specialist, Environmental Engineer",
+    tags: ["GreenTech", "Sustainability"],
+    color: "blue",
+    btnClass: "btn-blue"
+  },
+  {
+    name: "Emily Rodriguez",
+    title: "Marketing Director, Digital Strategy Expert",
+    tags: ["Marketing", "Strategy"],
+    color: "orange",
+    btnClass: "btn-orange"
+  },
+  {
+    name: "David Kim",
+    title: "Financial Advisor, Investment Specialist",
+    tags: ["Finance", "Investment"],
+    color: "purple",
+    btnClass: "btn-purple"
+  }
+];
+
+const colorMap = {
+  green: "#388e3c",
+  blue: "#1976d2",
+  orange: "#ffa000",
+  purple: "#8e24aa"
+};
+
+function renderMentors() {
+  const mentorList = document.getElementById('mentor-list');
+  mentorList.innerHTML = '';
+  mentors.forEach(mentor => {
+    mentorList.innerHTML += `
+      <div class="col-md-3">
+        <div class="mentor-card">
+          <div class="mentor-avatar" style="background:${colorMap[mentor.color]}">
+            <span class="material-icons" style="font-size:3.5rem;">person</span>
+          </div>
+          <div class="mentor-name">${mentor.name}</div>
+          <div class="mentor-title">${mentor.title}</div>
+          <div class="mentor-tags">
+            ${mentor.tags.map(tag => `<span class="mentor-tag">${tag}</span>`).join('')}
+          </div>
+          <button class="btn btn-book ${mentor.btnClass}">BOOK SESSION</button>
+        </div>
+      </div>
+    `;
+  });
+}
+
+// Use Google Material Icons
+const iconLink = document.createElement('link');
+iconLink.rel = "stylesheet";
+iconLink.href = "https://fonts.googleapis.com/icon?family=Material+Icons";
+document.head.appendChild(iconLink);
+
+document.addEventListener('DOMContentLoaded', renderMentors);
+
+// Example: Courses
+const courses = [
+  {
+    title: "Introduction to Coding",
+    description: "Learn programming fundamentals with Python and JavaScript",
+    image: "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=600&q=80",
+    progress: 0
+  },
+  {
+    title: "Green Tech Basics",
+    description: "Sustainable technology and environmental solutions",
+    image: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=600&q=80",
+    progress: 0
+  },
+  {
+    title: "Entrepreneurship 101",
+    description: "Start your own business with proven strategies",
+    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80",
+    progress: 0
+  },
+  {
+    title: "Digital Marketing",
+    description: "Master online marketing and social media strategies",
+    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80",
+    progress: 0
+  }
+];
+
+function renderCourses() {
+  const courseList = document.getElementById('course-list');
+  courseList.innerHTML = '';
+  courses.forEach(course => {
+    courseList.innerHTML += `
+      <div class="col-md-3 mb-4">
+        <div class="card h-100 shadow-sm">
+          <img src="${course.image}" class="card-img-top" alt="${course.title}">
+          <div class="card-body">
+            <h5 class="card-title">${course.title}</h5>
+            <p class="card-text">${course.description}</p>
+            <div class="progress mb-2" style="height: 6px;">
+              <div class="progress-bar bg-info" role="progressbar" style="width: ${course.progress}%"></div>
+            </div>
+            <small class="text-muted">${course.progress}% Complete</small>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+  // Attach enroll button listeners
+  document.querySelectorAll('.enroll-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const idx = this.getAttribute('data-idx');
+      enrollInCourse(idx);
+    });
+  });
+
+
+// Save enrollment for offline sync
+function saveEnrollmentOffline(course) {
+  let enrollments = JSON.parse(localStorage.getItem('enrollments') || '[]');
+  // Avoid duplicate enrollments
+  if (!enrollments.find(e => e.title === course.title)) {
+    enrollments.push({ title: course.title, time: new Date().toISOString(), synced: false });
+    localStorage.setItem('enrollments', JSON.stringify(enrollments));
+  }
+}
+
+// Show notification in dashboard
+function addNotification(message) {
+  let notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+  notifications.unshift({ message, time: new Date().toLocaleTimeString() });
+  localStorage.setItem('notifications', JSON.stringify(notifications));
+  updateNotifications();
+}
+
+// Update notification UI (call this after adding notification)
+function updateNotifications() {
+  const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+  const count = notifications.length;
+  const countElem = document.getElementById('notification-count');
+  if (countElem) countElem.textContent = count;
+  const itemsElem = document.getElementById('notification-items');
+  if (itemsElem) {
+    itemsElem.innerHTML = notifications.map(n =>
+      `<li class="list-group-item">${n.message}<br><small class="text-muted">${n.time}</small></li>`
+    ).join('') || '<li class="list-group-item text-muted">No notifications</li>';
+  }
+}
+
+// Enrollment handler
+function enrollInCourse(idx) {
+  const course = courses[idx];
+  saveEnrollmentOffline(course);
+  addNotification(`You enrolled in ${course.title}.`);
+  alert(`Enrolled in course: ${course.title}`);
+  // Optionally: trigger sync if online
+  if (navigator.onLine) syncEnrollments();
+}
+
+// Sync enrollments with backend when online
+function syncEnrollments() {
+  let enrollments = JSON.parse(localStorage.getItem('enrollments') || '[]');
+  if (enrollments.length === 0) return;
+  fetch(`${api}/enrollments/sync-enrollments`, { // <-- Correct endpoint
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ enrollments })
+  }).then(res => {
+    if (res.ok) {
+      // Mark all as synced
+      enrollments.forEach(e => e.synced = true);
+      localStorage.setItem('enrollments', JSON.stringify(enrollments));
+      addNotification('Your enrollments have been synced.');
+    }
+  }).catch(() => {
+    // If offline or error, keep for next sync
+  });
+}
+
+// Auto-sync when back online
+window.addEventListener('online', syncEnrollments);
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderCourses();
+  updateNotifications();
+});
