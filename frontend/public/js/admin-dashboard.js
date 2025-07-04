@@ -190,5 +190,48 @@ async function deleteOpportunity(id) {
 
 document.addEventListener('DOMContentLoaded', loadOpportunities);
 
+async function loadPendingOpportunities() {
+  const res = await fetch('/api/admin/opportunities/pending', {
+    headers: { Authorization: 'Bearer ' + localStorage.getItem('adminToken') }
+  });
+  const opps = await res.json();
+  const list = document.getElementById('pending-opps-list');
+  list.innerHTML = opps.map(o => `
+    <div class="card mb-2">
+      <div class="card-body">
+        <span class="badge bg-secondary">${o.type}</span>
+        <h5>${o.title}</h5>
+        <p>${o.description}</p>
+        <p>Mentor: ${o.mentor?.name || ''}</p>
+        <button class="btn btn-success btn-sm" onclick="approveOpp('${o._id}')">Approve</button>
+        <button class="btn btn-danger btn-sm" onclick="rejectOpp('${o._id}')">Reject</button>
+        <button class="btn btn-outline-danger btn-sm" onclick="deleteOpp('${o._id}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+window.approveOpp = async function(id) {
+  await fetch(`/api/admin/opportunities/${id}/approve`, {
+    method: 'PUT',
+    headers: { Authorization: 'Bearer ' + localStorage.getItem('adminToken') }
+  });
+  loadPendingOpportunities();
+};
+window.rejectOpp = async function(id) {
+  await fetch(`/api/admin/opportunities/${id}/reject`, {
+    method: 'PUT',
+    headers: { Authorization: 'Bearer ' + localStorage.getItem('adminToken') }
+  });
+  loadPendingOpportunities();
+};
+window.deleteOpp = async function(id) {
+  await fetch(`/api/admin/opportunities/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: 'Bearer ' + localStorage.getItem('adminToken') }
+  });
+  loadPendingOpportunities();
+};
+document.addEventListener('DOMContentLoaded', loadPendingOpportunities);
+
 // At the end of /js/admin-dashboard.js
 showSection('dashboard');

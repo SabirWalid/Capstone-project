@@ -62,4 +62,33 @@ router.delete('/:id', adminAuth, async (req, res) => {
   }
 });
 
+// Get all pending opportunities
+router.get('/pending', adminAuth, async (req, res) => {
+  const pending = await Opportunity.find({ status: 'pending' }).populate('mentor');
+  res.json(pending);
+});
+
+// Approve opportunity
+router.put('/:id/approve', adminAuth, async (req, res) => {
+  const opp = await Opportunity.findByIdAndUpdate(req.params.id, { status: 'approved' }, { new: true });
+  res.json(opp);
+});
+
+// Reject opportunity
+router.put('/:id/reject', adminAuth, async (req, res) => {
+  const opp = await Opportunity.findByIdAndUpdate(req.params.id, { status: 'rejected' }, { new: true });
+  res.json(opp);
+});
+// Delete opportunity
+router.delete('/:id', adminAuth, async (req, res) => {
+  await Opportunity.findByIdAndDelete(req.params.id);
+  res.json({ success: true });
+});
+
+// Get all approved opportunities (for user site)
+router.get('/', async (req, res) => {
+  const approved = await Opportunity.find({ status: 'approved' });
+  res.json(approved);
+});
+
 module.exports = router;

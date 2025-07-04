@@ -380,6 +380,12 @@ async function loadProgress() {
   return await tx.store.getAll();
 }
 
+async function loadOpportunities() {
+  const res = await fetch('/api/admin/opportunities');
+  const opps = await res.json();
+  // ...render as before...
+}
+
 // Sync progress with backend
 async function syncProgress(userId) {
   if (!navigator.onLine) return;

@@ -6,6 +6,9 @@ const OpportunitySchema = new mongoose.Schema({
   category: String,
   deadline: String,
   link: String,
+  type: { type: String, enum: ['Scholarship', 'Job', 'Funding'], required: true },
+  status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+  mentor: { type: mongoose.Schema.Types.ObjectId, ref: 'Mentor' },
   createdAt: { type: Date, default: Date.now }
 });
 

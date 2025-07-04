@@ -24,6 +24,7 @@ const adminSettingsRoutes = require('./routes/adminSettings'); // Import admin s
 const adminMentorsRoutes = require('./routes/adminMentors'); // Import admin mentors route
 const path = require('path'); // Import path module for serving static files
 const coursesRoutes = require('./routes/courses'); // Import courses route
+const mentorAuthRoutes = require('./routes/mentorAuth'); // Import mentor authentication route
 
 
 const app = express();
@@ -59,7 +60,7 @@ app.use('/api/admin/opportunities', adminOpportunitiesRoutes); // Use admin oppo
 app.use('/api/admin/settings', adminSettingsRoutes); // Use admin settings route
 app.use('/api/admin/mentors', adminMentorsRoutes); // Use admin mentors route
 app.use('/api/courses', coursesRoutes); // Use courses route
-
+app.use('/api/mentor/auth', mentorAuthRoutes); // Use mentor authentication route
 
 
 const port = process.env.PORT || 5000;
