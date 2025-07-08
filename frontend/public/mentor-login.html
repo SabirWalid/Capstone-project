@@ -76,7 +76,7 @@
     document.getElementById('mentor-register-form').onsubmit = async function(e) {
       e.preventDefault();
       document.getElementById('register-alert').classList.add('d-none');
-      const res = await fetch('/api/mentor/auth/register', {
+      const res = await fetch('http://localhost:5000/api/mentor/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -97,25 +97,42 @@
 
     // Mentor Login
     document.getElementById('mentor-login-form').onsubmit = async function(e) {
-      e.preventDefault();
-      document.getElementById('login-alert').classList.add('d-none');
-      const res = await fetch('/api/mentor/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: document.getElementById('mentor-login-email').value,
-          password: document.getElementById('mentor-login-password').value
-        })
-      });
-      const data = await res.json();
-      if (res.ok && data.token) {
-        localStorage.setItem('mentorToken', data.token);
-        window.location.href = 'mentor-dashboard.html';
-      } else {
-        document.getElementById('login-alert').textContent = data.message || 'Login failed';
-        document.getElementById('login-alert').classList.remove('d-none');
-      }
-    };
+  e.preventDefault();
+  const alert = document.getElementById('login-alert');
+  alert.classList.add('d-none');
+
+  try {
+    const res = await fetch('http://localhost:5000/api/mentor/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: document.getElementById('mentor-login-email').value,
+        password: document.getElementById('mentor-login-password').value
+      })
+    });
+
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      data = {};
+    }
+
+    if (res.ok && data.token) {
+      localStorage.setItem('mentorToken', data.token);
+      window.location.href = 'mentor-dashboard.html';
+    } else {
+      alert.textContent = data.message || `Login failed (${res.status})`;
+      alert.classList.remove('d-none');
+    }
+  } catch (err) {
+    console.error('Network error:', err);
+    alert.textContent = 'Network error. Please try again.';
+    alert.classList.remove('d-none');
+  }
+};
+
+
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

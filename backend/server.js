@@ -6,7 +6,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const careerRoutes = require('./routes/career');
 const moduleRoutes = require('./routes/modules');
-const toolkitRoutes = require('./routes/toolkit');
+const resourcesRoutes = require('./routes/resources');
 const mentorshipRoutes = require('./routes/mentorship');
 const opportunitiesRoutes = require('./routes/opportunities');
 const adminRoutes = require('./routes/admin');
@@ -43,9 +43,13 @@ mongoose.connect(uri)
 app.use('/api/auth', authRoutes);
 app.use('/api/career', careerRoutes);
 app.use('/api/modules', moduleRoutes);
-app.use('/api/toolkit', toolkitRoutes);
+app.use('/api/resources', resourcesRoutes);
 app.use('/api/mentorship', mentorshipRoutes);
 app.use('/api/opportunities', opportunitiesRoutes);
+app.use('/api/admin/courses', adminCoursesRoutes); // Use admin courses route
+app.use('/api/admin/opportunities', adminOpportunitiesRoutes); // Use admin opportunities route
+app.use('/api/admin/settings', adminSettingsRoutes); // Use admin settings route
+app.use('/api/admin/mentors', adminMentorsRoutes); // Use admin mentors route
 app.use('/api/admin', adminRoutes);
 app.use('/api/notification', notificationRoutes);
 app.use('/api/progress', progressRoutes);
@@ -55,12 +59,8 @@ app.use('/api/account', accountRoutes); // Use account route
 app.use('/uploads', express.static('uploads')); // Serve uploaded files
 app.use('/api/chatbot', chatbotRoutes); // Use chatbot route
 app.use('/api/admin', adminAuthRoutes); // Use admin authentication route
-app.use('/api/admin/courses', adminCoursesRoutes); // Use admin courses route
-app.use('/api/admin/opportunities', adminOpportunitiesRoutes); // Use admin opportunities route
-app.use('/api/admin/settings', adminSettingsRoutes); // Use admin settings route
-app.use('/api/admin/mentors', adminMentorsRoutes); // Use admin mentors route
 app.use('/api/courses', coursesRoutes); // Use courses route
-app.use('/api/mentor/auth', mentorAuthRoutes); // Use mentor authentication route
+app.use('/api/mentor', mentorAuthRoutes); // Use mentor authentication route
 
 
 const port = process.env.PORT || 5000;

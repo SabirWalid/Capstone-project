@@ -65,12 +65,12 @@ const interestsList = [
   "Business", "Design", "Programming", "Marketing", "Data Science", 
   "AI", "Healthcare", "Education", "Finance", "Engineering", 
   "Social Impact", "Entrepreneurship", "Creative Arts", "Writing", 
-  "Research", "Public Speaking", "Project Management", "Cybersecurity", 
-  "Blockchain", "Sustainability", "Robotics", "Gaming", "Travel", "Photography", 
-  "Sports", "Law", "Politics", "Community Service", "Mental Health", 
-  "Environmental Science", "Fashion Design", 
+  "Research", "Data Analysis", "Project Management", "Cybersecurity", 
+  "Blockchain", "Sustainability", "Robotics", "Gaming", "IoT", "Cloud Computing", 
+  "Sports", "Law", "Information Technology", "Community Service", "Mental Health", 
+  "Software Development", "Fashion Design", 
   "Architecture", "Journalism", "Human Resources", "Sales", "Customer Service", 
-  "Event Planning", "Nonprofit Management", "Public Relations", 
+  "Freelancing", "Nonprofit Management", "Public Relations", 
   "Consulting", "Supply Chain Management", "Logistics", "Real Estate", 
   "Retail Management", "E-commerce"
 ];

@@ -25,21 +25,25 @@
     html, body {
       height: 100%;
       margin: 0;
-      padding: 10px;
+      padding: 0;
       background: #f7f7f7;
       font-family: 'Segoe UI', Arial, sans-serif;
     }
     body {
       min-height: 100vh;
       display: flex;
-      flex-direction: row;
+      flex-direction: column;
+    }
+    .layout-root {
+      display: flex;
+      min-height: 100vh;
     }
     .sidebar {
       background: #005c3a;
       color: #fff;
       min-height: 100vh;
       width: 75px;
-      position: absolute;
+      position: absolute; /* This is the problem */
       top: 0;
       left: 0;
       z-index: 100;
@@ -146,6 +150,19 @@
       border-radius: 10px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
+    .main-wrapper {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .container.mt-5.flex-grow-1 {
+      flex-grow: 1 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
     .footer {
       flex-shrink: 0;
       background: #faf5e0;
@@ -157,6 +174,7 @@
       width: 100%;
       position: fixed;
       bottom: 0;
+
     }
     .footer .container-fluid {
       padding: 0 !important;
@@ -218,79 +236,84 @@
   </style>
 </head>
 <body>
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <img src="images/logo.png" alt="Logo" class="logo">
-    <a href="account.html" class="nav-link" title="Account Settings">
-      <span class="material-icons">account_circle</span>
-      <span style="font-size:0.85rem;">Account</span>
-    </a>
-    <a href="dashboard.html" class="nav-link active" title="Dashboard">
-      <span class="material-icons">dashboard</span>
-      <span style="font-size:0.85rem;">Dashboard</span>
-    </a>
-    <a href="career-test.html" class="nav-link" title="Career Test">
-      <span class="material-icons">psychology</span>
-      <span style="font-size:0.85rem;">Career Test</span>
-    </a>
-    <a href="courses.html" class="nav-link" title="Courses">
-      <span class="material-icons">menu_book</span>
-      <span style="font-size:0.85rem;">Courses</span>
-    </a>
-    <a href="mentorship.html" class="nav-link" title="Mentorship">
-      <span class="material-icons">group</span>
-      <span style="font-size:0.85rem;">Mentorship</span>
-    </a>
-    <a href="opportunities.html" class="nav-link" title="Opportunities">
-      <span class="material-icons">work</span>
-      <span style="font-size:0.85rem;">Opportunities</span>
-    </a>
-    <a href="toolkit.html" class="nav-link" title="Startup Toolkit">
-      <span class="material-icons">build</span>
-      <span style="font-size:0.85rem;">Toolkit</span>
-    </a>
-    <div class="sidebar-bottom">
-      <a href="settings.html" class="nav-link" title="App Settings">
-        <span class="material-icons">settings</span>
-        <span style="font-size:0.85rem;">Settings</span>
+  <div class="layout-root">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <img src="images/logo.png" alt="Logo" class="logo">
+      <a href="account.html" class="nav-link" title="Account Settings">
+        <span class="material-icons">account_circle</span>
+        <span style="font-size:0.85rem;">Account</span>
       </a>
+      <a href="dashboard.html" class="nav-link active" title="Dashboard">
+        <span class="material-icons">dashboard</span>
+        <span style="font-size:0.85rem;">Dashboard</span>
+      </a>
+      <a href="career-test.html" class="nav-link" title="Career Test">
+        <span class="material-icons">psychology</span>
+        <span style="font-size:0.85rem;">Career Test</span>
+      </a>
+      <a href="courses.html" class="nav-link" title="Courses">
+        <span class="material-icons">menu_book</span>
+        <span style="font-size:0.85rem;">Courses</span>
+      </a>
+      <a href="mentorship.html" class="nav-link" title="Mentorship">
+        <span class="material-icons">group</span>
+        <span style="font-size:0.85rem;">Mentorship</span>
+      </a>
+      <a href="opportunities.html" class="nav-link" title="Opportunities">
+        <span class="material-icons">work</span>
+        <span style="font-size:0.85rem;">Opportunities</span>
+      </a>
+      <a href="toolkit.html" class="nav-link" title="Startup Toolkit">
+        <span class="material-icons">build</span>
+        <span style="font-size:0.85rem;">Toolkit</span>
+      </a>
+      <div class="sidebar-bottom">
+        <a href="settings.html" class="nav-link" title="App Settings">
+          <span class="material-icons">settings</span>
+          <span style="font-size:0.85rem;">Settings</span>
+        </a>
+      </div>
+    </div>
+    <!-- Main Content -->
+    <div class="main-wrapper">
+      <div class="container mt-5.flex-grow-1">
+        <h2>Available Courses</h2>
+        <div id="course-list" class="row"></div>
+      </div>
+      <!-- Footer Start -->
+      <footer class="footer mt-auto">
+        <div class="container-fluid">
+          <div class="footer-content">
+            <div class="footer-logo">
+              <img src="images/logo.png" alt="EmpowerPath Logo">
+              <span style="font-size:1.1rem; font-weight:600; color:#fff;">Refugee Techprenures</span>
+            </div>
+            <div class="footer-links">
+              <a href="courses.html" class="footer-link">Learning Paths</a>
+              <a href="mentorship.html" class="footer-link">Mentorship</a>
+              <a href="opportunities.html" class="footer-link">Opportunities</a>
+              <a href="toolkit.html" class="footer-link">Resources</a>
+              <a href="#" class="footer-link">Help</a>
+              <a href="#" class="footer-link">Privacy</a>
+            </div>
+            <div>
+              <a href="#" class="footer-social" title="Facebook">
+                <svg width="22" height="22" fill="#bbb" viewBox="0 0 24 24"><path d="M22.675 0h-21.35c-.733 0-1.325.592-1.325 1.326v21.348c0 .733.592 1.326 1.325 1.326h11.495v-9.294h-3.125v-3.622h3.125v-2.672c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.797.143v3.24l-1.918.001c-1.504 0-1.797.715-1.797 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.326v-21.349c0-.734-.593-1.326-1.324-1.326z"/></svg>
+              </a>
+              <a href="#" class="footer-social" title="Website">
+                <svg width="22" height="22" fill="#bbb" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 5.523 4.477 10 10 10s10-4.477 10-10c0-5.523-4.477-10-10-10zm0 18c-1.85 0-3.555-.63-4.9-1.69.03-.04.06-.08.09-.12.37-.48.73-.97 1.08-1.47.16-.23.31-.47.46-.7.13-.2.25-.41.37-.62.09-.16-.18-.32-.27-.48-.08-.15-.16-.3-.23-.45-.07-.15-.13-.3-.19-.45-.06-.15-.12-.3-.17-.45-.05-.15-.09-.3-.13-.45-.04-.15-.07-.3-.1-.45-.03-.15-.05-.3-.07-.45-.02-.15-.03-.3-.04-.45-.01-.15-.02-.3-.02-.45 0-.15.01-.3.02-.45.01-.15.02-.3.04-.45.02-.15.04-.3.07-.45.03-.15.06-.3.1-.45.04-.15.08-.3.13-.45.05-.15.11-.3.17-.45.06-.15.12-.3.19-.45.07-.15.15-.3.23-.45.09-.16.18-.32.27-.48.12-.21.24-.42.37-.62.15-.23.3-.47.46-.7.35-.5.71-.99 1.08-1.47.03-.04.06-.08.09-.12C15.555 19.37 13.85 20 12 20z"/></svg>
+              </a>
+            </div>
+          </div>
+          <div class="text-center mt-2" style="font-size:0.95rem; color:#bbb;">
+            © 2025 Refugee Techprenures. All rights reserved.
+          </div>
+        </div>
+      </footer>
     </div>
   </div>
-  <div class="container mt-5">
-    <h2>Available Courses</h2>
-    <div id="course-list" class="row"></div>
-  </div>
   <script src="js/main.js"></script>
-  <!-- Footer Start -->
-    <footer class="footer mt-auto">
-      <div class="container-fluid">
-        <div class="footer-content">
-          <div class="footer-logo">
-            <img src="images/logo.png" alt="EmpowerPath Logo">
-            <span style="font-size:1.1rem; font-weight:600; color:#fff;">Refugee Techprenures</span>
-          </div>
-          <div class="footer-links">
-            <a href="courses.html" class="footer-link">Learning Paths</a>
-            <a href="mentorship.html" class="footer-link">Mentorship</a>
-            <a href="opportunities.html" class="footer-link">Opportunities</a>
-            <a href="toolkit.html" class="footer-link">Resources</a>
-            <a href="#" class="footer-link">Help</a>
-            <a href="#" class="footer-link">Privacy</a>
-          </div>
-          <div>
-            <a href="#" class="footer-social" title="Facebook">
-              <svg width="22" height="22" fill="#bbb" viewBox="0 0 24 24"><path d="M22.675 0h-21.35c-.733 0-1.325.592-1.325 1.326v21.348c0 .733.592 1.326 1.325 1.326h11.495v-9.294h-3.125v-3.622h3.125v-2.672c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.797.143v3.24l-1.918.001c-1.504 0-1.797.715-1.797 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.326v-21.349c0-.734-.593-1.326-1.324-1.326z"/></svg>
-            </a>
-            <a href="#" class="footer-social" title="Website">
-              <svg width="22" height="22" fill="#bbb" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 5.523 4.477 10 10 10s10-4.477 10-10c0-5.523-4.477-10-10-10zm0 18c-1.85 0-3.555-.63-4.9-1.69.03-.04.06-.08.09-.12.37-.48.73-.97 1.08-1.47.16-.23.31-.47.46-.7.13-.2.25-.41.37-.62.09-.16-.18-.32-.27-.48-.08-.15-.16-.3-.23-.45-.07-.15-.13-.3-.19-.45-.06-.15-.12-.3-.17-.45-.05-.15-.09-.3-.13-.45-.04-.15-.07-.3-.1-.45-.03-.15-.05-.3-.07-.45-.02-.15-.03-.3-.04-.45-.01-.15-.02-.3-.02-.45 0-.15.01-.3.02-.45.01-.15.02-.3.04-.45.02-.15.04-.3.07-.45.03-.15.06-.3.1-.45.04-.15.08-.3.13-.45.05-.15.11-.3.17-.45.06-.15.12-.3.19-.45.07-.15.15-.3.23-.45.09-.16.18-.32.27-.48.12-.21.24-.42.37-.62.15-.23.3-.47.46-.7.35-.5.71-.99 1.08-1.47.03-.04.06-.08.09-.12C15.555 19.37 13.85 20 12 20z"/></svg>
-            </a>
-          </div>
-        </div>
-        <div class="text-center mt-2" style="font-size:0.95rem; color:#bbb;">
-          © 2025 Refugee Techprenures. All rights reserved.
-        </div>
-      </div>
-    </footer>
     <!-- Floating Chatbot Button -->
   <button id="open-chatbot" style="position:fixed;bottom:30px;right:30px;z-index:999;" class="btn btn-primary rounded-circle">
     <span class="material-icons">chat</span>

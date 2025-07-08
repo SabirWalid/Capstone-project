@@ -37,6 +37,12 @@
       margin-left: 0;
       margin-right: 10px;
     }
+    .layout-root {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      height: 100vh;
+    }
     .sidebar {
       background: #005c3a;
       color: #fff;
@@ -50,7 +56,7 @@
       flex-direction: column;
       align-items: center;
       padding-top: 1.5rem;
-      position: absolute;
+      position: fixed;
     }
     .sidebar .logo {
       width: 60px;
@@ -154,26 +160,47 @@
       border-radius: 10px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
+    .page-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .main-wrapper {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      min-height: 100vh;
+    }
+    .container.mt-5.flex-grow-1 {
+      flex: 1 0 auto;
+    }
     .footer {
       flex-shrink: 0;
+      width: 100%;
+      min-height: 20px;
       background: #faf5e0;
       color: #1d1c1c;
       font-size: 0.98rem;
       padding: 0.7rem 0;
       border-top: 1px solid #333;
       margin-left: 0;
-      width: 100%;
-      position: fixed;
-      bottom: 0;
     }
     .footer .container-fluid {
       padding: 0 !important;
+      max-width: 100% !important;
+      width: 100%;
+      
+      display: flex;
+      flex-direction: column;
+      
     }
     .footer-content {
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
+      padding: 1rem 2rem;
+      gap: 1rem;
     }
     .footer-logo {
       display: flex;
@@ -226,67 +253,70 @@
   </style>
 </head>
 <body>
+<div class="layout-root">
   <!-- Sidebar -->
-  <div class="sidebar">
-    <img src="images/logo.png" alt="Logo" class="logo">
-    <a href="account.html" class="nav-link" title="Account Settings">
-      <span class="material-icons">account_circle</span>
-      <span style="font-size:0.85rem;">Account</span>
-    </a>
-    <a href="dashboard.html" class="nav-link active" title="Dashboard">
-      <span class="material-icons">dashboard</span>
-      <span style="font-size:0.85rem;">Dashboard</span>
-    </a>
-    <a href="career-test.html" class="nav-link" title="Career Test">
-      <span class="material-icons">psychology</span>
-      <span style="font-size:0.85rem;">Career Test</span>
-    </a>
-    <a href="courses.html" class="nav-link" title="Courses">
-      <span class="material-icons">menu_book</span>
-      <span style="font-size:0.85rem;">Courses</span>
-    </a>
-    <a href="mentorship.html" class="nav-link" title="Mentorship">
-      <span class="material-icons">group</span>
-      <span style="font-size:0.85rem;">Mentorship</span>
-    </a>
-    <a href="opportunities.html" class="nav-link" title="Opportunities">
-      <span class="material-icons">work</span>
-      <span style="font-size:0.85rem;">Opportunities</span>
-    </a>
-    <a href="toolkit.html" class="nav-link" title="Startup Toolkit">
-      <span class="material-icons">build</span>
-      <span style="font-size:0.85rem;">Toolkit</span>
-    </a>
-    <div class="sidebar-bottom">
-      <a href="settings.html" class="nav-link" title="App Settings">
-        <span class="material-icons">settings</span>
-        <span style="font-size:0.85rem;">Settings</span>
+    <div class="sidebar">
+      <img src="images/logo.png" alt="Logo" class="logo">
+      <a href="account.html" class="nav-link" title="Account Settings">
+        <span class="material-icons">account_circle</span>
+        <span style="font-size:0.85rem;">Account</span>
       </a>
+      <a href="dashboard.html" class="nav-link active" title="Dashboard">
+        <span class="material-icons">dashboard</span>
+        <span style="font-size:0.85rem;">Dashboard</span>
+      </a>
+      <a href="career-test.html" class="nav-link" title="Career Test">
+        <span class="material-icons">psychology</span>
+        <span style="font-size:0.85rem;">Career Test</span>
+      </a>
+      <a href="courses.html" class="nav-link" title="Courses">
+        <span class="material-icons">menu_book</span>
+        <span style="font-size:0.85rem;">Courses</span>
+      </a>
+      <a href="mentorship.html" class="nav-link" title="Mentorship">
+        <span class="material-icons">group</span>
+        <span style="font-size:0.85rem;">Mentorship</span>
+      </a>
+      <a href="opportunities.html" class="nav-link" title="Opportunities">
+        <span class="material-icons">work</span>
+        <span style="font-size:0.85rem;">Opportunities</span>
+      </a>
+      <a href="resources.html" class="nav-link" title="Startup Toolkit">
+        <span class="material-icons">build</span>
+        <span style="font-size:0.85rem;">Resources</span>
+      </a>
+      <div class="sidebar-bottom">
+        <a href="settings.html" class="nav-link" title="App Settings">
+          <span class="material-icons">settings</span>
+          <span style="font-size:0.85rem;">Settings</span>
+        </a>
+      </div>
     </div>
-  </div>
-  <div class="container mt-5">
-    <h2>Career Path Test</h2>
-    <form id="career-test-form">
-      <div class="mb-3">
-        <label>What are your top skills?</label>
-        <input type="text" class="form-control" id="skills" placeholder="e.g. coding, teaching" required>
-      </div>
-      <div class="mb-3">
-        <label>Select your interests:</label>
-        <div id="interests-checkboxes" class="d-flex flex-wrap gap-2"></div>
-      </div>
-      <button type="submit" class="btn btn-primary">Get Suggestions</button>
-    </form>
-    <div id="career-suggestion" class="mt-4"></div>
-  </div>
-  <script src="js/main.js"></script>
-  <!-- Footer Start -->
+  <!-- Main Content -->
+  <div class="main-wrapper">
+    <div class="container mt-5 flex-grow-1">
+      <h2>Career Path Test</h2>
+      <form id="career-test-form">
+        <div class="mb-3">
+          <label>What are your top skills?</label>
+          <input type="text" class="form-control" id="skills" placeholder="e.g. coding, teaching" required>
+        </div>
+        <div class="mb-3">
+          <label>Select your interests:</label>
+          <div id="interests-checkboxes" class="d-flex flex-wrap gap-2"></div>
+        </div>
+        <button type="submit" class="btn btn-primary">Get Suggestions</button>
+      </form>
+      <div id="career-suggestion" class="mt-4"></div>
+    </div>
+    <script src="js/main.js"></script>
+    <!-- Footer Start -->
     <footer class="footer mt-auto">
       <div class="container-fluid">
         <div class="footer-content">
           <div class="footer-logo">
-            <img src="images/logo.png" alt="EmpowerPath Logo">
-            <span style="font-size:1.1rem; font-weight:600; color:#fff;">EmpowerPath</span>
+            <img src="images/logo.png" alt="Refugee Techpreneurs Logo">
+            <span style="font-size:1.1rem; font-weight:600; color:#fff;">Refugee Techpreneurs</span>
           </div>
           <div class="footer-links">
             <a href="courses.html" class="footer-link">Learning Paths</a>
@@ -310,6 +340,7 @@
         </div>
       </div>
     </footer>
+  </div>
     <!-- Floating Chatbot Button -->
   <button id="open-chatbot" style="position:fixed;bottom:30px;right:30px;z-index:999;" class="btn btn-primary rounded-circle">
     <span class="material-icons">chat</span>

@@ -12,7 +12,7 @@ router.use(cors());
 
 
 // Mentor Registration
-router.post('/register', async (req, res) => {
+router.post('/auth/register', async (req, res) => {
   const { name, email, password } = req.body;
   try {
     if (await Mentor.findOne({ email })) {
@@ -27,7 +27,7 @@ router.post('/register', async (req, res) => {
 });
 
 // Mentor Login
-router.post('/login', async (req, res) => {
+router.post('/auth/login', async (req, res) => {
   const { email, password } = req.body;
   try {
     const mentor = await Mentor.findOne({ email });
