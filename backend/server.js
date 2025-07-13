@@ -25,7 +25,7 @@ const adminMentorsRoutes = require('./routes/adminMentors'); // Import admin men
 const path = require('path'); // Import path module for serving static files
 const coursesRoutes = require('./routes/courses'); // Import courses route
 const mentorAuthRoutes = require('./routes/mentorAuth'); // Import mentor authentication route
-
+const mentorRoutes = require('./routes/mentor'); // Import mentor routes
 
 const app = express();
 app.use(cors());

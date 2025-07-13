@@ -4,6 +4,26 @@ const Mentor = require('../models/Mentor');
 const adminAuth = require('../middleware/adminAuth');
 
 
+// Create mentor
+router.post('/', adminAuth, async (req, res) => {
+  try {
+    const mentor = await Mentor.create(req.body);
+    res.json({ success: true, mentor });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Edit mentor
+router.put('/:id', adminAuth, async (req, res) => {
+  try {
+    const mentor = await Mentor.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json({ success: true, mentor });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 // Get all pending mentors
 router.get('/opportunities/pending', adminAuth, async (req, res) => {
   const mentors = await Mentor.find({ status: 'pending' });

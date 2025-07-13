@@ -128,79 +128,13 @@ document.addEventListener('DOMContentLoaded', () => {
   updateNotifications();
 });
 
-
-// Example: Mentorship
-const mentors = [
-  {
-    name: "Sabir Abdurahman",
-    title: "Tech Entrepreneur, Software Engineer",
-    tags: ["Coding", "Startup"],
-    color: "green",
-    btnClass: "btn-green",
-    bookingLink: "https://cal.com/sabirwalid/"
-  },
-  {
-    name: "Ochan LOKIDORMOI",
-    title: "Green Tech Specialist, Environmental Engineer",
-    tags: ["ML Engineer"],
-    color: "blue",
-    btnClass: "btn-blue",
-    bookingLink: "https://cal.com/ochan-lokidormoi/"
-  },
-  {
-    name: "Mohammed Y. Sharif",
-    title: "Marketing Director, Digital Strategy Expert",
-    tags: ["Marketing", "Strategy"],
-    color: "orange",
-    btnClass: "btn-orange",
-    bookingLink: "https://calendly.com/mohammed-sharif/mentorship"
-  },
-  {
-    name: "Brian M. Mouki",
-    title: "Financial Advisor, Investment Specialist",
-    tags: ["Finance", "Investment"],
-    color: "purple",
-    btnClass: "btn-purple",
-    bookingLink: "https://calendly.com/brian-mouki/mentorship"
-  }
-];
-
-const colorMap = {
-  green: "#388e3c",
-  blue: "#1976d2",
-  orange: "#ffa000",
-  purple: "#8e24aa"
-};
-
-function renderMentors() {
-  const mentorList = document.getElementById('mentor-list');
-  mentorList.innerHTML = '';
-  mentors.forEach((mentor, idx) => {
-    mentorList.innerHTML += `
-      <div class="col-md-3">
-        <div class="mentor-card">
-          <div class="mentor-avatar" style="background:${colorMap[mentor.color]}">
-            <span class="material-icons" style="font-size:3.5rem;">person</span>
-          </div>
-          <div class="mentor-name">${mentor.name}</div>
-          <div class="mentor-title">${mentor.title}</div>
-          <div class="mentor-tags">
-            ${mentor.tags.map(tag => `<span class="mentor-tag">${tag}</span>`).join('')}
-          </div>
-          <a href="${mentor.bookingLink}" target="_blank" class="btn btn-book ${mentor.btnClass} book-session-btn" data-idx="${idx}">BOOK SESSION</a>
-        </div>
-      </div>
-    `;
+// Attach booking listeners for notifications and offline sync
+document.querySelectorAll('.book-session-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const idx = this.getAttribute('data-idx');
+    bookMentorSession(idx);
   });
-
-  // Attach booking listeners for notifications and offline sync
-  document.querySelectorAll('.book-session-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const idx = this.getAttribute('data-idx');
-      bookMentorSession(idx);
-    });
-  });
-}
+});
 
 // Save mentorship booking for offline sync
 function saveMentorBookingOffline(mentor) {

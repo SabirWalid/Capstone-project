@@ -1,3 +1,25 @@
+const express = require('express');
+const router = express.Router();
+const Mentor = require('../models/Mentor');
+const mentorAuth = require('../middleware/mentorAuth');
+const adminAuth = require('../middleware/adminAuth');
+
+
+// Get all approved mentors (user view)
+router.get('/', async (req, res) => {
+  const mentors = await Mentor.find({ status: 'approved' });
+  res.json(mentors);
+});
+
+router.post('/', adminAuth, async (req, res) => {
+  try {
+    const mentor = await Mentor.create(req.body);
+    res.json({ success: true, mentor });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 // Mentor profile update (set status to pending)
 router.put('/profile', mentorAuth, async (req, res) => {
   // ...fields...
@@ -47,3 +69,5 @@ router.put('/resources/:id', mentorAuth, async (req, res) => {
   );
   res.json(resource);
 });
+
+module.exports = router;

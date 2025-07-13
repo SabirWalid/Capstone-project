@@ -179,16 +179,36 @@
   </div>
 </div>
 
-<!-- Mentors Section -->
+<!-- Mentor Management Section -->
 <div id="mentors-section" class="form-section" style="display:none;">
-  <h3>Pending Mentor Profiles</h3>
-  <div id="pending-mentors-list"></div>
-  <h3 class="mt-4">Pending Opportunities</h3>
-  <div id="pending-mentor-opps-list"></div>
-  <h3 class="mt-4">Pending Resources</h3>
-  <div id="pending-mentor-resources-list"></div>
+  <h3>Mentors</h3>
+  <button class="btn btn-success mb-2" onclick="showMentorForm()">+ Add Mentor</button>
+  <div id="mentors-list"></div>
 </div>
 
+<!-- Mentor Modal -->
+<div class="modal fade" id="mentorModal" tabindex="-1" aria-labelledby="mentorModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="mentor-form">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="mentorModalLabel">Add Mentor</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="text" id="mentor-name" class="form-control mb-2" placeholder="Name" required>
+          <input type="text" id="mentor-title" class="form-control mb-2" placeholder="Title">
+          <input type="text" id="mentor-avatar" class="form-control mb-2" placeholder="Avatar URL">
+          <textarea id="mentor-bio" class="form-control mb-2" placeholder="Bio"></textarea>
+          <input type="text" id="mentor-tags" class="form-control mb-2" placeholder="Tags (comma separated)">
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Save Mentor</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
         <!-- Settings Section -->
         <div id="settings-section" class="form-section" style="display:none;">
           <h3>Platform Settings</h3>
@@ -360,7 +380,7 @@ document.getElementById('opportunity-form').onsubmit = async function(e) {
     return;
   }
 
-  alert("Opportunity saved successfully!");
+  
   bootstrap.Modal.getInstance(document.getElementById('opportunityModal')).hide();
   if (typeof loadOpportunities === 'function') loadOpportunities();
 };
@@ -554,6 +574,99 @@ document.addEventListener('DOMContentLoaded', () => {
   loadPendingMentorOpportunities();
   loadPendingMentorResources();
 });
+
+// --- Mentors ---
+
+let editingMentorId = null;
+
+async function loadMentors() {
+  const res = await fetch('http://localhost:5000/api/admin/mentors', {
+    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('adminToken') }
+  });
+  const mentors = await res.json();
+  document.getElementById('mentors-list').innerHTML = mentors.map(m => `
+    <div class="card mb-2">
+      <div class="card-body">
+        <strong>${m.name}</strong> <span class="text-muted">${m.title || ''}</span>
+        <div>${m.bio || ''}</div>
+        <div>Tags: ${(m.tags || []).join(', ')}</div>
+        <div>Status: <span class="badge bg-${m.status === 'approved' ? 'success' : (m.status === 'pending' ? 'warning' : 'danger')}">${m.status}</span></div>
+        <button class="btn btn-sm btn-primary" onclick="editMentor('${m._id}')">Edit</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteMentor('${m._id}')">Delete</button>
+        ${m.status !== 'approved' ? `<button class="btn btn-sm btn-success" onclick="approveMentor('${m._id}')">Approve</button>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function showMentorForm() {
+  editingMentorId = null;
+  document.getElementById('mentor-form').reset();
+  document.getElementById('mentorModalLabel').textContent = 'Add Mentor';
+  new bootstrap.Modal(document.getElementById('mentorModal')).show();
+}
+
+window.editMentor = async function(id) {
+  editingMentorId = id;
+  const res = await fetch(`http://localhost:5000/api/admin/mentors`, {
+    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('adminToken') }
+  });
+  const mentors = await res.json();
+  const m = mentors.find(x => x._id === id);
+  document.getElementById('mentor-name').value = m.name;
+  document.getElementById('mentor-title').value = m.title || '';
+  document.getElementById('mentor-avatar').value = m.avatar || '';
+  document.getElementById('mentor-bio').value = m.bio || '';
+  document.getElementById('mentor-tags').value = (m.tags || []).join(', ');
+  document.getElementById('mentorModalLabel').textContent = 'Edit Mentor';
+  new bootstrap.Modal(document.getElementById('mentorModal')).show();
+};
+
+window.deleteMentor = async function(id) {
+  if (!confirm('Delete this mentor?')) return;
+  await fetch(`http://localhost:5000/api/admin/mentors/${id}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('adminToken') }
+  });
+  loadMentors();
+};
+
+window.approveMentor = async function(id) {
+  await fetch(`http://localhost:5000/api/admin/mentors/${id}/approve`, {
+    method: 'PUT',
+    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('adminToken') }
+  });
+  loadMentors();
+};
+
+document.getElementById('mentor-form').onsubmit = async function(e) {
+  e.preventDefault();
+  const data = {
+    name: document.getElementById('mentor-name').value,
+    title: document.getElementById('mentor-title').value,
+    avatar: document.getElementById('mentor-avatar').value,
+    bio: document.getElementById('mentor-bio').value,
+    tags: document.getElementById('mentor-tags').value.split(',').map(t => t.trim()).filter(Boolean)
+  };
+  if (editingMentorId) {
+    await fetch(`http://localhost:5000/api/admin/mentors/${editingMentorId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('adminToken') },
+      body: JSON.stringify(data)
+    });
+  } else {
+    await fetch(`http://localhost:5000/api/admin/mentors`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('adminToken') },
+      body: JSON.stringify(data)
+    });
+  }
+  bootstrap.Modal.getInstance(document.getElementById('mentorModal')).hide();
+  loadMentors();
+};
+
+// Call loadMentors() when admin mentor section is shown
+// Example: if using a tab system, call loadMentors() when the mentor tab is activated
   </script>
   <!-- Bootstrap JS (for modal) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
