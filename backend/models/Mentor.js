@@ -10,7 +10,7 @@ const MentorSchema = new mongoose.Schema({
   socialLinks: [String],
   workLinks: [String],
   calendarLink: String,
-  status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+  status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'approved' },
   adminNotes: String,
 });
 

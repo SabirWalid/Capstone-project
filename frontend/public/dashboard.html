@@ -325,12 +325,8 @@
         <div id="notification-bell">
           <span class="material-icons" style="font-size:2rem;">notifications</span>
           <a href="notifications.html" id="notification-toggle" class="notification-toggle">
-            <span class="material-icons">arrow_drop_down</span>
+            <span id="notification-count" class="badge">0</span>
           </a>
-          <span id="notification-count">0</span>
-        </div>
-        <div id="notification-list">
-          <ul id="notification-items"></ul>
         </div>
         <a href="logout.html" class="logout-btn">Logout</a>
       </div>
@@ -340,17 +336,13 @@
         Welcome, <span id="user-name">User</span>!
       </div>
       <div class="recommendations-label">
-        Your personalized recommendations:
+        Your personalized recommendations: Before you start, take the Career Test to get tailored learning paths.<br>
+        Then explore courses, mentorship, and opportunities that match your skills and interests.
       </div>
       <div id="offline-banner" style="display:none; background:#ffecb3; color:#b26a00; padding:0.5rem; text-align:center;">
   You are offline. Progress will sync when reconnected.
 </div>
-<div id="online-banner" style="display:none; background:#e8f5e9; color:#388e3c; padding:0.5rem; text-align:center;">
-  You are back online. Syncing progress...
-</div>
-<button id="sync-btn" class="btn btn-success btn-sm">Sync Progress</button>
-      <!-- Add your dashboard content here -->
-    </div>
+  </div>
     <!-- Footer Start -->
     <footer class="footer mt-auto">
       <div class="container-fluid">

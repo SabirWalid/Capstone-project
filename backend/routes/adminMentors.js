@@ -24,9 +24,9 @@ router.put('/:id', adminAuth, async (req, res) => {
   }
 });
 
-// Get all pending mentors
-router.get('/opportunities/pending', adminAuth, async (req, res) => {
-  const mentors = await Mentor.find({ status: 'pending' });
+// Get all approved mentors
+router.get('/', adminAuth, async (req, res) => {
+  const mentors = await Mentor.find({ status: 'approved' });
   res.json(mentors);
 });
 

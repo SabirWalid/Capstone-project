@@ -29,5 +29,10 @@ router.get("/mentors/resources/pending", adminAuth, async (req, res) => {
   res.json(resources);
 });
 
+// Returns all mentors for admin
+router.get('/', adminAuth, async (req, res) => {
+  const mentors = await Mentor.find();
+  res.json(mentors);
+});
 
 module.exports = router;
