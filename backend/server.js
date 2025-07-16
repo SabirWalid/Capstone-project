@@ -26,6 +26,7 @@ const path = require('path'); // Import path module for serving static files
 const coursesRoutes = require('./routes/courses'); // Import courses route
 const mentorAuthRoutes = require('./routes/mentorAuth'); // Import mentor authentication route
 const mentorRoutes = require('./routes/mentor'); // Import mentor routes
+const publicRoutes = require('./routes/public'); // Import public routes
 
 const app = express();
 app.use(cors());
@@ -61,6 +62,8 @@ app.use('/api/chatbot', chatbotRoutes); // Use chatbot route
 app.use('/api/admin', adminAuthRoutes); // Use admin authentication route
 app.use('/api/courses', coursesRoutes); // Use courses route
 app.use('/api/mentor', mentorAuthRoutes); // Use mentor authentication route
+app.use('/api/public', publicRoutes);
+app.use('/api/mentors', mentorRoutes); // Use mentor routes
 
 
 const port = process.env.PORT || 5000;

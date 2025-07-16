@@ -197,3 +197,94 @@ showSection('dashboard');
 </html>
 
 MONGO_URI=mongodb://localhost:27017/techpreneurs
+
+// adminmentor
+
+// Approve/reject/edit/delete mentor
+router.put('/opportunities/:id/approve', adminAuth, async (req, res) => {
+  const mentor = await Mentor.findByIdAndUpdate(req.params.id, { status: 'approved', adminNote: '' }, { new: true });
+  res.json(mentor);
+});
+router.put('/opportunities/:id/reject', adminAuth, async (req, res) => {
+  const mentor = await Mentor.findByIdAndUpdate(req.params.id, { status: 'rejected', adminNote: req.body.adminNote || '' }, { new: true });
+  res.json(mentor);
+});
+router.delete('/opportunities/:id', adminAuth, async (req, res) => {
+  await Mentor.findByIdAndDelete(req.params.id);
+  res.json({ success: true });
+});
+router.put('/opportunities/:id', adminAuth, async (req, res) => {
+  const mentor = await Mentor.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  res.json(mentor);
+});
+
+async function loadMentors() {
+  const res = await fetch('http://localhost:5000/api/admin/mentors', {
+    headers: { Authorization: 'Bearer ' + localStorage.getItem('adminToken') }
+  });
+  const mentors = await res.json();
+  const list = document.getElementById('pending-mentors-list');
+  list.innerHTML = mentors.map(m => `
+    <div class="card mb-2">
+      <div class="card-body">
+        <h5>${m.name} (${m.email})</h5>
+        <p>${m.bio || ''}</p>
+        <span>Status: <strong>${m.status}</strong></span>
+        <button class="btn btn-success btn-sm" onclick="approveMentor('${m._id}')">Approve</button>
+        <button class="btn btn-danger btn-sm" onclick="rejectMentor('${m._id}')">Reject</button>
+        <button class="btn btn-outline-danger btn-sm" onclick="deleteMentor('${m._id}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+window.approveMentor = async function(id) {
+  await fetch(`http://localhost:5000/api/admin/mentors/${id}/approve`, {
+    method: 'PUT',
+    headers: { Authorization: 'Bearer ' + localStorage.getItem('adminToken') }
+  });
+  loadPendingMentors();
+};
+window.rejectMentor = async function(id) {
+  await fetch(`/api/admin/mentors/${id}/reject`, {
+    method: 'PUT',
+    headers: { Authorization: 'Bearer ' + localStorage.getItem('adminToken'), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ adminNote: prompt('Reason for rejection?') })
+  });
+  loadPendingMentors();
+};
+window.deleteMentor = async function(id) {
+  await fetch(`/api/admin/mentors/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: 'Bearer ' + localStorage.getItem('adminToken') }
+  });
+  loadPendingMentors();
+};
+
+function loadMentors() {
+  loadPendingMentors();
+  loadPendingMentorOpportunities();
+  loadPendingMentorResources();
+}
+
+// form mentor
+<form id="mentor-form">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="mentorModalLabel">Add Mentor</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="text" id="mentor-name" class="form-control mb-2" placeholder="Name" required>
+          <input type="text" id="mentor-title" class="form-control mb-2" placeholder="Title">
+          <input type="text" id="mentor-avatar" class="form-control mb-2" placeholder="Profile Image URL">
+          <input type="text" id="mentor-readmore" class="form-control mb-2" placeholder="Read More URL (LinkedIn, etc.)">
+          <input type="text" id="mentor-calendar" class="form-control mb-2" placeholder="Calendar Booking URL">
+          <textarea id="mentor-bio" class="form-control mb-2" placeholder="Short Bio"></textarea>
+          <input type="text" id="mentor-tags" class="form-control mb-2" placeholder="Tags (comma separated)">
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Save Mentor</button>
+        </div>
+      </div>
+    </form>

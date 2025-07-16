@@ -885,3 +885,20 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCourses();
   updateNotifications();
 });
+
+
+//mentor js
+
+document.getElementById('mentor-list').innerHTML = mentors.map(m => `
+    <div class="col-md-4 mb-4">
+      <div class="mentor-card">
+        <div class="mentor-avatar" style="background:#1976d2;">
+          ${m.avatar ? `<img src="${m.avatar}" style="width:90px;height:90px;border-radius:50%;">` : m.name[0]}
+        </div>
+        <div class="mentor-name">${m.name}</div>
+        <div class="mentor-title">${m.title || ''}</div>
+        <div class="mentor-bio">${m.bio || ''}</div>
+        <div class="mentor-tags">${(m.tags || []).map(t => `<span class="mentor-tag">${t}</span>`).join(' ')}</div>
+      </div>
+    </div>
+  `).join('');

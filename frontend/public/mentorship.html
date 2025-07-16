@@ -8,12 +8,24 @@
   <style>
     .container-py-5 {
       padding: 2rem 1rem;
-      max-width: 1200px;
+      max-width: 200px;
       margin: auto;
       margin-left: 20px;
     }
     body { background: #f7f7f7; }
-    .mentor-card {
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      margin: 1rem;
+      width: 300px;
+    }
+    .mentors-card {
       background: #fff;
       border-radius: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
@@ -26,7 +38,7 @@
     .mentor-card:hover {
       box-shadow: 0 8px 24px rgba(0,0,0,0.10);
     }
-    .mentor-avatar {
+    .mentors-avatar {
       width: 90px;
       height: 90px;
       border-radius: 50%;
@@ -37,20 +49,20 @@
       font-size: 3rem;
       color: #fff;
     }
-    .mentor-name {
-      font-size: 1.3rem;
+    .mentors-name {
+      font-size: 2.3rem;
       font-weight: 700;
       margin-bottom: 0.3rem;
     }
-    .mentor-title {
+    .mentors-title {
       color: #555;
       font-size: 1rem;
       margin-bottom: 1rem;
     }
-    .mentor-tags {
+    .mentors-tags {
       margin-bottom: 1.2rem;
     }
-    .mentor-tag {
+    .mentors-tag {
       display: inline-block;
       background: #ededed;
       color: #444;
@@ -315,30 +327,32 @@
     </div>
   </div>
   <div class="container py-5">
-  <h2 class="text-center mb-5" style="font-weight:700; font-size:2.7rem;">Connect with Expert Mentors</h2>
-  <div class="row" id="mentor-list"></div>
-</div>
+    <h2 class="text-center mb-5" style="font-weight:700; font-size:2.7rem;">Connect with Expert Mentors</h2>
+    <div class="row" id="mentors-list"></div>
+  </div>
 <script>
 async function loadMentors() {
-  const res = await fetch('/api/mentors');
+  const res = await fetch('http://localhost:5000/api/mentors');
   const mentors = await res.json();
-  document.getElementById('mentor-list').innerHTML = mentors.map(m => `
-    <div class="col-md-4 mb-4">
-      <div class="mentor-card">
-        <div class="mentor-avatar" style="background:#1976d2;">
-          ${m.avatar ? `<img src="${m.avatar}" style="width:90px;height:90px;border-radius:50%;">` : m.name[0]}
-        </div>
-        <div class="mentor-name">${m.name}</div>
-        <div class="mentor-title">${m.title || ''}</div>
-        <div class="mentor-bio">${m.bio || ''}</div>
-        <div class="mentor-tags">${(m.tags || []).map(t => `<span class="mentor-tag">${t}</span>`).join(' ')}</div>
+
+  console.log('Mentors fetched:', mentors);
+
+  document.getElementById('mentors-list').innerHTML = mentors.map(m => `
+    <div class="card mb-2">
+      <img src="${m.avatar}" alt="${m.name}" class="card-img-top" style="height:200px;object-fit:cover;">
+      <div class="card-body">
+        <h5>${m.name}</h5>
+        <p>${m.bio || ''}</p>
+        <a href="${m.readMoreLink}" target="_blank" class="btn btn-primary btn-sm">Read More</a>
+        <a href="${m.calendarLink}" target="_blank" class="btn btn-success btn-sm">Book Session</a>
       </div>
     </div>
   `).join('');
 }
-loadMentors();
+document.addEventListener('DOMContentLoaded', () => {
+  loadMentors();
+});
 </script>
-<script src="js/main.js"></script>
   <!-- Footer Start -->
     <footer class="footer mt-auto">
       <div class="container-fluid">
@@ -387,5 +401,6 @@ loadMentors();
   <!-- Material Icons (if not already included) -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <script src="js/chatbot.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>

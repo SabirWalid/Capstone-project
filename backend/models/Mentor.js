@@ -3,23 +3,23 @@ const bcrypt = require('bcryptjs');
 
 const MentorSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
   bio: String,
-  avatar: String,
-  socialLinks: [String],
-  workLinks: [String],
-  calendarLink: String,
-  status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'approved' },
-  adminNotes: String,
+  avatar: String,         // URL of the profile picture
+  readMoreLink: String,   // URL for more info
+  calendarLink: String,   // booking link
+  status: { type: String, default: 'approved' },
+  tags: [String],
+  title: String
 });
+
 
 // Hash password before saving
 MentorSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+  if (!this.password || !this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
+
 
 // Password comparison method
 MentorSchema.methods.comparePassword = function (candidatePassword) {

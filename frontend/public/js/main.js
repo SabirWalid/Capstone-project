@@ -33,12 +33,11 @@ if (document.getElementById('register-form')) {
       body: JSON.stringify({ name, email, password, role })
     });
     const data = await res.json();
-    if (data.success) {
-      alert('Registration successful! Please login.');
+    /**if (data.success) {
       window.location.href = 'login.html';
     } else {
-      alert(data.error);
-    }
+      console.error(data.error);
+    }/** */
   };
 }
 
@@ -135,13 +134,6 @@ document.querySelectorAll('.book-session-btn').forEach(btn => {
     bookMentorSession(idx);
   });
 });
-
-// Save mentorship booking for offline sync
-function saveMentorBookingOffline(mentor) {
-  let bookings = JSON.parse(localStorage.getItem('mentorBookings') || '[]');
-  bookings.push({ name: mentor.name, time: new Date().toISOString(), synced: false });
-  localStorage.setItem('mentorBookings', JSON.stringify(bookings));
-}
 
 // Show notification in dashboard
 function addNotification(message) {
