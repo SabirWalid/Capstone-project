@@ -288,3 +288,145 @@ function loadMentors() {
         </div>
       </div>
     </form>
+
+
+    <style>
+    body { background: #f8fafc; }
+    .sidebar {
+      min-height: 100vh;
+      background: #343a40;
+      color: #fff;
+      padding-top: 2rem;
+    }
+    .sidebar .profile {
+      text-align: center;
+      padding: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .sidebar .profile img {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      margin-bottom: 0.5rem;
+      border: 2px solid #00bfa5;
+      object-fit: cover;
+    }
+    .sidebar a {
+      color: #fff;
+      display: block;
+      padding: 0.75rem 1.5rem;
+      text-decoration: none;
+      border-radius: 0.3rem;
+      margin-bottom: 0.5rem;
+    }
+    .sidebar a.active, .sidebar a:hover {
+      background: #495057;
+    }
+    .dashboard-content {
+      padding: 2rem;
+    }
+    .form-section {
+      background: #fff;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    .dashboard-header {
+      border-bottom: 1px solid #e9ecef;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Sidebar -->
+      <nav class="col-md-2 sidebar">
+        <h4 class="text-center mb-4">Admin Panel</h4>
+        <a href="#" onclick="showSection('profile')">Profile</a>
+        <a href="#" class="active" onclick="showSection('dashboard')">Dashboard</a>
+        <a href="#" onclick="showSection('courses')">Courses</a>
+        <a href="#" onclick="showSection('opportunities')">Opportunities</a>
+        <a href="#" onclick="showSection('mentors')">Mentors</a>
+        <a href="#" onclick="showSection('settings')">Settings</a>
+        <a href="admin-login.html" onclick="logout()" class="text-danger mt-5">Logout</a>
+      </nav>
+      <!-- Main Content -->
+      <main class="col-md-10 ms-sm-auto dashboard-content">
+        <div id="dashboard-section" class="dashboard-header">
+          <h2>Welcome, Admin!</h2>
+          <p>This is the admin dashboard, use the sidebar to manage courses, opportunities, mentors, and platform settings.</p>
+        </div>
+        <div class="content">
+
+        <!-- Admin Profile Section -->
+        <div id="profile-section" class="form-section" style="display:none;">
+          <div class="d-flex align-items-center mb-4">
+            <h3>Profile</h3>
+            <img id="profile-picture" src="https://via.placeholder.com/70" alt="Profile Picture" class="rounded-circle ms-3">
+          </div>
+            <form id="mentor-profile-form" class="mb-4">
+              <label class="form-label">Upload Profile Picture:</label>
+              <input type="file" id="mentor-avatar-upload" class="form-control mb-2" accept="image/*">
+              <input type="text" id="mentor-name" class="form-control mb-2" placeholder="Name" required>
+              <textarea id="mentor-bio" class="form-control mb-2" placeholder="About you"></textarea>
+              <input type="text" id="mentor-social" class="form-control mb-2" placeholder="Social Links (comma separated)">
+              <input type="text" id="mentor-work" class="form-control mb-2" placeholder="Work Links (comma separated)">
+              <input type="url" id="mentor-calendar" class="form-control mb-2" placeholder="Calendar Link">
+              <button type="submit" class="btn btn-primary">Save Profile</button>
+            </form>
+          </div>
+        </div>
+    
+        <!-- admindashboard opportunities -->
+
+<!-- Opportunities Section -->
+<div id="opportunities-section" class="form-section" style="display:none;">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Opportunities</h3>
+    <button class="btn btn-success" onclick="showAddOpportunityForm()">+ Post Opportunity</button>
+  </div>
+  <div class="mb-3">
+    <label for="opportunity-filter" class="form-label">Filter by Type:</label>
+    <select id="opportunity-filter" class="form-select">
+      <option value="">All</option>
+      <option value="Scholarship">Scholarship</option>
+      <option value="Job">Job</option>
+      <option value="Funding">Funding</option>
+    </select>
+  </div>
+  <!-- Opportunities List -->
+  <div id="opportunities-list"></div>
+
+  <!-- Add/Edit Opportunity Modal -->
+  <div class="modal fade" id="opportunityModal" tabindex="-1" aria-labelledby="opportunityModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form id="opportunity-form">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="opportunityModalLabel">Add/Edit Opportunity</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <input type="text" id="opportunity-title" class="form-control mb-2" placeholder="Title" required>
+            <textarea id="opportunity-description" class="form-control mb-2" placeholder="Description" required></textarea>
+            <input type="text" id="opportunity-category" class="form-control mb-2" placeholder="Category">
+            <input type="date" id="opportunity-deadline" class="form-control mb-2" placeholder="Deadline">
+            <input type="url" id="opportunity-link" class="form-control mb-2" placeholder="Application Link">
+            <select id="opportunity-type" class="form-select mb-2" required>
+              <option value="">Select type</option>
+              <option value="Scholarship">Scholarship</option>
+              <option value="Job">Job</option>
+              <option value="Funding">Funding</option>
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Save Opportunity</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

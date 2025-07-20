@@ -902,3 +902,20 @@ document.getElementById('mentor-list').innerHTML = mentors.map(m => `
       </div>
     </div>
   `).join('');
+
+  Opportunities
+
+  <div class="container py-5">
+    <h2 class="text-center mb-5" style="font-weight:700; font-size:2.7rem;">Latest Opportunities</h2>
+    <div class="row" id="opportunity-list"></div>
+    <div class="mb-3">
+  <label for="opportunity-filter" class="form-label">Filter by Type:</label>
+  <select id="opportunity-filter" class="form-select" onchange="filterOpportunities()">
+    <option value="">All</option>
+    <option value="Scholarship">Scholarship</option>
+    <option value="Job">Job</option>
+    <option value="Funding">Funding</option>
+  </select>
+</div>
+<div class="row" id="opportunity-list"></div>
+  </div>

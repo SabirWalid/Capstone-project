@@ -5,13 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/resources.css">
   <style>
-    body { background: #f8fafc; }
+    body { background: #76fc76;
+      font-family: Arial, sans-serif;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
     .sidebar {
       min-height: 100vh;
-      background: #343a40;
+      background: #064f18;
       color: #fff;
       padding-top: 2rem;
+    
+    }
+    .sidebar .profile {
+      text-align: center;
+      padding: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .sidebar .profile img {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      margin-bottom: 0.5rem;
+      border: 2px solid #00bfa5;
+      object-fit: cover;
     }
     .sidebar a {
       color: #fff;
@@ -20,9 +40,10 @@
       text-decoration: none;
       border-radius: 0.3rem;
       margin-bottom: 0.5rem;
+      
     }
-    .sidebar a.active, .sidebar a:hover {
-      background: #495057;
+    .sidebar a:hover {
+      background: #0f5137;
     }
     .dashboard-content {
       padding: 2rem;
@@ -33,12 +54,67 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.04);
       padding: 2rem;
       margin-bottom: 2rem;
+      margin-top: 5rem;
     }
-    .dashboard-header {
-      border-bottom: 1px solid #e9ecef;
-      margin-bottom: 2rem;
-      padding-bottom: 1rem;
+    .form-section h2 {
+      margin-bottom: 1.5rem;
+      font-weight: 600;
     }
+    .form-section .form-control,
+    .form-section .form-select {
+      border-radius: 0.375rem;
+      border: 1px solid #ced4da;
+      padding: 0.75rem;
+    }
+    .form-section .form-control:focus,
+    .form-section .form-select:focus {
+      border-color: #0d6efd;
+      box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+
+/* Ensure modal displays properly */
+.modal-dialog {
+  max-width: 90vw;
+}
+
+.modal-lg {
+  max-width: 800px;
+}
+
+/* Better form styling in modal */
+.modal-body .form-label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.modal-body .form-control,
+.modal-body .form-select {
+  border: 1px solid #ddd;
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+}
+
+.modal-body .form-control:focus,
+.modal-body .form-select:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .modal-dialog {
+    margin: 1rem;
+  }
+  
+  .modal-body .row > .col-md-6 {
+    margin-bottom: 1rem;
+  }
+}
+.dashboard-header {
+  border-bottom: 1px solid #e9ecef;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+}
   </style>
 </head>
 <body>
@@ -47,10 +123,12 @@
       <!-- Sidebar -->
       <nav class="col-md-2 sidebar">
         <h4 class="text-center mb-4">Admin Panel</h4>
+        <a href="#" class="nav-link active" data-section="profile"><span class="material-icons"></span> Profile</a>
         <a href="#" class="active" onclick="showSection('dashboard')">Dashboard</a>
         <a href="#" onclick="showSection('courses')">Courses</a>
         <a href="#" onclick="showSection('opportunities')">Opportunities</a>
         <a href="#" onclick="showSection('mentors')">Mentors</a>
+        <a href="#" onclick="showSection('resources')">Resources</a>
         <a href="#" onclick="showSection('settings')">Settings</a>
         <a href="admin-login.html" onclick="logout()" class="text-danger mt-5">Logout</a>
       </nav>
@@ -59,6 +137,22 @@
         <div id="dashboard-section" class="dashboard-header">
           <h2>Welcome, Admin!</h2>
           <p>This is the admin dashboard, use the sidebar to manage courses, opportunities, mentors, and platform settings.</p>
+        </div>
+        <div class="content">
+
+        <!-- Admin Profile Section -->
+        <div id="section-profile" class="form-section" style="display:none;">
+          <h2>Profile</h2>
+          <form id="mentor-profile-form" class="mb-4">
+            <label class="form-label">Upload Profile Picture:</label>
+            <input type="file" id="mentor-avatar-upload" class="form-control mb-2" accept="image/">
+            <input type="text" id="mentor-name" class="form-control mb-2" placeholder="Name" required>
+            <textarea id="mentor-bio" class="form-control mb-2" placeholder="About you"></textarea>
+            <input type="text" id="mentor-social" class="form-control mb-2" placeholder="Social Links (comma separated)">
+            <input type="text" id="mentor-work" class="form-control mb-2" placeholder="Work Links (comma separated)">
+            <input type="url" id="mentor-calendar" class="form-control mb-2" placeholder="Calendar Link">
+            <button type="submit" class="btn btn-primary">Save Profile</button>
+          </form>
         </div>
 
         <!-- Courses Section -->
@@ -150,31 +244,61 @@
 
   <!-- Add/Edit Opportunity Modal -->
   <div class="modal fade" id="opportunityModal" tabindex="-1" aria-labelledby="opportunityModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <form id="opportunity-form">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="opportunityModalLabel">Add/Edit Opportunity</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="opportunityModalLabel">Add Opportunity</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="opportunity-form">
           <div class="modal-body">
-            <input type="text" id="opportunity-title" class="form-control mb-2" placeholder="Title" required>
-            <textarea id="opportunity-description" class="form-control mb-2" placeholder="Description" required></textarea>
-            <input type="text" id="opportunity-category" class="form-control mb-2" placeholder="Category">
-            <input type="date" id="opportunity-deadline" class="form-control mb-2" placeholder="Deadline">
-            <input type="url" id="opportunity-link" class="form-control mb-2" placeholder="Application Link">
-            <select id="opportunity-type" class="form-select mb-2" required>
-              <option value="">Select type</option>
-              <option value="Scholarship">Scholarship</option>
-              <option value="Job">Job</option>
-              <option value="Funding">Funding</option>
-            </select>
+            <!-- Title Field - Full Width -->
+            <div class="mb-3">
+              <label for="opportunity-title" class="form-label">Opportunity Title *</label>
+              <input type="text" id="opportunity-title" class="form-control" placeholder="Enter the opportunity name/title" required>
+            </div>
+            
+            <!-- Description Field - Full Width -->
+            <div class="mb-3">
+              <label for="opportunity-description" class="form-label">Description *</label>
+              <textarea id="opportunity-description" class="form-control" rows="4" placeholder="Enter detailed description of the opportunity" required></textarea>
+            </div>
+            
+            <!-- Two Column Layout for Other Fields -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="opportunity-category" class="form-label">Category</label>
+                  <input type="text" id="opportunity-category" class="form-control" placeholder="e.g., Technology, Business, Arts">
+                </div>
+                <div class="mb-3">
+                  <label for="opportunity-deadline" class="form-label">Application Deadline</label>
+                  <input type="date" id="opportunity-deadline" class="form-control">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="opportunity-type" class="form-label">Opportunity Type *</label>
+                  <select id="opportunity-type" class="form-select" required>
+                    <option value="">Select type</option>
+                    <option value="Scholarship">Scholarship</option>
+                    <option value="Job">Job</option>
+                    <option value="Funding">Funding</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label for="opportunity-link" class="form-label">Application Link</label>
+                  <input type="url" id="opportunity-link" class="form-control" placeholder="https://example.com/apply">
+                </div>
+              </div>
+            </div>
           </div>
           <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
             <button type="submit" class="btn btn-primary">Save Opportunity</button>
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   </div>
 </div>
@@ -207,18 +331,232 @@
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary">Save Mentor</button>
         </div>
-      </form>
+        </form>
+      </div>
+    </div>
+  </div>
 
-    </div>
-  </div>
-        <!-- Settings Section -->
-        <div id="settings-section" class="form-section" style="display:none;">
-          <h3>Platform Settings</h3>
-          <p>Settings for visibility, enrollment, certification, notifications, etc. (implement as needed)</p>
+  <!-- Admin Resources Section -->
+  <div class="admin-container">
+        <div class="admin-header">
+            <div>
+                <h1>⚙️ Admin Dashboard</h1>
+                <p>Manage your resource library</p>
+            </div>
         </div>
-      </main>
+
+        <div class="admin-nav">
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-tab="overview">📊 Overview</button>
+                <button class="nav-tab" data-tab="add">➕ Add Resource</button>
+                <button class="nav-tab" data-tab="manage">📝 Manage Resources</button>
+            </div>
+        </div>
+
+        <div class="admin-content">
+            <!-- Overview Tab -->
+            <div id="overview" class="tab-content active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalResources">0</div>
+                        <div class="stat-label">Total Resources</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalDownloads">0</div>
+                        <div class="stat-label">Total Downloads</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="resourcesThisMonth">0</div>
+                        <div class="stat-label">Added This Month</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="popularType">-</div>
+                        <div class="stat-label">Popular Type</div>
+                    </div>
+                </div>
+
+                <div class="resources-table">
+                    <div class="table-header">
+                        <h3>Recent Resources</h3>
+                    </div>
+                    <div id="recentResourcesContainer">
+                        <div class="loading-overlay active">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Resource Tab -->
+            <div id="add" class="tab-content">
+                <div class="add-resource-form">
+                    <h2 style="margin-bottom: 25px; color: #333;">➕ Add New Resource</h2>
+                    <form id="addResourceForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="title">Title *</label>
+                                <input type="text" id="title" name="title" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="type">Type *</label>
+                                <select id="type" name="type" class="form-select" required>
+                                    <option value="">Select Type</option>
+                                    <option value="PDF">PDF</option>
+                                    <option value="Video">Video</option>
+                                    <option value="Document">Document</option>
+                                    <option value="Presentation">Presentation</option>
+                                    <option value="Audio">Audio</option>
+                                    <option value="Image">Image</option>
+                                    <option value="Link">Link</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">Description *</label>
+                            <textarea id="description" name="description" class="form-textarea" 
+                                      placeholder="Provide a detailed description of the resource..." required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="url">URL *</label>
+                            <input type="url" id="url" name="url" class="form-input" 
+                                   placeholder="https://example.com/resource" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="category">Category</label>
+                                <input type="text" id="category" name="category" class="form-input" 
+                                       placeholder="e.g., Mathematics, Science, History">
+                            </div>
+                            <div class="form-group">
+                                <label for="tags">Tags</label>
+                                <input type="text" id="tags" name="tags" class="form-input" 
+                                       placeholder="Comma-separated tags">
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 30px;">
+                            <button type="submit" class="btn btn-primary" style="margin-right: 15px;">
+                                📁 Add Resource
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="document.getElementById('addResourceForm').reset();">
+                                🔄 Clear Form
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="loading-overlay" id="addFormLoading">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manage Resources Tab -->
+            <div id="manage" class="tab-content">
+                <div class="resources-table">
+                    <div class="table-header">
+                        <h3>All Resources</h3>
+                        <div class="search-box">
+                            <input type="text" id="manageSearchInput" class="search-input" 
+                                   placeholder="Search resources...">
+                            <select id="manageTypeFilter" class="form-select" style="width: auto;">
+                                <option value="">All Types</option>
+                                <option value="PDF">PDF</option>
+                                <option value="Video">Video</option>
+                                <option value="Document">Document</option>
+                                <option value="Presentation">Presentation</option>
+                                <option value="Audio">Audio</option>
+                                <option value="Image">Image</option>
+                                <option value="Link">Link</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="manageResourcesContainer" style="position: relative;">
+                        <div class="loading-overlay active">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
+
+    <!-- Edit Resource Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">✏️ Edit Resource</h2>
+                <button class="close-btn" onclick="closeEditModal()">&times;</button>
+            </div>
+            <form id="editResourceForm">
+                <input type="hidden" id="editResourceId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editTitle">Title *</label>
+                        <input type="text" id="editTitle" name="title" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editType">Type *</label>
+                        <select id="editType" name="type" class="form-select" required>
+                            <option value="PDF">PDF</option>
+                            <option value="Video">Video</option>
+                            <option value="Document">Document</option>
+                            <option value="Presentation">Presentation</option>
+                            <option value="Audio">Audio</option>
+                            <option value="Image">Image</option>
+                            <option value="Link">Link</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="editDescription">Description *</label>
+                    <textarea id="editDescription" name="description" class="form-textarea" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="editUrl">URL *</label>
+                    <input type="url" id="editUrl" name="url" class="form-input" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editCategory">Category</label>
+                        <input type="text" id="editCategory" name="category" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="editTags">Tags</label>
+                        <input type="text" id="editTags" name="tags" class="form-input">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 30px;">
+                    <button type="submit" class="btn btn-primary" style="margin-right: 15px;">
+                        💾 Update Resource
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">
+                        ❌ Cancel
+                    </button>
+                </div>
+            </form>
+            
+            <div class="loading-overlay" id="editFormLoading">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
+
+          <!-- Settings Section -->
+          <div id="settings-section" class="form-section" style="display:none;">
+            <h3>Platform Settings</h3>
+            <p>Settings for visibility, enrollment, certification, notifications, etc. (implement as needed)</p>
+          </div>
+        </main>
+      </div>
+    </div>
   <script>
     // Sidebar navigation
     function showSection(section) {
@@ -241,6 +579,18 @@
     function logout() {
       localStorage.removeItem('adminToken');
     }
+
+    // Profile Picture Upload
+    document.getElementById('mentor-avatar-upload').addEventListener('change', function() {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          document.getElementById('profile-picture').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
 
     // --- Courses ---
     let editingCourseId = null;
@@ -352,79 +702,141 @@
         alert('Failed to delete course');
       }
     }
-    // --- Opportunities ---
-// Set this ONCE, outside the function (e.g., at the bottom of your script)
+   // --- Opportunities Management ---
+// Admin dashboard script section
+
+let editingOpportunityId = null;
+
+// Edit opportunity function
+async function editOpportunity(id) {
+  editingOpportunityId = id;
+  const res = await fetch(`http://localhost:5000/api/admin/opportunities/${id}`, {
+    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('adminToken') }
+  });
+  
+  if (!res.ok) {
+    alert('Failed to load opportunity details');
+    return;
+  }
+  
+  const opp = await res.json();
+  document.getElementById('opportunity-title').value = opp.title || '';
+  document.getElementById('opportunity-description').value = opp.description || '';
+  document.getElementById('opportunity-category').value = opp.category || '';
+  document.getElementById('opportunity-deadline').value = opp.deadline || '';
+  document.getElementById('opportunity-link').value = opp.link || '';
+  document.getElementById('opportunity-type').value = opp.type || '';
+  
+  document.getElementById('opportunityModalLabel').textContent = 'Edit Opportunity';
+  new bootstrap.Modal(document.getElementById('opportunityModal')).show();
+}
+
+// Delete opportunity function
+async function deleteOpportunity(id) {
+  if (!confirm('Are you sure you want to delete this opportunity?')) return;
+  
+  const res = await fetch(`http://localhost:5000/api/admin/opportunities/${id}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('adminToken') }
+  });
+  
+  if (res.ok) {
+    loadOpportunities();
+  } else {
+    alert('Failed to delete opportunity');
+  }
+}
+
+// Show add opportunity form
+function showAddOpportunityForm() {
+  editingOpportunityId = null;
+  document.getElementById('opportunity-form').reset();
+  document.getElementById('opportunityModalLabel').textContent = 'Add Opportunity';
+  new bootstrap.Modal(document.getElementById('opportunityModal')).show();
+}
+
+// Load opportunities with optional filtering
+async function loadOpportunities() {
+  const filter = document.getElementById('opportunity-filter').value;
+  const res = await fetch(`http://localhost:5000/api/admin/opportunities?type=${filter}`, {
+    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('adminToken') }
+  });
+  
+  if (!res.ok) {
+    const error = await res.json();
+    alert('Error loading opportunities: ' + (error.error || res.statusText));
+    return;
+  }
+  
+  const opps = await res.json();
+  document.getElementById('opportunities-list').innerHTML = opps.map(o =>
+    `<div class="card mb-2">
+      <div class="card-body">
+        <h5 class="card-title">${o.title}</h5>
+        <p class="card-text">${o.description}</p>
+        <span class="badge bg-secondary">${o.category}</span>
+        <span class="badge bg-info">${o.type}</span>
+        <span class="badge bg-warning">${o.deadline ? new Date(o.deadline).toLocaleDateString() : 'No deadline'}</span>
+        <div class="mt-2">
+          <button class="btn btn-sm btn-outline-danger" onclick="deleteOpportunity('${o._id}')">Delete</button>
+          <button class="btn btn-sm btn-outline-primary ms-2" onclick="editOpportunity('${o._id}')">Edit</button>
+          <a href="${o.link}" class="btn btn-sm btn-outline-primary ms-2" target="_blank">View</a>
+        </div>
+      </div>
+    </div>`
+  ).join('');
+}
+
+// Single form submission handler (handles both create and edit)
 document.getElementById('opportunity-form').onsubmit = async function(e) {
   e.preventDefault();
-  const res = await fetch('http://localhost:5000/api/admin/opportunities', {
-    method: 'POST',
+  
+  const data = {
+    title: document.getElementById('opportunity-title').value,
+    description: document.getElementById('opportunity-description').value,
+    category: document.getElementById('opportunity-category').value,
+    deadline: document.getElementById('opportunity-deadline').value,
+    link: document.getElementById('opportunity-link').value,
+    type: document.getElementById('opportunity-type').value
+  };
+
+  let url = 'http://localhost:5000/api/admin/opportunities';
+  let method = 'POST';
+  
+  if (editingOpportunityId) {
+    url += '/' + editingOpportunityId;
+    method = 'PUT';
+  }
+
+  const res = await fetch(url, {
+    method,
     headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ' + localStorage.getItem('adminToken')
     },
-    body: JSON.stringify({
-      title: document.getElementById('opportunity-title').value,
-      description: document.getElementById('opportunity-description').value,
-      category: document.getElementById('opportunity-category').value,
-      deadline: document.getElementById('opportunity-deadline').value,
-      link: document.getElementById('opportunity-link').value,
-      type: document.getElementById('opportunity-type').value
-    })
+    body: JSON.stringify(data)
   });
 
   if (!res.ok) {
     let message = res.statusText;
     try {
       const err = await res.json();
-      message = err.message || message;
+      message = err.error || err.message || message;
     } catch(e) {}
     alert("Error: " + message);
     return;
   }
 
-  
+  // Reset editing state and close modal
+  editingOpportunityId = null;
   bootstrap.Modal.getInstance(document.getElementById('opportunityModal')).hide();
-  if (typeof loadOpportunities === 'function') loadOpportunities();
+  loadOpportunities();
 };
 
-// This function ONLY resets and shows the modal
-function showAddOpportunityForm() {
-  document.getElementById('opportunity-form').reset();
-  document.getElementById('opportunityModalLabel').textContent = 'Add Opportunity';
-  new bootstrap.Modal(document.getElementById('opportunityModal')).show();
-}
-
-
-    async function loadOpportunities() {
-      const filter = document.getElementById('opportunity-filter').value;
-      const res = await fetch(`http://localhost:5000/api/admin/opportunities?type=${filter}`, {
-        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('adminToken') }
-      });
-      if (!res.ok) {
-        const error = await res.json();
-        alert('Error loading opportunities: ' + (error.error || res.statusText));
-        return;
-      }
-      const opps = await res.json();
-      document.getElementById('opportunities-list').innerHTML = opps.map(o =>
-        `<div class="card mb-2">
-          <div class="card-body">
-            <h5 class="card-title">${o.title}</h5>
-            <p class="card-text">${o.description}</p>
-            <span class="badge bg-secondary">${o.category}</span>
-            <span class="badge bg-info">${o.type}</span>
-            <span class="badge bg-warning">${o.deadline ? new Date(o.deadline).toLocaleDateString() : 'No deadline'}</span>
-            <a href="${o.link}" class="btn btn-sm btn-outline-primary float-end ms
-            -2" target="_blank">View</a>
-            <button class="btn btn-sm btn-outline-primary float-end" onclick="editOpportunity('${o._id}')">Edit</button>
-            <button class="btn btn-sm btn-outline-danger float-end" onclick="deleteOpportunity('${
-            o._id}')">Delete</button>
-          </div>
-        </div>`
-      ).join('');
-    }
-    // admin mentor approval
-    // Load mentors
+// Add event listener for filter changes
+document.getElementById('opportunity-filter').addEventListener('change', loadOpportunities);
+    // admin mentor
+    // Load mentorss
 async function loadMentors() {
   const res = await fetch('http://localhost:5000/api/admin/mentors', {
     headers: { Authorization: 'Bearer ' + localStorage.getItem('adminToken') }
@@ -543,94 +955,6 @@ document.getElementById('mentor-form').onsubmit = async function(e) {
   loadMentors();
 };
 
-
-// --- Mentors ---
-/***
-async function loadMentors() {
-  const res = await fetch('http://localhost:5000/api/admin/mentors', {
-    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('adminToken') }
-  });
-  const mentors = await res.json();
-  document.getElementById('mentors-list').innerHTML = mentors.map(m => `
-    <div class="card mb-2">
-      <div class="card-body">
-        <strong>${m.name}</strong> <span class="text-muted">${m.title || ''}</span>
-        <div>${m.bio || ''}</div>
-        <div>Tags: ${(m.tags || []).join(', ')}</div>
-        <div>Status: <span class="badge bg-${m.status === 'approved' ? 'success' : (m.status === 'pending' ? 'warning' : 'danger')}">${m.status}</span></div>
-        <button class="btn btn-sm btn-primary" onclick="editMentor('${m._id}')">Edit</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteMentor('${m._id}')">Delete</button>
-        ${m.status !== 'approved' ? `<button class="btn btn-sm btn-success" onclick="approveMentor('${m._id}')">Approve</button>` : ''}
-      </div>
-    </div>
-  `).join('');
-}
-
-function showMentorForm() {
-  editingMentorId = null;
-  document.getElementById('mentor-form').reset();
-  document.getElementById('mentorModalLabel').textContent = 'Add Mentor';
-  new bootstrap.Modal(document.getElementById('mentorModal')).show();
-}
-
-window.editMentor = async function(id) {
-  editingMentorId = id;
-  const res = await fetch(`http://localhost:5000/api/admin/mentors`, {
-    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('adminToken') }
-  });
-  const mentors = await res.json();
-  const m = mentors.find(x => x._id === id);
-  document.getElementById('mentor-name').value = m.name;
-  document.getElementById('mentor-title').value = m.title || '';
-  document.getElementById('mentor-avatar').value = m.avatar || '';
-  document.getElementById('mentor-bio').value = m.bio || '';
-  document.getElementById('mentor-tags').value = (m.tags || []).join(', ');
-  document.getElementById('mentorModalLabel').textContent = 'Edit Mentor';
-  new bootstrap.Modal(document.getElementById('mentorModal')).show();
-};
-
-window.deleteMentor = async function(id) {
-  if (!confirm('Delete this mentor?')) return;
-  await fetch(`http://localhost:5000/api/admin/mentors/${id}`, {
-    method: 'DELETE',
-    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('adminToken') }
-  });
-  loadMentors();
-};
-
-window.approveMentor = async function(id) {
-  await fetch(`http://localhost:5000/api/admin/mentors/${id}/approve`, {
-    method: 'PUT',
-    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('adminToken') }
-  });
-  loadMentors();
-};
-
-document.getElementById('mentor-form').onsubmit = async function(e) {
-  e.preventDefault();
-  const data = {
-    name: document.getElementById('mentor-name').value,
-    title: document.getElementById('mentor-title').value,
-    avatar: document.getElementById('mentor-avatar').value,
-    bio: document.getElementById('mentor-bio').value,
-    tags: document.getElementById('mentor-tags').value.split(',').map(t => t.trim()).filter(Boolean)
-  };
-  if (editingMentorId) {
-    await fetch(`http://localhost:5000/api/admin/mentors/${editingMentorId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('adminToken') },
-      body: JSON.stringify(data)
-    });
-  } else {
-    await fetch(`http://localhost:5000/api/admin/mentors`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('adminToken') },
-      body: JSON.stringify(data)
-    });
-  }
-  bootstrap.Modal.getInstance(document.getElementById('mentorModal')).hide();
-  loadMentors();
-}; /***/
   </script>
   <!-- Bootstrap JS (for modal) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
