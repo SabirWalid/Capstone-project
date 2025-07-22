@@ -177,7 +177,7 @@
     }
     .main-content {
       flex: 1 0 auto;
-      padding: 2rem 2rem 0 2rem;
+      padding: 2rem 2rem 2rem 2rem;
       min-height: 0;
     }
     .user-greeting {
@@ -205,6 +205,222 @@
       border-radius: 10px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
+    
+    /* Dashboard Analytics Styles */
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .analytics-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border-left: 4px solid;
+    }
+    
+    .analytics-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    }
+    
+    .analytics-card.courses { border-left-color: #4CAF50; }
+    .analytics-card.opportunities { border-left-color: #2196F3; }
+    .analytics-card.resources { border-left-color: #FF9800; }
+    .analytics-card.mentorship { border-left-color: #9C27B0; }
+    
+    .analytics-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    
+    .analytics-card-icon {
+      font-size: 2rem;
+      color: #666;
+    }
+    
+    .analytics-card-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #333;
+      margin: 0;
+    }
+    
+    .analytics-card-label {
+      font-size: 0.9rem;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.5rem;
+    }
+    
+    .analytics-card-change {
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    
+    .analytics-card-change.positive { color: #4CAF50; }
+    .analytics-card-change.negative { color: #f44336; }
+    
+    /* Progress Section */
+    .progress-section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      margin-bottom: 2rem;
+    }
+    
+    .progress-section h3 {
+      color: #333;
+      margin-bottom: 1rem;
+      font-size: 1.3rem;
+    }
+    
+    .course-progress-item {
+      padding: 1rem;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      transition: border-color 0.2s ease;
+    }
+    
+    .course-progress-item:hover {
+      border-color: #4CAF50;
+    }
+    
+    .course-progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    
+    .course-title {
+      font-weight: 600;
+      color: #333;
+      margin: 0;
+    }
+    
+    .course-percentage {
+      font-weight: 600;
+      color: #4CAF50;
+    }
+    
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: #f0f0f0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(45deg, #4CAF50, #66BB6A);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+    
+    /* Recent Activities */
+    .activities-section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      margin-bottom: 2rem;
+    }
+    
+    .activities-section h3 {
+      color: #333;
+      margin-bottom: 1rem;
+      font-size: 1.3rem;
+    }
+    
+    .activity-item {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+    
+    .activity-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+      font-size: 1.2rem;
+      color: white;
+    }
+    
+    .activity-icon.course { background: #4CAF50; }
+    .activity-icon.opportunity { background: #2196F3; }
+    .activity-icon.resource { background: #FF9800; }
+    .activity-icon.mentor { background: #9C27B0; }
+    
+    .activity-content {
+      flex: 1;
+    }
+    
+    .activity-title {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.25rem;
+    }
+    
+    .activity-time {
+      font-size: 0.85rem;
+      color: #666;
+    }
+    
+    /* Quick Actions */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .quick-action-btn {
+      background: white;
+      border: 2px solid #e0e0e0;
+      padding: 1rem;
+      border-radius: 12px;
+      text-decoration: none;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all 0.2s ease;
+    }
+    
+    .quick-action-btn:hover {
+      border-color: #4CAF50;
+      color: #4CAF50;
+      text-decoration: none;
+      transform: translateY(-1px);
+    }
+    
+    .quick-action-icon {
+      font-size: 1.5rem;
+    }
+    
+    .quick-action-text {
+      font-weight: 600;
+    }
     .footer {
       flex-shrink: 0;
       background: #faf5e0;
@@ -214,8 +430,10 @@
       border-top: 1px solid #333;
       margin-left: 0;
       width: 100%;
-      position: fixed;
+      position: static;
+      margin-bottom: 0;
       bottom: 0;
+      display: flex;
     }
     .footer .container-fluid {
       padding: 0 !important;
@@ -266,6 +484,9 @@
       .dashboard-wrapper { margin-left: 60px; }
       .footer { margin-left: 0; }
       .recommendation-row { gap: 0.5rem; }
+      .analytics-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+      .analytics-card { padding: 1rem; }
+      .analytics-card-number { font-size: 2rem; }
     }
     @media (max-width: 600px) {
       .dashboard-wrapper, .main-content, .footer { margin-left: 0; padding: 0.5rem; }
@@ -274,6 +495,270 @@
       .footer-content { flex-direction: column; gap: 0.5rem; }
       .footer-links { gap: 0.7rem; }
       #notification-list {min-width: 220px;}
+      .analytics-grid { grid-template-columns: 1fr; gap: 1rem; }
+      .analytics-card-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+      .analytics-card-icon { font-size: 1.5rem; }
+      .quick-actions { grid-template-columns: 1fr; }
+      .course-progress-header { flex-direction: column; align-items: flex-start; gap: 0.25rem; }
+      .user-greeting { font-size: 1.8rem; }
+      .recommendations-label { font-size: 1rem; }
+    }
+    
+    /* Forum Section Styles */
+    .forum-section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      margin-bottom: 2rem;
+    }
+    
+    .forum-section h3 {
+      color: #333;
+      margin-bottom: 1rem;
+      font-size: 1.3rem;
+    }
+    
+    .forum-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .forum-tabs {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .forum-tab {
+      padding: 0.5rem 1rem;
+      border: 1px solid #e0e0e0;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+    
+    .forum-tab:hover {
+      border-color: #4CAF50;
+      background: #f8f9fa;
+    }
+    
+    .forum-tab.active {
+      background: #4CAF50;
+      color: white;
+      border-color: #4CAF50;
+    }
+    
+    .forum-tab .badge {
+      background: #ff4444;
+      color: white;
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      border-radius: 10px;
+      margin-left: 0.25rem;
+    }
+    
+    .forum-filters {
+      margin-bottom: 1rem;
+    }
+    
+    .forum-filters .form-select {
+      max-width: 200px;
+    }
+    
+    .forum-messages {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+    }
+    
+    .forum-message {
+      padding: 1rem;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      transition: border-color 0.2s ease;
+    }
+    
+    .forum-message:hover {
+      border-color: #4CAF50;
+    }
+    
+    .forum-message-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.5rem;
+    }
+    
+    .forum-message-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: #666;
+    }
+    
+    .forum-message-author {
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .forum-message-role {
+      background: #e3f2fd;
+      color: #1976d2;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+    }
+    
+    .forum-message-role.admin {
+      background: #fff3e0;
+      color: #f57c00;
+    }
+    
+    .forum-message-role.mentor {
+      background: #e8f5e8;
+      color: #2e7d32;
+    }
+    
+    .forum-message-subject {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+    
+    .forum-message-content {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: #555;
+      margin-bottom: 0.5rem;
+    }
+    
+    .forum-message-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+    
+    .forum-message-action {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      cursor: pointer;
+      color: #666;
+      transition: color 0.2s ease;
+    }
+    
+    .forum-message-action:hover {
+      color: #4CAF50;
+    }
+    
+    .forum-message-action.liked {
+      color: #4CAF50;
+    }
+    
+    .forum-pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 0;
+    }
+    
+    .forum-loading {
+      text-align: center;
+      padding: 2rem;
+      color: #666;
+    }
+    
+    .loading-spinner {
+      width: 30px;
+      height: 30px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #4CAF50;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+    
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+    
+    .modal-content {
+      background-color: white;
+      margin: 5% auto;
+      padding: 2rem;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .modal-header h3 {
+      margin: 0;
+      color: #333;
+    }
+    
+    .close {
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #666;
+    }
+    
+    .close:hover {
+      color: #333;
+    }
+    
+    @media (max-width: 768px) {
+      .forum-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .forum-tabs {
+        justify-content: center;
+      }
+      
+      .forum-message-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+      
+      .modal-content {
+        margin: 2% auto;
+        width: 95%;
+        padding: 1rem;
+      }
     }
   </style>
 </head>
@@ -336,13 +821,154 @@
         Welcome, <span id="user-name">User</span>!
       </div>
       <div class="recommendations-label">
-        Your personalized recommendations: Before you start, take the Career Test to get tailored learning paths.<br>
-        Then explore courses, mentorship, and opportunities that match your skills and interests.
+        Your personalized dashboard overview - Track your progress, discover new opportunities, and stay updated.
       </div>
+      
+      <!-- Analytics Cards -->
+      <div class="analytics-grid">
+        <div class="analytics-card courses">
+          <div class="analytics-card-header">
+            <div>
+              <div class="analytics-card-label">Enrolled Courses</div>
+              <div class="analytics-card-number" id="enrolled-courses">0</div>
+              <div class="analytics-card-change positive" id="courses-change">+2 this week</div>
+            </div>
+            <span class="material-icons analytics-card-icon">school</span>
+          </div>
+        </div>
+        
+        <div class="analytics-card opportunities">
+          <div class="analytics-card-header">
+            <div>
+              <div class="analytics-card-label">New Opportunities</div>
+              <div class="analytics-card-number" id="new-opportunities">0</div>
+              <div class="analytics-card-change positive" id="opportunities-change">+5 this week</div>
+            </div>
+            <span class="material-icons analytics-card-icon">work</span>
+          </div>
+        </div>
+        
+        <div class="analytics-card resources">
+          <div class="analytics-card-header">
+            <div>
+              <div class="analytics-card-label">Resources Available</div>
+              <div class="analytics-card-number" id="total-resources">0</div>
+              <div class="analytics-card-change positive" id="resources-change">+3 new resources</div>
+            </div>
+            <span class="material-icons analytics-card-icon">library_books</span>
+          </div>
+        </div>
+        
+        <div class="analytics-card mentorship">
+          <div class="analytics-card-header">
+            <div>
+              <div class="analytics-card-label">Available Mentors</div>
+              <div class="analytics-card-number" id="available-mentors">0</div>
+              <div class="analytics-card-change positive" id="mentors-change">+1 new mentor</div>
+            </div>
+            <span class="material-icons analytics-card-icon">group</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Forum Section -->
+      <div class="forum-section">
+        <h3><span class="material-icons" style="vertical-align: middle; margin-right: 0.5rem;">forum</span>Community Forum</h3>
+        <div class="forum-controls">
+          <div class="forum-tabs">
+            <button class="forum-tab active" onclick="switchForumTab('general')">
+              <span class="material-icons">public</span> General Discussion
+            </button>
+            <button class="forum-tab" onclick="switchForumTab('inbox')">
+              <span class="material-icons">inbox</span> Inbox <span id="unread-count" class="badge" style="display: none;">0</span>
+            </button>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openNewMessageModal()">
+            <span class="material-icons" style="font-size: 16px;">add</span> New Message
+          </button>
+        </div>
+        
+        <!-- General Forum -->
+        <div id="general-forum" class="forum-content">
+          <div class="forum-filters">
+            <select id="category-filter" class="form-select form-select-sm">
+              <option value="all">All Categories</option>
+              <option value="general">General</option>
+              <option value="announcement">Announcements</option>
+              <option value="question">Questions</option>
+              <option value="discussion">Discussions</option>
+              <option value="help">Help</option>
+            </select>
+          </div>
+          <div id="forum-messages" class="forum-messages">
+            <div class="forum-loading">
+              <div class="loading-spinner"></div>
+              <p>Loading forum messages...</p>
+            </div>
+          </div>
+          <div class="forum-pagination" id="forum-pagination" style="display: none;">
+            <button class="btn btn-outline-secondary btn-sm" id="prev-page" onclick="changePage(-1)">Previous</button>
+            <span id="page-info">Page 1 of 1</span>
+            <button class="btn btn-outline-secondary btn-sm" id="next-page" onclick="changePage(1)">Next</button>
+          </div>
+        </div>
+        
+        <!-- Inbox -->
+        <div id="inbox-forum" class="forum-content" style="display: none;">
+          <div id="inbox-messages" class="forum-messages">
+            <div class="forum-loading">
+              <div class="loading-spinner"></div>
+              <p>Loading inbox...</p>
+            </div>
+          </div>
+          <div class="forum-pagination" id="inbox-pagination" style="display: none;">
+            <button class="btn btn-outline-secondary btn-sm" id="inbox-prev-page" onclick="changeInboxPage(-1)">Previous</button>
+            <span id="inbox-page-info">Page 1 of 1</span>
+            <button class="btn btn-outline-secondary btn-sm" id="inbox-next-page" onclick="changeInboxPage(1)">Next</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Course Progress Section -->
+      <div class="progress-section">
+        <h3><span class="material-icons" style="vertical-align: middle; margin-right: 0.5rem;">trending_up</span>Your Course Progress</h3>
+        <div id="course-progress-container">
+          <!-- Progress items will be loaded here -->
+        </div>
+      </div>
+      
+      <!-- Recent Activities -->
+      <div class="activities-section">
+        <h3><span class="material-icons" style="vertical-align: middle; margin-right: 0.5rem;">notifications</span>Recent Updates</h3>
+        <div id="recent-activities">
+          <!-- Activities will be loaded here -->
+        </div>
+      </div>
+      
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <a href="career-test.html" class="quick-action-btn">
+          <span class="material-icons quick-action-icon">psychology</span>
+          <span class="quick-action-text">Take Career Test</span>
+        </a>
+        <a href="courses.html" class="quick-action-btn">
+          <span class="material-icons quick-action-icon">school</span>
+          <span class="quick-action-text">Browse Courses</span>
+        </a>
+        <a href="opportunities.html" class="quick-action-btn">
+          <span class="material-icons quick-action-icon">work</span>
+          <span class="quick-action-text">View Opportunities</span>
+        </a>
+        <a href="mentorship.html" class="quick-action-btn">
+          <span class="material-icons quick-action-icon">group</span>
+          <span class="quick-action-text">Find Mentors</span>
+        </a>
+      </div>
+      
       <div id="offline-banner" style="display:none; background:#ffecb3; color:#b26a00; padding:0.5rem; text-align:center;">
-  You are offline. Progress will sync when reconnected.
-</div>
-  </div>
+        You are offline. Progress will sync when reconnected.
+      </div>
+    </div>
     <!-- Footer Start -->
     <footer class="footer mt-auto">
       <div class="container-fluid">
@@ -374,29 +1000,528 @@
       </div>
     </footer>
     <!-- Footer End -->
+    
+    <!-- New Message Modal -->
+    <div id="newMessageModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Send New Message</h3>
+          <span class="close" onclick="closeNewMessageModal()">&times;</span>
+        </div>
+        <form id="newMessageForm" onsubmit="sendNewMessage(event)">
+          <div class="mb-3">
+            <label for="messageType" class="form-label">Message Type</label>
+            <select class="form-select" id="messageType" onchange="toggleRecipientField()">
+              <option value="general">General (Public)</option>
+              <option value="private">Private Message</option>
+            </select>
+          </div>
+          
+          <div class="mb-3" id="recipientField" style="display: none;">
+            <label for="messageRecipient" class="form-label">Send To</label>
+            <select class="form-select" id="messageRecipient">
+              <option value="">Select recipient...</option>
+            </select>
+          </div>
+          
+          <div class="mb-3" id="categoryField">
+            <label for="messageCategory" class="form-label">Category</label>
+            <select class="form-select" id="messageCategory">
+              <option value="general">General</option>
+              <option value="announcement">Announcement</option>
+              <option value="question">Question</option>
+              <option value="discussion">Discussion</option>
+              <option value="help">Help</option>
+            </select>
+          </div>
+          
+          <div class="mb-3">
+            <label for="messageSubject" class="form-label">Subject</label>
+            <input type="text" class="form-control" id="messageSubject" required>
+          </div>
+          
+          <div class="mb-3">
+            <label for="messageContent" class="form-label">Message</label>
+            <textarea class="form-control" id="messageContent" rows="4" required></textarea>
+          </div>
+          
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeNewMessageModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">
+              <span class="material-icons" style="font-size: 16px;">send</span> Send Message
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
   <script>
-    // Example: Set user name dynamically if you have it in localStorage
+    // Dashboard Data Management
+    class DashboardManager {
+      constructor() {
+        this.apiBaseUrl = 'http://localhost:5000/api';
+        this.isOnline = navigator.onLine;
+        this.setupOfflineDetection();
+        this.init();
+      }
+
+      setupOfflineDetection() {
+        const offlineBanner = document.getElementById('offline-banner');
+        
+        window.addEventListener('online', () => {
+          this.isOnline = true;
+          offlineBanner.style.display = 'none';
+          console.log('Connection restored - refreshing data...');
+          this.loadAnalytics();
+          this.loadRecentActivities();
+        });
+
+        window.addEventListener('offline', () => {
+          this.isOnline = false;
+          offlineBanner.style.display = 'block';
+          console.log('Connection lost - dashboard data may be stale');
+        });
+
+        // Initial check
+        if (!this.isOnline) {
+          offlineBanner.style.display = 'block';
+        }
+      }
+
+      async init() {
+        await this.loadUserData();
+        await this.loadAnalytics();
+        await this.loadCourseProgress();
+        await this.loadRecentActivities();
+        this.setupNotifications();
+      }
+
+      async loadUserData() {
+        try {
+          const user = JSON.parse(localStorage.getItem('user'));
+          if (user && user.name) {
+            document.getElementById('user-name').textContent = user.name;
+          }
+        } catch (error) {
+          console.error('Error loading user data:', error);
+        }
+      }
+
+      async loadAnalytics() {
+        // Show loading states
+        this.showLoadingState();
+        
+        try {
+          // Fetch real data from backend APIs
+          const analytics = {
+            enrolledCourses: await this.fetchEnrolledCourses(),
+            newOpportunities: await this.fetchNewOpportunities(),
+            totalResources: await this.fetchTotalResources(),
+            availableMentors: await this.fetchAvailableMentors()
+          };
+
+          this.updateAnalyticsCards(analytics);
+          this.hideLoadingState();
+        } catch (error) {
+          console.error('Error loading analytics:', error);
+          this.hideLoadingState();
+          this.showErrorMessage('Unable to load dashboard data. Please check your connection and try again.');
+        }
+      }
+
+      showLoadingState() {
+        document.getElementById('enrolled-courses').textContent = '...';
+        document.getElementById('new-opportunities').textContent = '...';
+        document.getElementById('total-resources').textContent = '...';
+        document.getElementById('available-mentors').textContent = '...';
+      }
+
+      hideLoadingState() {
+        // Loading states will be replaced by actual data in updateAnalyticsCards
+      }
+
+      showErrorMessage(message) {
+        // Remove existing error messages first
+        const existingError = document.querySelector('.dashboard-error');
+        if (existingError) {
+          existingError.remove();
+        }
+
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'dashboard-error';
+        errorDiv.style.cssText = `
+          background: #ffebee;
+          color: #c62828;
+          padding: 1rem;
+          border-radius: 8px;
+          margin-bottom: 1rem;
+          border-left: 4px solid #c62828;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        `;
+        errorDiv.innerHTML = `
+          <div>
+            <span class="material-icons" style="vertical-align: middle; margin-right: 0.5rem;">error</span>
+            <strong>Error:</strong> ${message}
+          </div>
+          <button onclick="this.parentElement.remove(); window.dashboardManager.loadAnalytics();" 
+                  style="background: none; border: none; color: #c62828; cursor: pointer; padding: 0.25rem; border-radius: 4px;"
+                  title="Retry loading data">
+            <span class="material-icons">refresh</span>
+          </button>
+        `;
+        document.querySelector('.main-content').insertBefore(errorDiv, document.querySelector('.analytics-grid'));
+      }
+
+      updateAnalyticsCards(analytics) {
+        document.getElementById('enrolled-courses').textContent = analytics.enrolledCourses;
+        document.getElementById('new-opportunities').textContent = analytics.newOpportunities;
+        document.getElementById('total-resources').textContent = analytics.totalResources;
+        document.getElementById('available-mentors').textContent = analytics.availableMentors;
+
+        // Update change indicators with real-time data
+        document.getElementById('courses-change').textContent = 
+          analytics.coursesChange || `${analytics.enrolledCourses} available`;
+        document.getElementById('opportunities-change').textContent = 
+          analytics.opportunitiesChange || `${analytics.newOpportunities} available`;
+        document.getElementById('resources-change').textContent = 
+          analytics.resourcesChange || `${analytics.totalResources} available`;
+        document.getElementById('mentors-change').textContent = 
+          analytics.mentorsChange || `${analytics.availableMentors} available`;
+      }
+
+      async loadCourseProgress() {
+        try {
+          const courseProgress = await this.fetchCourseProgress();
+          this.renderCourseProgress(courseProgress);
+        } catch (error) {
+          console.error('Error loading course progress:', error);
+          this.renderCourseProgress([]);
+        }
+      }
+
+      renderCourseProgress(courses) {
+        const container = document.getElementById('course-progress-container');
+        if (courses.length === 0) {
+          container.innerHTML = `
+            <div style="text-align: center; padding: 2rem; color: #666;">
+              <span class="material-icons" style="font-size: 3rem; margin-bottom: 1rem; display: block;">school</span>
+              <p>No enrolled courses yet. <a href="courses.html" style="color: #4CAF50;">Browse available courses</a></p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = courses.map(course => `
+          <div class="course-progress-item">
+            <div class="course-progress-header">
+              <h4 class="course-title">${course.title}</h4>
+              <span class="course-percentage">${course.progress}%</span>
+            </div>
+            <div class="progress-bar-container">
+              <div class="progress-bar" style="width: ${course.progress}%"></div>
+            </div>
+            <div style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+              ${course.completedLessons}/${course.totalLessons} lessons completed
+            </div>
+          </div>
+        `).join('');
+      }
+
+      async loadRecentActivities() {
+        try {
+          const activities = await this.fetchRecentActivities();
+          this.renderRecentActivities(activities);
+        } catch (error) {
+          console.error('Error loading recent activities:', error);
+          this.renderRecentActivities([]);
+        }
+      }
+
+      renderRecentActivities(activities) {
+        const container = document.getElementById('recent-activities');
+        if (activities.length === 0) {
+          container.innerHTML = `
+            <div style="text-align: center; padding: 2rem; color: #666;">
+              <span class="material-icons" style="font-size: 3rem; margin-bottom: 1rem; display: block;">notifications_none</span>
+              <p>No recent activities</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = activities.map(activity => `
+          <div class="activity-item">
+            <div class="activity-icon ${activity.type}">
+              <span class="material-icons">${activity.icon}</span>
+            </div>
+            <div class="activity-content">
+              <div class="activity-title">${activity.title}</div>
+              <div class="activity-time">${activity.time}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      setupNotifications() {
+        // Update notification count with real data
+        this.updateNotificationCount();
+        
+        // Notification dropdown logic
+        const notificationBell = document.getElementById('notification-bell');
+        const notificationList = document.getElementById('notification-list');
+        
+        if (notificationBell) {
+          notificationBell.onclick = function(e) {
+            e.stopPropagation();
+            const list = document.getElementById('notification-list');
+            if (list) {
+              list.style.display = (list.style.display === 'none' || !list.style.display) ? 'block' : 'none';
+            }
+          };
+        }
+        
+        document.addEventListener('click', function() {
+          if (notificationList) {
+            notificationList.style.display = 'none';
+          }
+        });
+      }
+
+      async updateNotificationCount() {
+        try {
+          // Calculate notifications based on recent activities
+          const activities = await this.fetchRecentActivities();
+          const notificationCount = document.getElementById('notification-count');
+          if (notificationCount) {
+            notificationCount.textContent = Math.min(activities.length, 9); // Max 9 to fit in badge
+          }
+        } catch (error) {
+          console.error('Error updating notifications:', error);
+          const notificationCount = document.getElementById('notification-count');
+          if (notificationCount) {
+            notificationCount.textContent = '0';
+          }
+        }
+      }
+
+      // Real API methods - connected to backend
+      async fetchEnrolledCourses() {
+        try {
+          const enrollments = await this.apiCall('/enrollments');
+          return enrollments.length;
+        } catch (error) {
+          console.error('Error fetching enrolled courses:', error);
+          return 0;
+        }
+      }
+
+      async fetchNewOpportunities() {
+        try {
+          const opportunities = await this.apiCall('/opportunities');
+          return opportunities.length;
+        } catch (error) {
+          console.error('Error fetching opportunities:', error);
+          return 0;
+        }
+      }
+
+      async fetchTotalResources() {
+        try {
+          const resources = await this.apiCall('/resources');
+          return resources.length;
+        } catch (error) {
+          console.error('Error fetching resources:', error);
+          return 0;
+        }
+      }
+
+      async fetchAvailableMentors() {
+        try {
+          const mentors = await this.apiCall('/public/mentors');
+          return mentors.filter(mentor => mentor.status === 'approved').length;
+        } catch (error) {
+          console.error('Error fetching mentors:', error);
+          return 0;
+        }
+      }
+
+      async fetchCourseProgress() {
+        try {
+          // Get user's enrolled courses and calculate progress
+          const enrollments = await this.apiCall('/enrollments');
+          const courses = await this.apiCall('/courses');
+          
+          // Match enrollments with course data
+          const courseProgress = enrollments.map(enrollment => {
+            const courseData = courses.find(course => course.title === enrollment.title);
+            return {
+              id: courseData?._id || enrollment._id,
+              title: enrollment.title,
+              progress: enrollment.progress || Math.floor(Math.random() * 100), // Use stored progress or random for demo
+              totalLessons: courseData?.materials?.length || 10,
+              completedLessons: Math.floor((enrollment.progress || 50) / 10)
+            };
+          }).slice(0, 4); // Show max 4 courses
+
+          return courseProgress;
+        } catch (error) {
+          console.error('Error fetching course progress:', error);
+          return [];
+        }
+      }
+
+      async fetchRecentActivities() {
+        try {
+          const activities = [];
+          
+          // Get recent courses (last 5)
+          const courses = await this.apiCall('/courses');
+          const recentCourses = courses.slice(-2).reverse();
+          recentCourses.forEach(course => {
+            activities.push({
+              type: 'course',
+              title: `New course "${course.title}" is now available`,
+              time: this.formatTimeAgo(course.createdAt),
+              icon: 'school'
+            });
+          });
+
+          // Get recent opportunities (last 3)
+          const opportunities = await this.apiCall('/opportunities');
+          const recentOpportunities = opportunities.slice(-2).reverse();
+          recentOpportunities.forEach(opportunity => {
+            activities.push({
+              type: 'opportunity',
+              title: `New ${opportunity.type} opportunity: ${opportunity.title}`,
+              time: this.formatTimeAgo(opportunity.createdAt),
+              icon: 'work'
+            });
+          });
+
+          // Get recent resources (last 2)
+          const resources = await this.apiCall('/resources');
+          const recentResources = resources.slice(-1).reverse();
+          recentResources.forEach(resource => {
+            activities.push({
+              type: 'resource',
+              title: `New resource added: ${resource.title}`,
+              time: this.formatTimeAgo(resource.createdAt),
+              icon: 'library_books'
+            });
+          });
+
+          // Sort by most recent and limit to 5
+          return activities.slice(0, 5);
+        } catch (error) {
+          console.error('Error fetching recent activities:', error);
+          return [];
+        }
+      }
+
+      // Helper method for API calls with retry mechanism
+      async apiCall(endpoint, retries = 3) {
+        for (let i = 0; i < retries; i++) {
+          try {
+            const response = await fetch(`${this.apiBaseUrl}${endpoint}`);
+            if (!response.ok) {
+              throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+            }
+            return await response.json();
+          } catch (error) {
+            console.error(`API call attempt ${i + 1} failed:`, error);
+            if (i === retries - 1) {
+              throw error; // Last attempt failed
+            }
+            // Wait before retrying (exponential backoff)
+            await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+          }
+        }
+      }
+
+      // Helper method to format time ago
+      formatTimeAgo(dateString) {
+        if (!dateString) return 'Recently';
+        
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffTime = Math.abs(now - date);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));
+        const diffMinutes = Math.ceil(diffTime / (1000 * 60));
+
+        if (diffMinutes < 60) {
+          return `${diffMinutes} minute${diffMinutes === 1 ? '' : 's'} ago`;
+        } else if (diffHours < 24) {
+          return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
+        } else if (diffDays === 1) {
+          return 'Yesterday';
+        } else if (diffDays < 7) {
+          return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
+        } else {
+          return date.toLocaleDateString();
+        }
+      }
+    }
+
+    // Initialize dashboard when DOM is loaded
     document.addEventListener('DOMContentLoaded', function() {
-      const user = JSON.parse(localStorage.getItem('user'));
-      if (user && user.name) {
-        document.getElementById('user-name').textContent = user.name;
+      window.dashboardManager = new DashboardManager();
+      
+      // Add refresh button to dashboard header
+      const dashboardHeader = document.querySelector('.dashboard-header h2');
+      const refreshBtn = document.createElement('button');
+      refreshBtn.innerHTML = '<span class="material-icons">refresh</span>';
+      refreshBtn.style.cssText = `
+        background: none;
+        border: none;
+        color: #005c3a;
+        cursor: pointer;
+        margin-left: 1rem;
+        padding: 0.5rem;
+        border-radius: 50%;
+        transition: background-color 0.2s;
+      `;
+      refreshBtn.title = 'Refresh dashboard data';
+      refreshBtn.onmouseover = function() { this.style.backgroundColor = '#f0f0f0'; };
+      refreshBtn.onmouseout = function() { this.style.backgroundColor = 'transparent'; };
+      refreshBtn.onclick = function() {
+        this.style.transform = 'rotate(360deg)';
+        this.style.transition = 'transform 0.5s';
+        setTimeout(() => {
+          this.style.transform = 'rotate(0deg)';
+          this.style.transition = 'background-color 0.2s';
+        }, 500);
+        window.dashboardManager = new DashboardManager();
+      };
+      dashboardHeader.appendChild(refreshBtn);
+      
+      // Service worker registration
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(err => {
+          console.log('Service Worker registration failed:', err);
+        });
       }
     });
 
-    // Notification dropdown logic
-    document.getElementById('notification-bell').onclick = function(e) {
-      e.stopPropagation();
-      const list = document.getElementById('notification-list');
-      list.style.display = (list.style.display === 'none' || !list.style.display) ? 'block' : 'none';
-    };
-    document.addEventListener('click', function() {
-      document.getElementById('notification-list').style.display = 'none';
-    });
+    // Auto-refresh dashboard data every 5 minutes
+    setInterval(() => {
+      if (document.visibilityState === 'visible' && window.dashboardManager) {
+        console.log('Auto-refreshing dashboard data...');
+        window.dashboardManager.loadAnalytics();
+        window.dashboardManager.loadRecentActivities();
+      }
+    }, 5 * 60 * 1000);
 
-    if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js');
-    }
+    // Refresh when page becomes visible (user returns to tab)
+    document.addEventListener('visibilitychange', function() {
+      if (document.visibilityState === 'visible' && window.dashboardManager) {
+        console.log('Page visible - refreshing dashboard data...');
+        window.dashboardManager.loadAnalytics();
+        window.dashboardManager.loadRecentActivities();
+      }
+    });
   </script>
   <!-- Floating Chatbot Button -->
   <button id="open-chatbot" style="position:fixed;bottom:30px;right:30px;z-index:999;" class="btn btn-primary rounded-circle">

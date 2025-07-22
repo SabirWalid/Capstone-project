@@ -26,4 +26,4 @@ MentorSchema.methods.comparePassword = function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-module.exports = mongoose.model('Mentor', MentorSchema);
+module.exports = mongoose.models.Mentor || mongoose.model('Mentor', MentorSchema);

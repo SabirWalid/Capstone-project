@@ -27,6 +27,8 @@ const coursesRoutes = require('./routes/courses'); // Import courses route
 const mentorAuthRoutes = require('./routes/mentorAuth'); // Import mentor authentication route
 const mentorRoutes = require('./routes/mentor'); // Import mentor routes
 const publicRoutes = require('./routes/public'); // Import public routes
+const adminResourcesRoutes = require('./routes/adminResources'); // Import admin resources route
+const forumRoutes = require('./routes/forum'); // Import forum routes
 
 const app = express();
 app.use(cors());
@@ -51,6 +53,7 @@ app.use('/api/admin/courses', adminCoursesRoutes); // Use admin courses route
 app.use('/api/admin/opportunities', adminOpportunitiesRoutes); // Use admin opportunities route
 app.use('/api/admin/settings', adminSettingsRoutes); // Use admin settings route
 app.use('/api/admin/mentors', adminMentorsRoutes); // Use admin mentors route
+// Only use /api/mentors for user-facing mentor routes, not admin
 app.use('/api/admin', adminRoutes);
 app.use('/api/notification', notificationRoutes);
 app.use('/api/progress', progressRoutes);
@@ -63,8 +66,10 @@ app.use('/api/admin', adminAuthRoutes); // Use admin authentication route
 app.use('/api/courses', coursesRoutes); // Use courses route
 app.use('/api/mentor', mentorAuthRoutes); // Use mentor authentication route
 app.use('/api/public', publicRoutes);
-app.use('/api/mentors', mentorRoutes); // Use mentor routes
-
+// The /api/mentors route is now handled correctly.
+app.use('/api/resources', resourcesRoutes); // Use resources route
+app.use('/api/admin/resources', adminResourcesRoutes); // Use admin resources route
+app.use('/api', forumRoutes); // Use forum routes
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Server running on port ${port}`));

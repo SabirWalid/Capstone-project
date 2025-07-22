@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const User = require('../models/User');
+const User = require('../models/user');
 
 // Multer setup for profile picture uploads
 const storage = multer.diskStorage({

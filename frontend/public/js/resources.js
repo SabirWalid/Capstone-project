@@ -1,3 +1,18 @@
+// Helper for client-side validation
+function validateResourceForm(form) {
+  const name = form.querySelector('[name="name"]').value.trim();
+  const link = form.querySelector('[name="link"]').value.trim();
+  if (!name) {
+    alert("Resource name is required.");
+    return false;
+  }
+  if (!link || !/^https?:\/\/.+/.test(link)) {
+    alert("Valid resource link is required.");
+    return false;
+  }
+  return true;
+}
+
 class AdminResourceManager {
     constructor() {
         this.resources = [];
@@ -9,16 +24,20 @@ class AdminResourceManager {
             popularType: 'N/A'
         };
         this.currentEditId = null;
-        this.init();
     }
 
     async init() {
-        this.setupTabNavigation();
-        this.setupEventListeners();
-        await this.loadResources();
-        await this.loadStats();
-        this.renderOverview();
-        this.renderManageResources();
+        try {
+            this.setupTabNavigation();
+            this.setupEventListeners();
+            await this.loadResources();
+            await this.loadStats();
+            this.renderOverview();
+            this.renderManageResources();
+        } catch (error) {
+            console.error('Error initializing AdminResourceManager:', error);
+            this.showNotification('Failed to initialize admin panel', 'error');
+        }
     }
 
     setupTabNavigation() {
@@ -54,23 +73,31 @@ class AdminResourceManager {
     setupEventListeners() {
         // Add resource form
         const addForm = document.getElementById('addResourceForm');
-        addForm.addEventListener('submit', (e) => this.handleAddResource(e));
+        if (addForm) {
+            addForm.addEventListener('submit', (e) => this.handleAddResource(e));
+        }
 
         // Edit resource form
         const editForm = document.getElementById('editResourceForm');
-        editForm.addEventListener('submit', (e) => this.handleEditResource(e));
+        if (editForm) {
+            editForm.addEventListener('submit', (e) => this.handleEditResource(e));
+        }
 
         // Search and filter for manage tab
         const searchInput = document.getElementById('manageSearchInput');
         const typeFilter = document.getElementById('manageTypeFilter');
         
-        searchInput.addEventListener('input', (e) => {
-            this.filterResources(e.target.value, typeFilter.value);
-        });
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                this.filterResources(e.target.value, typeFilter ? typeFilter.value : '');
+            });
+        }
         
-        typeFilter.addEventListener('change', (e) => {
-            this.filterResources(searchInput.value, e.target.value);
-        });
+        if (typeFilter) {
+            typeFilter.addEventListener('change', (e) => {
+                this.filterResources(searchInput ? searchInput.value : '', e.target.value);
+            });
+        }
 
         // Modal close events
         document.addEventListener('keydown', (e) => {
@@ -80,52 +107,93 @@ class AdminResourceManager {
         });
 
         // Click outside modal to close
-        document.getElementById('editModal').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('editModal')) {
-                this.closeEditModal();
-            }
-        });
+        const editModal = document.getElementById('editModal');
+        if (editModal) {
+            editModal.addEventListener('click', (e) => {
+                if (e.target === editModal) {
+                    this.closeEditModal();
+                }
+            });
+        }
     }
 
     async loadResources() {
         try {
-            const response = await fetch('/api/admin/resources');
+            // Use absolute URL for API to avoid frontend/backend mismatch
+            const response = await fetch('http://localhost:5000/api/admin/resources');
             if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Failed to load resources:', errorText);
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            this.resources = await response.json();
+            const data = await response.json();
+            // Fix: Use data.resources if present, fallback to array
+            if (Array.isArray(data)) {
+                this.resources = data;
+            } else if (Array.isArray(data.resources)) {
+                this.resources = data.resources;
+            } else {
+                this.resources = [];
+            }
             this.filteredResources = [...this.resources];
+            console.log('Resources loaded:', this.resources.length);
         } catch (error) {
             console.error('Error loading resources:', error);
+            this.resources = [];
+            this.filteredResources = [];
             this.showNotification('Failed to load resources', 'error');
         }
     }
 
     async loadStats() {
-        try {
-            const response = await fetch('/api/admin/stats');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            this.stats = await response.json();
-            this.updateStatsDisplay();
-        } catch (error) {
-            console.error('Error loading stats:', error);
-            this.showNotification('Failed to load statistics', 'error');
+        // Calculate stats from loaded resources instead of API call
+        if (!Array.isArray(this.resources)) {
+            this.resources = [];
         }
+
+        const now = new Date();
+        const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        
+        // Calculate stats from resources data
+        this.stats = {
+            totalResources: this.resources.length,
+            totalDownloads: this.resources.reduce((sum, r) => sum + (r.downloadCount || 0), 0),
+            resourcesThisMonth: this.resources.filter(r => 
+                r.createdAt && new Date(r.createdAt) >= thisMonth
+            ).length,
+            popularType: this.getMostPopularType()
+        };
+        
+        this.updateStatsDisplay();
     }
 
     updateStatsDisplay() {
-        document.getElementById('totalResources').textContent = this.stats.totalResources || 0;
-        document.getElementById('totalDownloads').textContent = this.stats.totalDownloads || 0;
-        document.getElementById('resourcesThisMonth').textContent = this.stats.resourcesThisMonth || 0;
-        document.getElementById('popularType').textContent = this.stats.popularType || 'N/A';
+        const elements = {
+            'totalResources': this.stats.totalResources || 0,
+            'totalDownloads': this.stats.totalDownloads || 0,
+            'resourcesThisMonth': this.stats.resourcesThisMonth || 0,
+            'popularType': this.stats.popularType || 'N/A'
+        };
+
+        Object.entries(elements).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = value;
+            }
+        });
     }
 
     renderOverview() {
         const container = document.getElementById('recentResourcesContainer');
+        if (!container) return;
+
+        // Ensure resources is an array
+        if (!Array.isArray(this.resources)) {
+            this.resources = [];
+        }
+
         const recentResources = this.resources
-            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
             .slice(0, 5);
 
         if (recentResources.length === 0) {
@@ -147,12 +215,12 @@ class AdminResourceManager {
                     ${recentResources.map(resource => `
                         <tr>
                             <td>
-                                <strong>${this.escapeHtml(resource.title)}</strong>
+                                <strong>${this.escapeHtml(resource.title || 'Untitled')}</strong>
                                 <br>
-                                <small style="color: #666;">${this.escapeHtml(resource.description.substring(0, 100))}...</small>
+                                <small style="color: #666;">${this.escapeHtml((resource.description || '').substring(0, 100))}${resource.description && resource.description.length > 100 ? '...' : ''}</small>
                             </td>
-                            <td><span class="resource-type" style="font-size: 0.9em;">${resource.type}</span></td>
-                            <td>${new Date(resource.createdAt).toLocaleDateString()}</td>
+                            <td><span class="resource-type" style="font-size: 0.9em;">${resource.type || 'Unknown'}</span></td>
+                            <td>${resource.createdAt ? new Date(resource.createdAt).toLocaleDateString() : 'Unknown'}</td>
                             <td>${resource.downloadCount || 0}</td>
                         </tr>
                     `).join('')}
@@ -165,6 +233,12 @@ class AdminResourceManager {
 
     renderManageResources() {
         const container = document.getElementById('manageResourcesContainer');
+        if (!container) return;
+
+        // Ensure filteredResources is an array
+        if (!Array.isArray(this.filteredResources)) {
+            this.filteredResources = [];
+        }
 
         if (this.filteredResources.length === 0) {
             container.innerHTML = '<p style="padding: 20px; text-align: center; color: #666;">No resources found</p>';
@@ -186,12 +260,12 @@ class AdminResourceManager {
                     ${this.filteredResources.map(resource => `
                         <tr>
                             <td>
-                                <strong>${this.escapeHtml(resource.title)}</strong>
+                                <strong>${this.escapeHtml(resource.title || 'Untitled')}</strong>
                                 <br>
-                                <small style="color: #666;">${this.escapeHtml(resource.description.substring(0, 80))}...</small>
+                                <small style="color: #666;">${this.escapeHtml((resource.description || '').substring(0, 80))}${resource.description && resource.description.length > 80 ? '...' : ''}</small>
                             </td>
-                            <td><span class="resource-type" style="font-size: 0.9em;">${resource.type}</span></td>
-                            <td>${new Date(resource.createdAt).toLocaleDateString()}</td>
+                            <td><span class="resource-type" style="font-size: 0.9em;">${resource.type || 'Unknown'}</span></td>
+                            <td>${resource.createdAt ? new Date(resource.createdAt).toLocaleDateString() : 'Unknown'}</td>
                             <td>${resource.downloadCount || 0}</td>
                             <td>
                                 <div class="resource-actions">
@@ -213,12 +287,20 @@ class AdminResourceManager {
     }
 
     filterResources(searchTerm = '', typeFilter = '') {
+        if (!Array.isArray(this.resources)) {
+            this.resources = [];
+        }
+
         this.filteredResources = this.resources.filter(resource => {
-            const matchesSearch = !searchTerm || 
-                resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                resource.description.toLowerCase().includes(searchTerm.toLowerCase());
+            const title = resource.title || '';
+            const description = resource.description || '';
+            const type = resource.type || '';
             
-            const matchesType = !typeFilter || resource.type === typeFilter;
+            const matchesSearch = !searchTerm || 
+                title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                description.toLowerCase().includes(searchTerm.toLowerCase());
+            
+            const matchesType = !typeFilter || type === typeFilter;
             
             return matchesSearch && matchesType;
         });
@@ -228,48 +310,66 @@ class AdminResourceManager {
 
     async handleAddResource(event) {
         event.preventDefault();
-        
         const loading = document.getElementById('addFormLoading');
-        loading.classList.add('active');
+        if (loading) loading.classList.add('active');
 
         const formData = new FormData(event.target);
-        const resourceData = Object.fromEntries(formData.entries());
-
-        // Process tags
-        if (resourceData.tags) {
-            resourceData.tags = resourceData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
-        }
+        // Ensure correct field names for backend
+        const resourceData = {
+            title: formData.get('title') || '',
+            type: formData.get('type') || '',
+            description: formData.get('description') || '',
+            url: formData.get('url') || '',
+            category: formData.get('category') || '',
+            tags: formData.get('tags') ? formData.get('tags').split(',').map(tag => tag.trim()).filter(tag => tag.length > 0) : []
+        };
 
         try {
-            const response = await fetch('/api/admin/resources', {
+            const response = await fetch('http://localhost:5000/api/admin/resources', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('adminToken')
                 },
                 body: JSON.stringify(resourceData)
             });
 
             if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.message || 'Failed to add resource');
+                // Try to parse error as JSON, fallback to text
+                let errorMsg = 'Failed to add resource';
+                let errorBody = null;
+                try {
+                    errorBody = await response.clone().json();
+                    errorMsg = errorBody.message || errorMsg;
+                } catch (e) {
+                    try {
+                        errorBody = await response.text();
+                        errorMsg = errorBody || errorMsg;
+                    } catch (e2) {}
+                }
+                throw new Error(errorMsg);
             }
 
             await this.loadResources();
             await this.loadStats();
             this.renderOverview();
             this.renderManageResources();
-            
             event.target.reset();
             this.showNotification('Resource added successfully!', 'success');
         } catch (error) {
             console.error('Error adding resource:', error);
             this.showNotification(error.message, 'error');
         } finally {
-            loading.classList.remove('active');
+            if (loading) loading.classList.remove('active');
         }
     }
 
     async editResource(resourceId) {
+        if (!Array.isArray(this.resources)) {
+            this.showNotification('Resources not loaded', 'error');
+            return;
+        }
+
         const resource = this.resources.find(r => r._id === resourceId);
         if (!resource) {
             this.showNotification('Resource not found', 'error');
@@ -278,38 +378,53 @@ class AdminResourceManager {
 
         this.currentEditId = resourceId;
         
-        // Populate form
-        document.getElementById('editResourceId').value = resource._id;
-        document.getElementById('editTitle').value = resource.title;
-        document.getElementById('editType').value = resource.type;
-        document.getElementById('editDescription').value = resource.description;
-        document.getElementById('editUrl').value = resource.url;
-        document.getElementById('editCategory').value = resource.category || '';
-        document.getElementById('editTags').value = resource.tags ? resource.tags.join(', ') : '';
+        // Populate form with safe fallbacks
+        const fields = {
+            'editResourceId': resource._id || '',
+            'editTitle': resource.title || '',
+            'editType': resource.type || '',
+            'editDescription': resource.description || '',
+            'editUrl': resource.url || '',
+            'editCategory': resource.category || '',
+            'editTags': resource.tags ? resource.tags.join(', ') : ''
+        };
+
+        Object.entries(fields).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.value = value;
+            }
+        });
 
         // Show modal
-        document.getElementById('editModal').classList.add('active');
+        const modal = document.getElementById('editModal');
+        if (modal) {
+            modal.classList.add('active');
+        }
     }
 
     async handleEditResource(event) {
         event.preventDefault();
         
         const loading = document.getElementById('editFormLoading');
-        loading.classList.add('active');
+        if (loading) loading.classList.add('active');
 
         const formData = new FormData(event.target);
         const resourceData = Object.fromEntries(formData.entries());
 
         // Process tags
         if (resourceData.tags) {
-            resourceData.tags = resourceData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+            resourceData.tags = resourceData.tags.split(',')
+                .map(tag => tag.trim())
+                .filter(tag => tag.length > 0);
         }
 
         try {
-            const response = await fetch(`/api/admin/resources/${this.currentEditId}`, {
+            const response = await fetch(`http://localhost:5000/api/admin/resources/${this.currentEditId}`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('adminToken')
                 },
                 body: JSON.stringify(resourceData)
             });
@@ -329,7 +444,7 @@ class AdminResourceManager {
             console.error('Error updating resource:', error);
             this.showNotification(error.message, 'error');
         } finally {
-            loading.classList.remove('active');
+            if (loading) loading.classList.remove('active');
         }
     }
 
@@ -339,8 +454,11 @@ class AdminResourceManager {
         }
 
         try {
-            const response = await fetch(`/api/admin/resources/${resourceId}`, {
-                method: 'DELETE'
+            const response = await fetch(`http://localhost:5000/api/admin/resources/${resourceId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('adminToken')
+                }
             });
 
             if (!response.ok) {
@@ -361,7 +479,10 @@ class AdminResourceManager {
     }
 
     closeEditModal() {
-        document.getElementById('editModal').classList.remove('active');
+        const modal = document.getElementById('editModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
         this.currentEditId = null;
     }
 
@@ -392,19 +513,22 @@ class AdminResourceManager {
         notification.style.background = colors[type] || colors.info;
         notification.textContent = message;
 
-        // Add animation styles
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideOut {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
+        // Add animation styles if not already added
+        if (!document.getElementById('notification-styles')) {
+            const style = document.createElement('style');
+            style.id = 'notification-styles';
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOut {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
 
         document.body.appendChild(notification);
 
@@ -429,7 +553,25 @@ class AdminResourceManager {
         });
     }
 
+    getMostPopularType() {
+        if (!Array.isArray(this.resources) || this.resources.length === 0) {
+            return 'N/A';
+        }
+
+        const typeCounts = {};
+        this.resources.forEach(resource => {
+            const type = resource.type || 'Unknown';
+            typeCounts[type] = (typeCounts[type] || 0) + 1;
+        });
+
+        const mostPopular = Object.entries(typeCounts)
+            .reduce((a, b) => typeCounts[a[0]] > typeCounts[b[0]] ? a : b);
+        
+        return mostPopular ? mostPopular[0] : 'N/A';
+    }
+
     escapeHtml(unsafe) {
+        if (typeof unsafe !== 'string') return '';
         return unsafe
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
@@ -440,15 +582,20 @@ class AdminResourceManager {
 
     // Public method to refresh all data
     async refresh() {
-        await this.loadResources();
-        await this.loadStats();
-        this.renderOverview();
-        this.renderManageResources();
-        this.showNotification('Data refreshed successfully!', 'success');
+        try {
+            await this.loadResources();
+            await this.loadStats();
+            this.renderOverview();
+            this.renderManageResources();
+            this.showNotification('Data refreshed successfully!', 'success');
+        } catch (error) {
+            console.error('Error refreshing data:', error);
+            this.showNotification('Failed to refresh data', 'error');
+        }
     }
 }
 
-// Global functions for onclick handlers
+// Global functions for onclick handlers and backward compatibility
 window.closeEditModal = function() {
     if (window.adminManager) {
         window.adminManager.closeEditModal();
@@ -457,5 +604,15 @@ window.closeEditModal = function() {
 
 // Initialize the admin manager when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    window.adminManager = new AdminResourceManager();
+    // Only initialize if not already initialized
+    if (!window.adminManager) {
+        window.adminManager = new AdminResourceManager();
+        window.adminManager.init().catch(error => {
+            console.error('Failed to initialize admin manager:', error);
+        });
+    }
 });
+// ...existing code...
+
+// Expose adminManager globally for debugging
+window.getAdminManager = () => window.adminManager;

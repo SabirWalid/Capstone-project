@@ -5,18 +5,400 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="css/resources.css">
+  <!-- Removed external resources.css, all styles are now in this file -->
   <style>
-    body { background: #76fc76;
-      font-family: Arial, sans-serif;
-      color: #333;
+    /* 60-30-10 Color Palette */
+    :root {
+      --main-bg: #f7f8fa; /* 60% - light neutral background */
+      --secondary: #2e8b57; /* 30% - rich green for panels/cards/nav */
+      --accent: #ff9800; /* 10% - orange accent for buttons/highlights */
+      --text-main: #222;
+      --text-light: #fff;
+      --card-bg: #fff;
+      --shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+    body {
+      background: var(--main-bg);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: var(--text-main);
       margin: 0;
       padding: 0;
     }
+    
+    .admin-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .admin-header {
+      background: var(--card-bg);
+      border-radius: 20px 20px 0 0;
+      padding: 30px 40px;
+      box-shadow: var(--shadow);
+    }
+    .admin-header h1 {
+      color: var(--secondary);
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .admin-header p {
+      color: #666;
+      font-size: 1.1em;
+    }
+    .admin-nav {
+      background: var(--secondary);
+      padding: 0 40px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .nav-tabs {
+      display: flex;
+      gap: 0;
+    }
+    .nav-tab {
+      background: none;
+      border: none;
+      padding: 20px 30px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-light);
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    .nav-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .nav-tab:hover:not(.active) {
+      color: var(--accent);
+      background: rgba(255, 255, 255, 0.15);
+    }
+    .admin-content {
+      background: var(--card-bg);
+      border-radius: 0 0 20px 20px;
+      min-height: 600px;
+      box-shadow: var(--shadow);
+    }
+    .tab-content {
+      display: none;
+      padding: 40px;
+      animation: fadeIn 0.3s ease;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .add-resource-form {
+      background: var(--card-bg);
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: var(--shadow);
+      margin-bottom: 30px;
+    }
+    .form-group {
+      margin-bottom: 25px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+    }
+    .form-input, .form-textarea, .form-select {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: white;
+    }
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      outline: none;
+      border-color: #4ecdc4;
+      box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+    }
+    .form-textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .btn {
+      padding: 15px 30px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: var(--text-light);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(255, 152, 0, 0.2);
+    }
+    .btn-danger {
+      background: #e53935;
+      color: var(--text-light);
+    }
+    .btn-danger:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(229, 57, 53, 0.2);
+    }
+    .btn-secondary {
+      background: #e0e0e0;
+      color: #222;
+      border: 2px solid #bdbdbd;
+    }
+    .btn-secondary:hover {
+      background: #bdbdbd;
+      border-color: #888;
+    }
+    .resources-table {
+      background: var(--card-bg);
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .table-header {
+      background: var(--secondary);
+      color: var(--text-light);
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .table-header h3 {
+      font-size: 1.3em;
+      margin: 0;
+    }
+    .search-box {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+    .search-input {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.9);
+      width: 300px;
+    }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .table th, .table td {
+      padding: 15px 20px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    .table th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #333;
+    }
+    .table tr:hover {
+      background: #f8f9fa;
+    }
+    .resource-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .action-btn {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+    .edit-btn {
+      background: var(--accent);
+      color: var(--text-light);
+    }
+    .delete-btn {
+      background: #e53935;
+      color: var(--text-light);
+    }
+    .action-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+    .stat-card {
+      background: var(--card-bg);
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: var(--shadow);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--secondary), var(--accent));
+    }
+    .stat-number {
+      font-size: 3em;
+      font-weight: bold;
+      color: var(--secondary);
+      margin-bottom: 10px;
+    }
+    .stat-label {
+      font-size: 1.1em;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    /* Only apply custom modal styles to #editModal, not Bootstrap modals */
+    #editModal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(5px);
+    }
+    #editModal.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: modalFadeIn 0.3s ease;
+    }
+    @keyframes modalFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    #editModal .modal-content {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: modalSlideIn 0.3s ease;
+    }
+    @keyframes modalSlideIn {
+      from { transform: translateY(-30px) scale(0.9); }
+      to { transform: translateY(0) scale(1); }
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #eee;
+    }
+    .modal-title {
+      font-size: 1.5em;
+      color: #333;
+      margin: 0;
+    }
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #999;
+      transition: color 0.3s ease;
+    }
+    .close-btn:hover {
+      color: #333;
+    }
+    .loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      border-radius: 15px;
+      z-index: 900; /* below modal */
+    }
+    .loading-overlay.active {
+      display: flex;
+    }
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #4ecdc4;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @media (max-width: 768px) {
+      .admin-container {
+        padding: 10px;
+      }
+      .admin-header, .admin-nav, .tab-content {
+        padding: 20px;
+      }
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      .search-box {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .search-input {
+        width: 100%;
+      }
+      .table {
+        font-size: 14px;
+      }
+      .table th, .table td {
+        padding: 10px;
+      }
+    }
     .sidebar {
       min-height: 100vh;
-      background: #064f18;
-      color: #fff;
+      background: var(--secondary);
+      color: var(--text-light);
       padding-top: 2rem;
     
     }
@@ -34,24 +416,25 @@
       object-fit: cover;
     }
     .sidebar a {
-      color: #fff;
+      color: var(--text-light);
       display: block;
       padding: 0.75rem 1.5rem;
       text-decoration: none;
       border-radius: 0.3rem;
       margin-bottom: 0.5rem;
-      
+      transition: background 0.2s;
     }
-    .sidebar a:hover {
-      background: #0f5137;
+    .sidebar a.active, .sidebar a:hover {
+      background: var(--accent);
+      color: var(--text-light);
     }
     .dashboard-content {
       padding: 2rem;
     }
     .form-section {
-      background: #fff;
+      background: var(--card-bg);
       border-radius: 0.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      box-shadow: var(--shadow);
       padding: 2rem;
       margin-bottom: 2rem;
       margin-top: 5rem;
@@ -123,6 +506,9 @@
       <!-- Sidebar -->
       <nav class="col-md-2 sidebar">
         <h4 class="text-center mb-4">Admin Panel</h4>
+        <div class="profile">
+          <img id="profile-picture" src="default-avatar.png" alt="Profile Picture">
+        </div>
         <a href="#" class="nav-link active" data-section="profile"><span class="material-icons"></span> Profile</a>
         <a href="#" class="active" onclick="showSection('dashboard')">Dashboard</a>
         <a href="#" onclick="showSection('courses')">Courses</a>
@@ -164,7 +550,7 @@
           <div id="courses-list"></div>
           <!-- Add/Edit Course Form Modal -->
           <div class="modal fade" id="courseModal" tabindex="-1" aria-labelledby="courseModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
+            <div class="modal-dialog modal-lg" role="dialog" aria-modal="true" aria-labelledby="courseModalLabel">
               <div class="modal-content">
                 <form id="course-form">
                   <div class="modal-header">
@@ -244,7 +630,7 @@
 
   <!-- Add/Edit Opportunity Modal -->
   <div class="modal fade" id="opportunityModal" tabindex="-1" aria-labelledby="opportunityModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="dialog" aria-modal="true" aria-labelledby="opportunityModalLabel">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="opportunityModalLabel">Add Opportunity</h5>
@@ -312,7 +698,7 @@
 
 <!-- Mentor Modal -->
 <div class="modal fade" id="mentorModal" tabindex="-1" aria-labelledby="mentorModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="mentorModalLabel">
     <form id="mentor-form" enctype="multipart/form-data">
       <div class="modal-content">
         <div class="modal-header">
@@ -337,10 +723,11 @@
   </div>
 
   <!-- Admin Resources Section -->
-  <div class="admin-container">
+  <div id="resources-section" class="form-section" style="display:none;">
+    <div class="admin-container">
         <div class="admin-header">
             <div>
-                <h1>⚙️ Admin Dashboard</h1>
+                <h1>⚙️ Admin Resources</h1>
                 <p>Manage your resource library</p>
             </div>
         </div>
@@ -380,7 +767,7 @@
                         <h3>Recent Resources</h3>
                     </div>
                     <div id="recentResourcesContainer">
-                        <div class="loading-overlay active">
+                        <div class="loading-overlay">
                             <div class="spinner"></div>
                         </div>
                     </div>
@@ -474,7 +861,7 @@
                         </div>
                     </div>
                     <div id="manageResourcesContainer" style="position: relative;">
-                        <div class="loading-overlay active">
+                        <div class="loading-overlay">
                             <div class="spinner"></div>
                         </div>
                     </div>
@@ -485,7 +872,7 @@
 
     <!-- Edit Resource Modal -->
     <div id="editModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="editResourceModalLabel">
             <div class="modal-header">
                 <h2 class="modal-title">✏️ Edit Resource</h2>
                 <button class="close-btn" onclick="closeEditModal()">&times;</button>
@@ -560,19 +947,34 @@
   <script>
     // Sidebar navigation
     function showSection(section) {
-      document.getElementById('dashboard-section').style.display = section === 'dashboard' ? 'block' : 'none';
-      document.getElementById('courses-section').style.display = section === 'courses' ? 'block' : 'none';
-      document.getElementById('opportunities-section').style.display = section === 'opportunities' ? 'block' : 'none';
-      document.getElementById('mentors-section').style.display = section === 'mentors' ? 'block' : 'none';
-      document.getElementById('settings-section').style.display = section === 'settings' ? 'block' : 'none';
-      // Highlight active link
-      document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
-      document.querySelector('.sidebar a[onclick*="' + section + '"]').classList.add('active');
-      // Load data if needed
-      if (section === 'courses') loadCourses();
-      if (section === 'opportunities') loadOpportunities && loadOpportunities();
-      if (section === 'mentors') loadMentors && loadMentors();
+  // Hide all sections first
+  document.getElementById('dashboard-section').style.display = 'none';
+  document.getElementById('courses-section').style.display = 'none';
+  document.getElementById('opportunities-section').style.display = 'none';
+  document.getElementById('mentors-section').style.display = 'none';
+  document.getElementById('settings-section').style.display = 'none';
+  document.getElementById('resources-section').style.display = 'none';
+
+  // Show the selected section
+  document.getElementById(section + '-section').style.display = 'block';
+
+  // Highlight active link
+  document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+  document.querySelector('.sidebar a[onclick*="' + section + '"]').classList.add('active');
+
+  // Load specific data for the section
+  if (section === 'courses') loadCourses();
+  if (section === 'opportunities') loadOpportunities();
+  if (section === 'mentors') loadMentors();
+  if (section === 'resources') {
+    if (window.adminManager && window.adminManager.refresh) {
+      window.adminManager.refresh();
+    } else if (typeof loadResources === 'function') {
+      loadResources();
     }
+  }
+}
+
     showSection('dashboard');
 
     // Logout function
@@ -847,9 +1249,9 @@ async function loadMentors() {
       <div class="card-body">
         <strong>${m.name}</strong> <span class="text-muted">${m.title || ''}</span>
         <div>${m.bio || ''}</div>
-        <div>Tags: ${(m.tags || []).join(', ')}</div>
-        <button class="btn btn-sm btn-primary" onclick="editMentor('${m._id}')">Edit</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteMentor('${m._id}')">Delete</button>
+        <div>Tags: ${Array.isArray(m.tags) ? m.tags.join(', ') : (m.tags || '')}</div>
+        <button class="btn btn-sm btn-primary" onclick="editMentor('${m._id || m.id}')">Edit</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteMentor('${m._id || m.id}')">Delete</button>
       </div>
     </div>
   `).join('');
@@ -868,25 +1270,40 @@ let editingMentorId = null;
 
 function showMentorForm() {
   editingMentorId = null;
-  document.getElementById('mentor-form').reset();
+  // Only reset mentor modal fields, not profile fields
+  document.querySelector('#mentor-form input#mentor-name').value = '';
+  document.querySelector('#mentor-form input#mentor-title').value = '';
+  document.querySelector('#mentor-form input#mentor-avatar').value = '';
+  document.querySelector('#mentor-form input#mentor-readmore').value = '';
+  document.querySelector('#mentor-form input#mentor-calendar').value = '';
+  document.querySelector('#mentor-form textarea#mentor-bio').value = '';
+  document.querySelector('#mentor-form input#mentor-tags').value = '';
   document.getElementById('mentorModalLabel').textContent = 'Add Mentor';
   new bootstrap.Modal(document.getElementById('mentorModal')).show();
 }
 
 window.editMentor = async function(id) {
   editingMentorId = id;
-  const res = await fetch(`http://localhost:5000/api/admin/mentors`, {
+  const res = await fetch(`http://localhost:5000/api/admin/mentors/${id}`, {
     headers: { 'Authorization': 'Bearer ' + localStorage.getItem('adminToken') }
   });
-  const mentors = await res.json();
-  const m = mentors.find(x => x._id === id);
-  document.getElementById('mentor-name').value = m.name;
-  document.getElementById('mentor-title').value = m.title || '';
-  document.getElementById('mentor-avatar').value = m.avatar || '';
-  document.getElementById('mentor-readmore').value = m.readMoreLink || '';
-  document.getElementById('mentor-calendar').value = m.calendarLink || '';
-  document.getElementById('mentor-bio').value = m.bio || '';
-  document.getElementById('mentor-tags').value = (m.tags || []).join(', ');
+  if (!res.ok) {
+    let errMsg = 'Failed to load mentor details';
+    try {
+      const err = await res.text();
+      errMsg += ': ' + err;
+    } catch(e) {}
+    alert(errMsg);
+    return;
+  }
+  const m = await res.json();
+  document.querySelector('#mentor-form input#mentor-name').value = m.name || '';
+  document.querySelector('#mentor-form input#mentor-title').value = m.title || '';
+  document.querySelector('#mentor-form input#mentor-avatar').value = '';
+  document.querySelector('#mentor-form input#mentor-readmore').value = m.readMoreLink || '';
+  document.querySelector('#mentor-form input#mentor-calendar').value = m.calendarLink || '';
+  document.querySelector('#mentor-form textarea#mentor-bio').value = m.bio || '';
+  document.querySelector('#mentor-form input#mentor-tags').value = Array.isArray(m.tags) ? m.tags.join(', ') : (m.tags || '');
   document.getElementById('mentorModalLabel').textContent = 'Edit Mentor';
   new bootstrap.Modal(document.getElementById('mentorModal')).show();
 };
@@ -894,61 +1311,42 @@ window.editMentor = async function(id) {
 document.getElementById('mentor-form').onsubmit = async function(e) {
   e.preventDefault();
 
+  // Always use FormData for both add and edit to support avatar upload
+  const form = document.getElementById('mentor-form');
+  const formData = new FormData();
+  formData.append('name', form.querySelector('input#mentor-name').value);
+  formData.append('title', form.querySelector('input#mentor-title').value);
+  formData.append('readMoreLink', form.querySelector('input#mentor-readmore').value);
+  formData.append('calendarLink', form.querySelector('input#mentor-calendar').value);
+  formData.append('bio', form.querySelector('textarea#mentor-bio').value);
+  formData.append('tags', form.querySelector('input#mentor-tags').value);
+  const avatarFile = form.querySelector('input#mentor-avatar').files[0];
+  if (avatarFile) {
+    formData.append('avatar', avatarFile);
+  }
+
+  let url = 'http://localhost:5000/api/admin/mentors';
+  let method = 'POST';
   if (editingMentorId) {
-    // For editing: use JSON, no file upload
-    const data = {
-      name: document.getElementById('mentor-name').value,
-      title: document.getElementById('mentor-title').value,
-      readMoreLink: document.getElementById('mentor-readmore').value,
-      calendarLink: document.getElementById('mentor-calendar').value,
-      bio: document.getElementById('mentor-bio').value,
-      tags: document.getElementById('mentor-tags').value.split(',').map(t => t.trim()).filter(Boolean),
-      avatar: document.getElementById('mentor-avatar').value // if you want to store URL manually
-    };
+    url += '/' + editingMentorId;
+    method = 'PUT';
+  }
 
-    const res = await fetch(`http://localhost:5000/api/admin/mentors/${editingMentorId}`, {
-      method: 'PUT',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + localStorage.getItem('adminToken')
-      },
-      body: JSON.stringify(data)
-    });
+  const res = await fetch(url, {
+    method,
+    headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem('adminToken')
+    },
+    body: formData
+  });
 
-    if (!res.ok) {
-      const err = await res.text();
-      alert('Error updating mentor: ' + err);
-      return;
-    }
-
-  } else {
-    // For creating: use FormData for file upload
-    const formData = new FormData();
-    formData.append('name', document.getElementById('mentor-name').value);
-    formData.append('title', document.getElementById('mentor-title').value);
-    formData.append('readMoreLink', document.getElementById('mentor-readmore').value);
-    formData.append('calendarLink', document.getElementById('mentor-calendar').value);
-    formData.append('bio', document.getElementById('mentor-bio').value);
-    formData.append('tags', document.getElementById('mentor-tags').value);
-
-    const avatarFile = document.getElementById('mentor-avatar').files[0];
-    if (avatarFile) {
-      formData.append('avatar', avatarFile);
-    }
-
-    const res = await fetch('http://localhost:5000/api/admin/mentors', {
-      method: 'POST',
-      headers: { 
-        'Authorization': 'Bearer ' + localStorage.getItem('adminToken')
-      },
-      body: formData
-    });
-
-    if (!res.ok) {
-      const err = await res.text();
-      alert('Error creating mentor: ' + err);
-      return;
-    }
+  if (!res.ok) {
+    let errMsg = 'Unknown error';
+    try {
+      errMsg = await res.text();
+    } catch(e) {}
+    alert('Error saving mentor: ' + errMsg);
+    return;
   }
 
   bootstrap.Modal.getInstance(document.getElementById('mentorModal')).hide();
@@ -956,7 +1354,48 @@ document.getElementById('mentor-form').onsubmit = async function(e) {
 };
 
   </script>
+  <script>
+    // --- Resource Management ---
+    // Ensure AdminResourceManager is initialized and tab navigation works
+    document.addEventListener('DOMContentLoaded', function() {
+      if (window.AdminResourceManager) {
+        window.adminManager = new AdminResourceManager();
+        window.adminManager.init();
+      } else if (typeof loadResources === 'function') {
+        loadResources();
+      }
+      // Tab navigation for resources section
+      const navTabs = document.querySelectorAll('.admin-nav .nav-tab');
+      const tabContents = document.querySelectorAll('.admin-content .tab-content');
+      navTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+          navTabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          tabContents.forEach(tc => tc.classList.remove('active'));
+          const target = tab.getAttribute('data-tab');
+          document.getElementById(target).classList.add('active');
+          // Refresh resource data when switching tabs
+          if (window.adminManager && window.adminManager.refresh) {
+            window.adminManager.refresh();
+          } else if (typeof loadResources === 'function') {
+            loadResources();
+          }
+        });
+      });
+    });
+  </script>
+  <script src="js/resources.js"></script>
   <!-- Bootstrap JS (for modal) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Hide all overlays when any modal is shown
+    document.querySelectorAll('.modal').forEach(function(modal) {
+      modal.addEventListener('show.bs.modal', function() {
+        document.querySelectorAll('.loading-overlay').forEach(function(overlay) {
+          overlay.classList.remove('active');
+        });
+      });
+    });
+  </script>
 </body>
 </html>

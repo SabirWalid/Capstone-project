@@ -1,16 +1,30 @@
 window.showSection = function(section) {
-  document.getElementById('dashboard-section').style.display = section === 'dashboard' ? 'block' : 'none';
-  document.getElementById('courses-section').style.display = section === 'courses' ? 'block' : 'none';
-  document.getElementById('opportunities-section').style.display = section === 'opportunities' ? 'block' : 'none';
-  document.getElementById('mentors-section').style.display = section === 'mentors' ? 'block' : 'none';
-  document.getElementById('settings-section').style.display = section === 'settings' ? 'block' : 'none';
+  // Hide all sections first
+  document.getElementById('dashboard-section').style.display = 'none';
+  document.getElementById('courses-section').style.display = 'none';
+  document.getElementById('opportunities-section').style.display = 'none';
+  document.getElementById('mentors-section').style.display = 'none';
+  document.getElementById('settings-section').style.display = 'none';
+  document.getElementById('resources-section').style.display = 'none';
+
+  // Show the selected section
+  document.getElementById(section + '-section').style.display = 'block';
+
   // Highlight active link
   document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
   document.querySelector('.sidebar a[onclick*="' + section + '"]').classList.add('active');
-  // Load data if needed
+
+  // Load specific data for the section
   if (section === 'courses') loadCourses();
   if (section === 'opportunities') loadOpportunities();
-  if (section === 'mentors') loadMentors && loadMentors();
+  if (section === 'mentors') loadMentors();
+  if (section === 'resources') {
+    if (window.adminManager && window.adminManager.refresh) {
+      window.adminManager.refresh();
+    } else if (typeof loadResources === 'function') {
+      loadResources();
+    }
+  }
 };
 
 const adminToken = localStorage.getItem('adminToken');
@@ -115,6 +129,13 @@ function showAddOpportunityForm() {
   editingOpportunityId = null;
   document.getElementById('opportunity-form').reset();
   document.getElementById('opportunityModalLabel').textContent = 'Add Opportunity';
+  // Clear all input fields
+  document.getElementById('opportunity-title').value = '';
+  document.getElementById('opportunity-description').value = '';
+  document.getElementById('opportunity-category').value = '';
+  document.getElementById('opportunity-deadline').value = '';
+  document.getElementById('opportunity-link').value = '';
+  document.getElementById('opportunity-type').value = '';
   new bootstrap.Modal(document.getElementById('opportunityModal')).show();
 }
 window.showAddOpportunityForm = showAddOpportunityForm;

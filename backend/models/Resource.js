@@ -22,7 +22,7 @@ const resourceSchema = new mongoose.Schema({
     },
     url: {
         type: String,
-        required: [true, 'URL is required'],
+        required: [true, ],
         trim: true,
         validate: {
             validator: function(v) {
@@ -191,5 +191,10 @@ resourceSchema.statics.search = function(query, options = {}) {
             case 'alphabetical':
                 queryBuilder = queryBuilder.sort({ title: 1 });
                 break;
+        }
+    }
+
+    return queryBuilder;
+};
 
 module.exports = mongoose.model('Resource', resourceSchema);

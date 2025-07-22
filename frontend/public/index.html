@@ -139,7 +139,7 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav mx-auto">
         <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
-        <li class="nav-item"><a class="nav-link" href="register.html">Learning Path</a></li>
+        <li class="nav-item"><a class="nav-link" href="register.html">About Us</a></li>
         <li class="nav-item"><a class="nav-link" href="register.html">Mentorship</a></li>
         <li class="nav-item"><a class="nav-link" href="register.html">Opportunities</a></li>
       </ul>
@@ -162,7 +162,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Footer Start -->
-    <footer class="footer mt-auto">
+    <footer class="footer">
       <div class="container-fluid">
         <div class="footer-content">
           <div class="footer-logo">
@@ -204,8 +204,12 @@
       border-top: 1px solid #333;
       margin-left: 0;
       width: 100%;
-      position: relative;
-      bottom: 0;
+      position: static;
+      bottom: auto;
+      left: auto;
+      right: auto;
+      z-index: 1;
+      /* Ensure footer is at the bottom of content, not fixed to viewport */
     }
     .footer .container-fluid {
       padding: 0 !important;
