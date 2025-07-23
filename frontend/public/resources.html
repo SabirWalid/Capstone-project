@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resource Library</title>
     <style>
+        :root {
+            --primary-bg: #f8fffe;
+            --secondary-bg: #2c5f5d;
+            --tertiary-accent: #00b894;
+            --text-color: #2d3436;
+            --card-bg: #ffffff;
+            --border-color: #ddd;
+            --text-secondary: #636e72;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -15,7 +25,7 @@
       height: 100%;
       margin: 0;
       padding: 0;
-      background: #76fc76;
+      background: var(--primary-bg);
       font-family: 'Segoe UI', Arial, sans-serif;
     }
     body {
@@ -24,7 +34,7 @@
       flex-direction: row;
     }
     .sidebar {
-      background: #005c3a;
+      background: var(--secondary-bg);
       color: #fff;
       min-height: 100vh;
       width: 90px;
@@ -65,8 +75,8 @@
     }
     .sidebar .nav-link.active,
     .sidebar .nav-link:hover {
-      background: #00b0ff22;
-      color: #00b0ff;
+      background: rgba(0, 184, 148, 0.13);
+      color: var(--tertiary-accent);
     }
     .sidebar .nav-link .material-icons {
       font-size: 2.2rem;
@@ -83,14 +93,14 @@
     }
     .sidebar .nav-link.active .sidebar-label,
     .sidebar .nav-link:hover .sidebar-label {
-      color: #00b0ff;
+      color: var(--tertiary-accent);
       opacity: 1;
     }
     .sidebar .badge {
       position: relative;
       top: 0;
       right: 10px;
-      background: #00b0ff;
+      background: var(--tertiary-accent);
       color: #fff;
       font-size: 0.8rem;
       border-radius: 50%;

@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forum - Admin Panel</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    /* 60-30-10 Color Palette */
+    :root {
+      --primary-bg: #f8fffe; /* 60% - primary light background */
+      --secondary-bg: #2c5f5d; /* 30% - secondary dark green for panels/cards/nav */
+      --tertiary-accent: #00b894; /* 10% - tertiary accent for buttons/highlights */
+      --text-color: #2d3436; /* Main text color */
+      --card-bg: #ffffff; /* Card background */
+      --border-color: #ddd; /* Border color */
+      --text-secondary: #636e72; /* Secondary text color */
+      --shadow: 0 10px 30px rgba(44, 95, 93, 0.08);
+    }
+
+    body {
+      background: var(--primary-bg);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: var(--text-color);
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    .forum-header {
+      background: var(--secondary-bg);
+      color: white;
+      padding: 2rem 0;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .forum-nav {
+      background: var(--card-bg);
+      border-radius: 15px;
+      padding: 1rem 2rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .nav-tabs {
+      border: none;
+    }
+
+    .nav-link {
+      border: none !important;
+      background: none;
+      color: var(--text-secondary);
+      font-weight: 600;
+      padding: 1rem 2rem;
+      border-radius: 10px !important;
+      margin-right: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .nav-link.active {
+      background: var(--tertiary-accent) !important;
+      color: white !important;
+    }
+
+    .nav-link:hover:not(.active) {
+      background: rgba(0, 184, 148, 0.1);
+      color: var(--tertiary-accent);
+    }
+
+    .forum-card {
+      background: var(--card-bg);
+      border-radius: 15px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+      border: none;
+    }
+
+    .message-card {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 10px rgba(44, 95, 93, 0.05);
+      border-left: 4px solid var(--tertiary-accent);
+    }
+
+    .message-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .message-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .sender-badge {
+      background: var(--tertiary-accent);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .admin-badge {
+      background: #e74c3c;
+    }
+
+    .mentor-badge {
+      background: #f39c12;
+    }
+
+    .user-badge {
+      background: var(--tertiary-accent);
+    }
+
+    .btn-primary {
+      background: var(--tertiary-accent);
+      border: none;
+      border-radius: 10px;
+      padding: 0.75rem 2rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background: #00a085;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 184, 148, 0.2);
+    }
+
+    .btn-secondary {
+      background: var(--text-secondary);
+      border: none;
+      border-radius: 10px;
+      padding: 0.75rem 2rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #555;
+      color: white;
+    }
+
+    .btn-danger {
+      background: #e74c3c;
+      border: none;
+      border-radius: 10px;
+      padding: 0.75rem 2rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-danger:hover {
+      background: #c0392b;
+      transform: translateY(-2px);
+    }
+
+    .form-control, .form-select {
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.75rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--tertiary-accent);
+      box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: var(--shadow);
+      border-top: 4px solid var(--tertiary-accent);
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--secondary-bg);
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .user-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .user-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      transition: background 0.2s;
+    }
+
+    .user-item:hover {
+      background: var(--primary-bg);
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--tertiary-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+
+    .reply-section {
+      background: var(--primary-bg);
+      border-radius: 10px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+
+    .reply-item {
+      background: white;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-left: 3px solid var(--border-color);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-secondary);
+    }
+
+    .back-btn {
+      background: var(--text-secondary);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 0.5rem 1rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background: var(--secondary-bg);
+      color: white;
+      text-decoration: none;
+      transform: translateX(-5px);
+    }
+
+    @media (max-width: 768px) {
+      .forum-card {
+        padding: 1rem;
+      }
+      
+      .message-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <!-- Header -->
+    <div class="forum-header">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h1 class="mb-2">💬 Forum Management</h1>
+            <p class="mb-0">Manage communications, announcements, and user interactions</p>
+          </div>
+          <a href="admin-dashboard.html" class="back-btn">
+            <span class="material-icons">arrow_back</span>
+            Back to Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- Navigation Tabs -->
+      <div class="forum-nav">
+        <ul class="nav nav-tabs" id="forumTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
+              📢 General Announcements
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="private-tab" data-bs-toggle="tab" data-bs-target="#private" type="button" role="tab">
+              💬 Private Messages
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab">
+              👥 Manage Users
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="analytics-tab" data-bs-toggle="tab" data-bs-target="#analytics" type="button" role="tab">
+              📊 Analytics
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="tab-content" id="forumTabsContent">
+        
+        <!-- General Announcements Tab -->
+        <div class="tab-pane fade show active" id="general" role="tabpanel">
+          <div class="forum-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h3>📢 General Announcements</h3>
+              <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#announcementModal">
+                <span class="material-icons me-2">add</span>
+                New Announcement
+              </button>
+            </div>
+            
+            <!-- Filter Options -->
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <select id="categoryFilter" class="form-select">
+                  <option value="all">All Categories</option>
+                  <option value="general">General</option>
+                  <option value="announcement">Announcements</option>
+                  <option value="question">Questions</option>
+                  <option value="discussion">Discussions</option>
+                  <option value="help">Help</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <div class="input-group">
+                  <input type="text" class="form-control" id="searchMessages" placeholder="Search messages...">
+                  <button class="btn btn-secondary" onclick="loadGeneralMessages()">
+                    <span class="material-icons">search</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Messages List -->
+            <div id="generalMessages">
+              <div class="loading">Loading announcements...</div>
+            </div>
+
+            <!-- Pagination -->
+            <nav id="generalPagination" style="display: none;">
+              <ul class="pagination justify-content-center">
+                <!-- Pagination will be inserted here -->
+              </ul>
+            </nav>
+          </div>
+        </div>
+
+        <!-- Private Messages Tab -->
+        <div class="tab-pane fade" id="private" role="tabpanel">
+          <div class="forum-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h3>💬 Private Messages</h3>
+              <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#privateMessageModal">
+                <span class="material-icons me-2">send</span>
+                Send Private Message
+              </button>
+            </div>
+
+            <!-- Private Messages List -->
+            <div id="privateMessages">
+              <div class="loading">Loading private messages...</div>
+            </div>
+
+            <!-- Pagination -->
+            <nav id="privatePagination" style="display: none;">
+              <ul class="pagination justify-content-center">
+                <!-- Pagination will be inserted here -->
+              </ul>
+            </nav>
+          </div>
+        </div>
+
+        <!-- Users Management Tab -->
+        <div class="tab-pane fade" id="users" role="tabpanel">
+          <div class="forum-card">
+            <h3>👥 Forum Users Management</h3>
+            
+            <!-- User Statistics -->
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-number" id="totalUsers">0</div>
+                <div class="stat-label">Total Users</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="activeUsers">0</div>
+                <div class="stat-label">Active Users</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="totalAdmins">0</div>
+                <div class="stat-label">Admins</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="totalMentors">0</div>
+                <div class="stat-label">Mentors</div>
+              </div>
+            </div>
+
+            <!-- Users List -->
+            <div class="user-list" id="usersList">
+              <div class="loading">Loading users...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div class="tab-pane fade" id="analytics" role="tabpanel">
+          <div class="forum-card">
+            <h3>📊 Forum Analytics</h3>
+            
+            <!-- Analytics Statistics -->
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-number" id="totalMessages">0</div>
+                <div class="stat-label">Total Messages</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="todayMessages">0</div>
+                <div class="stat-label">Today's Messages</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="averageReplies">0</div>
+                <div class="stat-label">Avg Replies</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-number" id="popularCategory">-</div>
+                <div class="stat-label">Popular Category</div>
+              </div>
+            </div>
+
+            <!-- Detailed Analytics -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="forum-card">
+                  <h5>Recent Activity</h5>
+                  <div id="recentActivity">
+                    <div class="loading">Loading recent activity...</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="forum-card">
+                  <h5>Message Categories</h5>
+                  <div id="categoryBreakdown">
+                    <div class="loading">Loading category breakdown...</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Announcement Modal -->
+  <div class="modal fade" id="announcementModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">📢 New Announcement</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form id="announcementForm">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="announcementSubject" class="form-label">Subject *</label>
+              <input type="text" class="form-control" id="announcementSubject" required>
+            </div>
+            <div class="mb-3">
+              <label for="announcementCategory" class="form-label">Category</label>
+              <select class="form-select" id="announcementCategory">
+                <option value="general">General</option>
+                <option value="announcement">Announcement</option>
+                <option value="question">Question</option>
+                <option value="discussion">Discussion</option>
+                <option value="help">Help</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="announcementContent" class="form-label">Content *</label>
+              <textarea class="form-control" id="announcementContent" rows="6" required></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Post Announcement</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Private Message Modal -->
+  <div class="modal fade" id="privateMessageModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">💬 Send Private Message</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form id="privateMessageForm">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="messageRecipient" class="form-label">Recipient *</label>
+              <select class="form-select" id="messageRecipient" required>
+                <option value="">Select recipient...</option>
+                <!-- Options will be populated dynamically -->
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="messageSubject" class="form-label">Subject *</label>
+              <input type="text" class="form-control" id="messageSubject" required>
+            </div>
+            <div class="mb-3">
+              <label for="messageContent" class="form-label">Message *</label>
+              <textarea class="form-control" id="messageContent" rows="6" required></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Send Message</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Global variables
+    let currentAdminId = 'admin123'; // This should come from authentication
+    let currentPage = 1;
+    const limit = 10;
+
+    // Initialize forum
+    document.addEventListener('DOMContentLoaded', function() {
+      loadGeneralMessages();
+      loadUsers();
+      loadAnalytics();
+      
+      // Tab change handlers
+      document.getElementById('private-tab').addEventListener('click', loadPrivateMessages);
+      document.getElementById('users-tab').addEventListener('click', loadUsers);
+      document.getElementById('analytics-tab').addEventListener('click', loadAnalytics);
+    });
+
+    // Load general messages/announcements
+    async function loadGeneralMessages(page = 1) {
+      try {
+        const category = document.getElementById('categoryFilter').value;
+        const search = document.getElementById('searchMessages').value;
+        
+        let url = `http://localhost:5000/api/forum/general?page=${page}&limit=${limit}`;
+        if (category !== 'all') url += `&category=${category}`;
+        if (search) url += `&search=${search}`;
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        displayGeneralMessages(data.messages);
+        displayPagination(data.pagination, 'generalPagination', loadGeneralMessages);
+      } catch (error) {
+        console.error('Error loading messages:', error);
+        document.getElementById('generalMessages').innerHTML = 
+          '<div class="alert alert-danger">Failed to load messages</div>';
+      }
+    }
+
+    // Load private messages
+    async function loadPrivateMessages() {
+      try {
+        const response = await fetch(`http://localhost:5000/api/forum/inbox/${currentAdminId}/admin`);
+        const data = await response.json();
+
+        displayPrivateMessages(data.messages);
+        displayPagination(data.pagination, 'privatePagination', loadPrivateMessages);
+      } catch (error) {
+        console.error('Error loading private messages:', error);
+        document.getElementById('privateMessages').innerHTML = 
+          '<div class="alert alert-danger">Failed to load private messages</div>';
+      }
+    }
+
+    // Load users
+    async function loadUsers() {
+      try {
+        const response = await fetch('http://localhost:5000/api/forum/users');
+        const users = await response.json();
+
+        displayUsers(users);
+        
+        // Update user statistics
+        const userCount = users.filter(u => u.type === 'user').length;
+        const adminCount = users.filter(u => u.type === 'admin').length;
+        const mentorCount = users.filter(u => u.type === 'mentor').length;
+        
+        document.getElementById('totalUsers').textContent = users.length;
+        document.getElementById('activeUsers').textContent = userCount;
+        document.getElementById('totalAdmins').textContent = adminCount;
+        document.getElementById('totalMentors').textContent = mentorCount;
+
+        // Populate recipient dropdown
+        const recipientSelect = document.getElementById('messageRecipient');
+        recipientSelect.innerHTML = '<option value="">Select recipient...</option>';
+        users.forEach(user => {
+          if (user._id !== currentAdminId) {
+            recipientSelect.innerHTML += 
+              `<option value="${user._id}:${user.type}">${user.name} (${user.role})</option>`;
+          }
+        });
+      } catch (error) {
+        console.error('Error loading users:', error);
+        document.getElementById('usersList').innerHTML = 
+          '<div class="alert alert-danger">Failed to load users</div>';
+      }
+    }
+
+    // Load analytics
+    async function loadAnalytics() {
+      try {
+        // This would typically call a backend analytics endpoint
+        // For now, we'll simulate the data
+        document.getElementById('totalMessages').textContent = '245';
+        document.getElementById('todayMessages').textContent = '12';
+        document.getElementById('averageReplies').textContent = '3.2';
+        document.getElementById('popularCategory').textContent = 'General';
+        
+        // Load recent activity
+        document.getElementById('recentActivity').innerHTML = `
+          <div class="mb-2"><small class="text-muted">2 minutes ago</small><br>New message in General</div>
+          <div class="mb-2"><small class="text-muted">15 minutes ago</small><br>User replied to announcement</div>
+          <div class="mb-2"><small class="text-muted">1 hour ago</small><br>Admin posted new announcement</div>
+        `;
+        
+        // Load category breakdown
+        document.getElementById('categoryBreakdown').innerHTML = `
+          <div class="mb-2">General: 45%</div>
+          <div class="mb-2">Announcements: 25%</div>
+          <div class="mb-2">Questions: 20%</div>
+          <div class="mb-2">Discussions: 10%</div>
+        `;
+      } catch (error) {
+        console.error('Error loading analytics:', error);
+      }
+    }
+
+    // Display general messages
+    function displayGeneralMessages(messages) {
+      const container = document.getElementById('generalMessages');
+      
+      if (!messages || messages.length === 0) {
+        container.innerHTML = '<div class="text-center py-4">No messages found</div>';
+        return;
+      }
+
+      container.innerHTML = messages.map(message => `
+        <div class="message-card">
+          <div class="message-header">
+            <div class="message-meta">
+              <span class="sender-badge ${message.senderRole}-badge">
+                ${message.senderName} (${message.senderRole.toUpperCase()})
+              </span>
+              <span class="text-muted">${new Date(message.createdAt).toLocaleString()}</span>
+              <span class="badge bg-light text-dark">${message.category}</span>
+            </div>
+            <div>
+              <button class="btn btn-sm btn-outline-danger" onclick="deleteMessage('${message._id}')">
+                <span class="material-icons">delete</span>
+              </button>
+            </div>
+          </div>
+          <h5>${message.subject}</h5>
+          <p>${message.content}</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <span class="text-muted">
+                <span class="material-icons">thumb_up</span> ${message.likes?.length || 0}
+                <span class="material-icons ms-2">reply</span> ${message.replies?.length || 0}
+              </span>
+            </div>
+            <button class="btn btn-sm btn-secondary" onclick="viewReplies('${message._id}')">
+              View Replies
+            </button>
+          </div>
+          ${message.replies && message.replies.length > 0 ? `
+            <div class="reply-section">
+              <h6>Recent Replies:</h6>
+              ${message.replies.slice(0, 2).map(reply => `
+                <div class="reply-item">
+                  <small class="text-muted">${reply.senderName} - ${new Date(reply.createdAt).toLocaleString()}</small>
+                  <p class="mb-0">${reply.content}</p>
+                </div>
+              `).join('')}
+              ${message.replies.length > 2 ? `<small class="text-muted">... and ${message.replies.length - 2} more replies</small>` : ''}
+            </div>
+          ` : ''}
+        </div>
+      `).join('');
+    }
+
+    // Display private messages
+    function displayPrivateMessages(messages) {
+      const container = document.getElementById('privateMessages');
+      
+      if (!messages || messages.length === 0) {
+        container.innerHTML = '<div class="text-center py-4">No private messages found</div>';
+        return;
+      }
+
+      container.innerHTML = messages.map(message => `
+        <div class="message-card">
+          <div class="message-header">
+            <div class="message-meta">
+              <span class="sender-badge">
+                ${message.senderName} → ${message.recipientName || 'You'}
+              </span>
+              <span class="text-muted">${new Date(message.createdAt).toLocaleString()}</span>
+            </div>
+            <div>
+              <button class="btn btn-sm btn-outline-primary" onclick="replyToMessage('${message._id}')">
+                <span class="material-icons">reply</span>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" onclick="deleteMessage('${message._id}')">
+                <span class="material-icons">delete</span>
+              </button>
+            </div>
+          </div>
+          <h5>${message.subject}</h5>
+          <p>${message.content}</p>
+        </div>
+      `).join('');
+    }
+
+    // Display users
+    function displayUsers(users) {
+      const container = document.getElementById('usersList');
+      
+      container.innerHTML = users.map(user => `
+        <div class="user-item">
+          <div class="user-info">
+            <div class="user-avatar">
+              ${user.name.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <div class="fw-bold">${user.name}</div>
+              <small class="text-muted">${user.email} - ${user.role}</small>
+            </div>
+          </div>
+          <div>
+            <button class="btn btn-sm btn-primary" onclick="sendDirectMessage('${user._id}', '${user.type}', '${user.name}')">
+              <span class="material-icons">send</span>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Display pagination
+    function displayPagination(pagination, containerId, loadFunction) {
+      const container = document.getElementById(containerId);
+      
+      if (!pagination || pagination.totalPages <= 1) {
+        container.style.display = 'none';
+        return;
+      }
+
+      container.style.display = 'block';
+      const ul = container.querySelector('.pagination');
+      
+      let paginationHTML = '';
+      
+      // Previous button
+      paginationHTML += `
+        <li class="page-item ${!pagination.hasPrev ? 'disabled' : ''}">
+          <a class="page-link" href="#" onclick="${loadFunction.name}(${pagination.page - 1})">Previous</a>
+        </li>
+      `;
+      
+      // Page numbers
+      for (let i = Math.max(1, pagination.page - 2); i <= Math.min(pagination.totalPages, pagination.page + 2); i++) {
+        paginationHTML += `
+          <li class="page-item ${i === pagination.page ? 'active' : ''}">
+            <a class="page-link" href="#" onclick="${loadFunction.name}(${i})">${i}</a>
+          </li>
+        `;
+      }
+      
+      // Next button
+      paginationHTML += `
+        <li class="page-item ${!pagination.hasNext ? 'disabled' : ''}">
+          <a class="page-link" href="#" onclick="${loadFunction.name}(${pagination.page + 1})">Next</a>
+        </li>
+      `;
+      
+      ul.innerHTML = paginationHTML;
+    }
+
+    // Form submission handlers
+    document.getElementById('announcementForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = {
+        senderId: currentAdminId,
+        senderType: 'admin',
+        senderName: 'Admin', // This should come from current admin data
+        type: 'general',
+        subject: document.getElementById('announcementSubject').value,
+        content: document.getElementById('announcementContent').value,
+        category: document.getElementById('announcementCategory').value
+      };
+
+      try {
+        const response = await fetch('http://localhost:5000/api/forum/message', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+          bootstrap.Modal.getInstance(document.getElementById('announcementModal')).hide();
+          this.reset();
+          loadGeneralMessages();
+          alert('Announcement posted successfully!');
+        } else {
+          alert('Failed to post announcement');
+        }
+      } catch (error) {
+        console.error('Error posting announcement:', error);
+        alert('Error posting announcement');
+      }
+    });
+
+    document.getElementById('privateMessageForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const recipient = document.getElementById('messageRecipient').value.split(':');
+      const recipientId = recipient[0];
+      const recipientType = recipient[1];
+
+      const formData = {
+        senderId: currentAdminId,
+        senderType: 'admin',
+        senderName: 'Admin',
+        recipientId: recipientId,
+        recipientType: recipientType,
+        type: 'private',
+        subject: document.getElementById('messageSubject').value,
+        content: document.getElementById('messageContent').value
+      };
+
+      try {
+        const response = await fetch('http://localhost:5000/api/forum/message', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+          bootstrap.Modal.getInstance(document.getElementById('privateMessageModal')).hide();
+          this.reset();
+          loadPrivateMessages();
+          alert('Private message sent successfully!');
+        } else {
+          alert('Failed to send message');
+        }
+      } catch (error) {
+        console.error('Error sending message:', error);
+        alert('Error sending message');
+      }
+    });
+
+    // Utility functions
+    function deleteMessage(messageId) {
+      if (confirm('Are you sure you want to delete this message?')) {
+        // Implementation for deleting message
+        console.log('Deleting message:', messageId);
+        // Refresh the current view
+        loadGeneralMessages();
+      }
+    }
+
+    function viewReplies(messageId) {
+      // Implementation for viewing replies
+      console.log('Viewing replies for message:', messageId);
+    }
+
+    function replyToMessage(messageId) {
+      // Implementation for replying to message
+      console.log('Replying to message:', messageId);
+    }
+
+    function sendDirectMessage(userId, userType, userName) {
+      // Pre-fill the private message modal
+      document.getElementById('messageRecipient').value = `${userId}:${userType}`;
+      document.getElementById('messageSubject').value = `Message to ${userName}`;
+      
+      // Show the modal
+      new bootstrap.Modal(document.getElementById('privateMessageModal')).show();
+    }
+
+    // Event listeners for filters
+    document.getElementById('categoryFilter').addEventListener('change', () => loadGeneralMessages(1));
+    document.getElementById('searchMessages').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        loadGeneralMessages(1);
+      }
+    });
+  </script>
+</body>
+</html>

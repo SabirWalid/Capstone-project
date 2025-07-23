@@ -22,6 +22,7 @@ const adminCoursesRoutes = require('./routes/adminCourses'); // Import admin cou
 const adminOpportunitiesRoutes = require('./routes/adminOpportunities'); // Import admin opportunities route
 const adminSettingsRoutes = require('./routes/adminSettings'); // Import admin settings route
 const adminMentorsRoutes = require('./routes/adminMentors'); // Import admin mentors route
+const adminUsersRoutes = require('./routes/adminUsers'); // Import admin users route
 const path = require('path'); // Import path module for serving static files
 const coursesRoutes = require('./routes/courses'); // Import courses route
 const mentorAuthRoutes = require('./routes/mentorAuth'); // Import mentor authentication route
@@ -53,6 +54,7 @@ app.use('/api/admin/courses', adminCoursesRoutes); // Use admin courses route
 app.use('/api/admin/opportunities', adminOpportunitiesRoutes); // Use admin opportunities route
 app.use('/api/admin/settings', adminSettingsRoutes); // Use admin settings route
 app.use('/api/admin/mentors', adminMentorsRoutes); // Use admin mentors route
+app.use('/api/admin/users', adminUsersRoutes); // Use admin users route
 // Only use /api/mentors for user-facing mentor routes, not admin
 app.use('/api/admin', adminRoutes);
 app.use('/api/notification', notificationRoutes);

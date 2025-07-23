@@ -1,46 +1,58 @@
+/* CSS Variables for consistent color palette */
+:root {
+  --primary-bg: #f8fffe;
+  --secondary-bg: #2c5f5d;
+  --tertiary-accent: #00b894;
+  --text-color: #2d3436;
+  --card-bg: #ffffff;
+  --border-color: #ddd;
+  --text-secondary: #636e72;
+}
+
 /* General background and font */
 body {
-  background: linear-gradient(135deg, #149e32 0%, #0c9f1d 100%);
+  background: var(--primary-bg);
   min-height: 100vh;
   font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+  color: var(--text-color);
 }
 
 /* Navbar */
 .navbar {
-  background: #fff !important;
+  background: var(--secondary-bg) !important;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 .navbar-brand {
   font-weight: bold;
-  color: #2a5298 !important;
+  color: #fff !important;
   letter-spacing: 1px;
   font-size: 1.5rem;
 }
 .navbar .btn-outline-primary {
-  border-color: #2a5298;
-  color: #2a5298;
+  border-color: var(--tertiary-accent);
+  color: var(--tertiary-accent);
 }
 .navbar .btn-outline-primary:hover {
-  background: #2a5298;
+  background: var(--tertiary-accent);
   color: #fff;
 }
 .navbar .btn-primary {
-  background: #ffb347;
+  background: var(--tertiary-accent);
   border: none;
-  color: #1e3c72;
+  color: #fff;
   font-weight: 600;
 }
 .navbar .btn-primary:hover {
-  background: #ffa500;
+  background: var(--secondary-bg);
   color: #fff;
 }
 
 /* Header/Hero Section */
 header {
-  background: linear-gradient(120deg, #2a5298 0%, #1e3c72 100%);
+  background: linear-gradient(120deg, var(--secondary-bg) 0%, #1e4a47 100%);
   color: #fff;
   border-radius: 18px;
-  box-shadow: 0 4px 24px rgba(42,82,152,0.08);
+  box-shadow: 0 4px 24px rgba(44,95,93,0.08);
   padding: 3rem 1rem 2rem 1rem;
   margin-bottom: 2rem;
 }
@@ -50,65 +62,65 @@ header h1 {
   margin-bottom: 1rem;
 }
 header .btn-success {
-  background: #ffb347;
+  background: var(--tertiary-accent);
   border: none;
-  color: #1e3c72;
+  color: #fff;
   font-weight: 600;
   font-size: 1.2rem;
   margin-top: 1rem;
-  box-shadow: 0 2px 8px rgba(255,179,71,0.15);
+  box-shadow: 0 2px 8px rgba(0,184,148,0.15);
 }
 header .btn-success:hover {
-  background: #ffa500;
+  background: var(--secondary-bg);
   color: #fff;
 }
 
 /* Section Cards */
 section .col-md-4, .card {
-  background: #fff;
+  background: var(--card-bg);
   border-radius: 14px;
-  box-shadow: 0 2px 12px rgba(42,82,152,0.07);
+  box-shadow: 0 2px 12px rgba(44,95,93,0.07);
   padding: 2rem 1rem;
   transition: transform 0.2s, box-shadow 0.2s;
   text-align: center;
 }
 section .col-md-4:hover, .card:hover {
   transform: translateY(-8px) scale(1.03);
-  box-shadow: 0 8px 24px rgba(42,82,152,0.13);
+  box-shadow: 0 8px 24px rgba(44,95,93,0.13);
 }
 section h3, .card-title {
-  color: #2a5298;
+  color: var(--secondary-bg);
   font-weight: 600;
   margin-bottom: 1rem;
 }
 section p, .card-text {
-  color: #444;
+  color: var(--text-color);
   font-size: 1.1rem;
 }
 
 /* Forms */
 form {
-  background: #fff;
+  background: var(--card-bg);
   border-radius: 14px;
-  box-shadow: 0 2px 12px rgba(42,82,152,0.07);
+  box-shadow: 0 2px 12px rgba(44,95,93,0.07);
   padding: 2rem 1.5rem;
   margin: 2rem auto;
   max-width: 400px;
 }
 form label {
-  color: #2a5298;
+  color: var(--secondary-bg);
   font-weight: 500;
 }
 form .form-control:focus {
-  border-color: #2a5298;
-  box-shadow: 0 0 0 0.2rem rgba(42,82,152,0.15);
+  border-color: var(--tertiary-accent);
+  box-shadow: 0 0 0 0.2rem rgba(0,184,148,0.15);
 }
 form .btn-primary, form .btn-success {
-  background: #2a5298;
+  background: var(--tertiary-accent);
   border: none;
 }
 form .btn-primary:hover, form .btn-success:hover {
-  background: #1e3c72;
+  background: var(--secondary-bg);
 }
 
 /* Buttons */
@@ -117,26 +129,26 @@ form .btn-primary:hover, form .btn-success:hover {
   font-weight: 600;
 }
 .btn-info {
-  background: #2a5298;
+  background: var(--tertiary-accent);
   border: none;
 }
 .btn-info:hover {
-  background: #1e3c72;
+  background: var(--secondary-bg);
 }
 .btn-warning {
-  background: #ffb347;
+  background: var(--tertiary-accent);
   border: none;
-  color: #1e3c72;
+  color: #fff;
 }
 .btn-warning:hover {
-  background: #ffa500;
+  background: var(--secondary-bg);
   color: #fff;
 }
 
 /* Footer */
 footer {
-  background: #fff;
-  color: #2a5298;
+  background: var(--secondary-bg);
+  color: #fff;
   font-weight: 500;
   letter-spacing: 1px;
   box-shadow: 0 -2px 8px rgba(0,0,0,0.04);

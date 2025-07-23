@@ -6,44 +6,39 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style>
-    form {
-      max-width: 500px;
-      margin: 0 auto;
-      padding: 2rem;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      position: relative;
-    }
-
-    h3 {
-      margin-bottom: 1.5rem;
-      color: #333;
-      font-weight: 400;
-      font-size: 2rem;
-      text-align: center;
+    /* 60-30-10 Color Palette */
+    :root {
+      --primary-bg: #f8fffe; /* 60% - primary light background */
+      --secondary-bg: #2c5f5d; /* 30% - secondary dark green for panels/cards/nav */
+      --tertiary-accent: #00b894; /* 10% - tertiary accent for buttons/highlights */
+      --text-color: #2d3436; /* Main text color */
+      --card-bg: #ffffff; /* Card background */
+      --border-color: #ddd; /* Border color */
+      --text-secondary: #636e72; /* Secondary text color */
+      --shadow: 0 10px 30px rgba(44, 95, 93, 0.08);
     }
 
     html, body {
       height: 100%;
       margin: 0;
       padding: 0;
-      background: #76fc76;
+      background: var(--primary-bg);
       font-family: 'Segoe UI', Arial, sans-serif;
+      color: var(--text-color);
     }
+
     body {
       min-height: 100vh;
-      display: absolute;
+      display: flex;
       flex-direction: row;
     }
+
     .sidebar {
-      background: #005c3a;
+      background: var(--secondary-bg);
       color: #fff;
       min-height: 100vh;
       width: 90px;
-      position: absolute;
+      position: fixed;
       top: 0;
       left: 0;
       z-index: 100;
@@ -52,10 +47,12 @@
       align-items: center;
       padding-top: 1.5rem;
     }
+
     .sidebar .logo {
       width: 60px;
       margin-bottom: 2rem;
     }
+
     .sidebar .profile-img {
       width: 48px;
       height: 48px;
@@ -64,6 +61,7 @@
       margin-bottom: 1.5rem;
       border: 2px solid #fff;
     }
+
     .sidebar .nav-link {
       color: #fff;
       text-align: center;
@@ -76,24 +74,28 @@
       transition: color 0.2s;
       position: relative;
     }
+
     .sidebar .nav-link.active,
     .sidebar .nav-link:hover {
-      color: #00b0ff;
+      color: var(--tertiary-accent);
     }
+
     .sidebar .nav-link .material-icons {
       font-size: 2rem;
       margin-bottom: 0.2rem;
     }
+
     .sidebar .badge {
       position: relative;
       top: 0;
       right: 10px;
-      background: #00b0ff;
+      background: var(--tertiary-accent);
       color: #fff;
       font-size: 0.8rem;
       border-radius: 50%;
       padding: 2px 6px;
     }
+
     .sidebar .sidebar-bottom {
       margin-top: auto;
       margin-bottom: 1.5rem;
@@ -102,6 +104,7 @@
       flex-direction: column;
       align-items: center;
     }
+
     .dashboard-wrapper {
       flex: 1 1 auto;
       min-height: 100vh;
@@ -109,37 +112,43 @@
       display: flex;
       flex-direction: column;
     }
+
     .dashboard-header {
-      background: #fff;
+      background: var(--card-bg);
       padding: 1rem 2rem;
-      border-bottom: 1px solid #e0e0e0;
+      border-bottom: 1px solid var(--border-color);
       display: flex;
       justify-content: space-between;
       align-items: center;
       position: sticky;
       top: 0;
       z-index: 100;
+      box-shadow: var(--shadow);
     }
+
     .dashboard-actions {
       display: flex;
       align-items: center;
       gap: 1.5rem;
       position: relative;
     }
+
     #notification-bell {
       position: relative;
       cursor: pointer;
-      color: #005c3a;
+      color: var(--secondary-bg);
       transition: color 0.2s;
     }
+
     #notification-bell:hover {
-      color: #00b0ff;
+      color: var(--tertiary-accent);
     }
+
     #notification-count {
       position: absolute;
       top: -6px;
       right: -6px;
-      background: #d32f2f;
+      background: #e74c3c;
       color: #fff;
       font-size: 0.8rem;
       border-radius: 50%;
@@ -149,34 +158,39 @@
       font-weight: bold;
       border: 2px solid #fff;
     }
+
     #notification-list {
       display: none;
-      position: relative;
+      position: absolute;
       right: 0;
       top: 2.5rem;
       min-width: 300px;
       z-index: 999;
-      background: #fff;
+      background: var(--card-bg);
       border-radius: 8px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      box-shadow: var(--shadow);
       overflow: hidden;
     }
+
     #notification-list ul {
       margin: 0;
       padding: 0;
       list-style: none;
     }
+
     #notification-list .list-group-item {
       border: none;
-      border-bottom: 1px solid #f0f0f0;
+      border-bottom: 1px solid var(--border-color);
       font-size: 1rem;
       padding: 0.75rem 1rem;
     }
+
     #notification-list .list-group-item:last-child {
       border-bottom: none;
     }
+
     .logout-btn {
-      background: #d32f2f;
+      background: #e74c3c;
       color: #fff;
       border: none;
       border-radius: 6px;
@@ -185,90 +199,140 @@
       font-weight: 500;
       margin-left: 1.5rem;
       transition: background 0.2s;
-      box-shadow: 0 2px 8px rgba(211,47,47,0.08);
+      box-shadow: 0 2px 8px rgba(231, 76, 60, 0.08);
       text-decoration: none;
       display: inline-block;
     }
+
     .logout-btn:hover {
-      background: #b71c1c;
+      background: #c0392b;
       color: #fff;
       text-decoration: none;
     }
+
     .main-content {
       flex: 1 0 auto;
-      padding: 2rem 2rem 2rem 2rem;
+      padding: 2rem;
       min-height: 0;
     }
-    .user-greeting {
-      font-size: 2.2rem;
-      font-weight: 700;
-      color: #333;
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    form {
+      background: var(--card-bg);
+      border-radius: 15px;
+      box-shadow: var(--shadow);
+      padding: 2rem;
+      margin-bottom: 20px;
+    }
+
+    h3 {
+      margin-bottom: 1.5rem;
+      color: var(--secondary-bg);
+      font-weight: 600;
+      font-size: 2rem;
+      text-align: center;
+    }
+
+    .form-label {
+      color: var(--text-color);
+      font-weight: 500;
       margin-bottom: 0.5rem;
     }
-    .recommendations-label {
-      font-size: 1.2rem;
-      color: #555;
-      margin-bottom: 1.5rem;
+
+    .form-control, .form-select {
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.75rem;
+      transition: all 0.3s ease;
+      background: var(--card-bg);
+      color: var(--text-color);
     }
-    .recommendation-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1.2rem;
-      margin-bottom: 2.2rem;
+
+    .form-control:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--tertiary-accent);
+      box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1);
     }
-    .recommendation-row .btn {
-      flex: 1 1 220px;
-      font-size: 1.15rem;
+
+    .btn-primary {
+      background: var(--tertiary-accent);
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 2rem;
       font-weight: 600;
-      padding: 1rem 0;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      transition: all 0.3s ease;
+      color: #fff;
     }
+
+    .btn-primary:hover {
+      background: #00a085;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 184, 148, 0.2);
+    }
+
+    #profile-img-preview {
+      border-radius: 8px;
+      border: 2px solid var(--border-color);
+      margin-top: 10px;
+    }
+
     .footer {
       flex-shrink: 0;
-      background: #faf5e0;
-      color: #1d1c1c;
+      background: var(--primary-bg);
+      color: #747373;
       font-size: 0.98rem;
       padding: 0.7rem 0;
-      border-top: 1px solid #333;
       margin-left: 0;
       width: 100%;
       position: static;
       margin-top: auto;
     }
+
     .footer .container-fluid {
       padding: 0 !important;
     }
+
     .footer-content {
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
+      padding: 0 2rem;
     }
+
     .footer-logo {
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
+
     .footer-logo img {
       height: 28px;
     }
+
     .footer-links {
       display: flex;
       gap: 1.5rem;
       flex-wrap: wrap;
     }
+
     .footer-link {
-      color: #302f2f;
+      color: #949393;
       text-decoration: none;
       margin-right: 1rem;
       transition: color 0.2s;
       font-size: 1rem;
     }
+
     .footer-link:hover {
-      color: #2c2c2c;
+      color: var(--tertiary-accent);
       text-decoration: underline;
     }
+
     .footer-social {
       display: inline-block;
       margin-left: 0.5rem;
@@ -276,85 +340,64 @@
       vertical-align: middle;
       transition: opacity 0.2s;
     }
+
     .footer-social:hover svg {
-      fill: #2e2d2d !important;
+      fill: var(--tertiary-accent) !important;
     }
+
     @media (max-width: 900px) {
-      .main-content { padding: 1rem 0.5rem 0 0.5rem; }
-      .sidebar { width: 60px; }
-      .dashboard-wrapper { margin-left: 60px; }
-      .footer { margin-left: 0; }
-      .recommendation-row { gap: 0.5rem; }
+      .main-content { 
+        padding: 1rem 0.5rem; 
+      }
+      .sidebar { 
+        width: 60px; 
+      }
+      .dashboard-wrapper { 
+        margin-left: 60px; 
+      }
+      .footer { 
+        margin-left: 0; 
+      }
     }
+
     @media (max-width: 600px) {
-      .dashboard-wrapper, .main-content, .footer { margin-left: 0; padding: 0.5rem; }
-      .dashboard-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
-      .recommendation-row { flex-direction: column; }
-      .footer-content { flex-direction: column; gap: 0.5rem; }
-      .footer-links { gap: 0.7rem; }
-      #notification-list {min-width: 220px;}
+      .dashboard-wrapper, .main-content, .footer { 
+        margin-left: 0; 
+        padding: 0.5rem; 
+      }
+      .dashboard-header { 
+        flex-direction: column; 
+        align-items: flex-start; 
+        gap: 1rem; 
+      }
+      .footer-content { 
+        flex-direction: column; 
+        gap: 0.5rem; 
+      }
+      .footer-links { 
+        gap: 0.7rem; 
+      }
+      #notification-list {
+        min-width: 220px;
+      }
+      .container {
+        padding: 0 1rem;
+      }
+      form {
+        padding: 1.5rem;
+      }
     }
   </style>
 </head>
 <body>
-<div class="container mt-4">
-  <h3>Edit Profile</h3>
-  <form id="profile-form" enctype="multipart/form-data">
-    <div class="mb-3">
-      <label for="profile-name" class="form-label">Name</label>
-      <input type="text" class="form-control" id="profile-name" name="name" required>
-    </div>
-    <div class="mb-3">
-      <label for="profile-email" class="form-label">Email</label>
-      <input type="email" class="form-control" id="profile-email" name="email" required>
-    </div>
-    <div class="mb-3">
-      <label for="profile-phone" class="form-label">Phone Number</label>
-      <input type="text" class="form-control" id="profile-phone" name="phone">
-    </div>
-    <div class="mb-3">
-      <label for="profile-links" class="form-label">Links (comma separated)</label>
-      <input type="text" class="form-control" id="profile-links" name="links">
-    </div>
-    <div class="mb-3">
-      <label for="profile-picture" class="form-label">Profile Picture</label>
-      <input type="file" class="form-control" id="profile-picture" name="profilePicture" accept="image/*">
-      <img id="profile-img-preview" src="" alt="Profile Picture" style="max-width:100px; display:none; margin-top:10px;">
-    </div>
-    <div class="mb-3">
-      <label for="profile-timezone" class="form-label">Time Zone</label>
-      <select class="form-select" id="profile-timezone" name="timeZone">
-        <option value="">Select Time Zone</option>
-        <option value="UTC">UTC</option>
-        <option value="Africa/Nairobi">Africa/Nairobi</option>
-        <option value="Europe/London">Europe/London</option>
-        <option value="America/New_York">America/New_York</option>
-        <!-- Add more as needed -->
-      </select>
-    </div>
-    <div class="mb-3">
-      <label for="profile-language" class="form-label">Preferred Language</label>
-      <select class="form-select" id="profile-language" name="language">
-        <option value="">Select Language</option>
-        <option value="en">English</option>
-        <option value="fr">French</option>
-        <option value="ar">Arabic</option>
-        <option value="sw">Swahili</option>
-        <!-- Add more as needed -->
-      </select>
-    </div>
-    <button type="submit" class="btn btn-primary">Save Changes</button>
-    <div id="profile-msg" class="mt-2"></div>
-  </form>
-</div>
-<!-- Sidebar -->
+  <!-- Sidebar -->
   <div class="sidebar">
     <img src="images/logo.png" alt="Logo" class="logo">
-<a href="account.html" class="nav-link" title="Account Settings">
-  <span class="material-icons">account_circle</span>
-  <span style="font-size:0.85rem;">Account</span>
-</a>
-    <a href="dashboard.html" class="nav-link active" title="Dashboard">
+    <a href="account.html" class="nav-link active" title="Account Settings">
+      <span class="material-icons">account_circle</span>
+      <span style="font-size:0.85rem;">Account</span>
+    </a>
+    <a href="dashboard.html" class="nav-link" title="Dashboard">
       <span class="material-icons">dashboard</span>
       <span style="font-size:0.85rem;">Dashboard</span>
     </a>
@@ -374,9 +417,9 @@
       <span class="material-icons">work</span>
       <span style="font-size:0.85rem;">Opportunities</span>
     </a>
-    <a href="toolkit.html" class="nav-link" title="Startup Toolkit">
-      <span class="material-icons">build</span>
-      <span style="font-size:0.85rem;">Toolkit</span>
+    <a href="resources.html" class="nav-link" title="Resources">
+      <span class="material-icons">folder</span>
+      <span style="font-size:0.85rem;">Resources</span>
     </a>
     <div class="sidebar-bottom">
       <a href="settings.html" class="nav-link" title="App Settings">
@@ -385,19 +428,97 @@
       </a>
     </div>
   </div>
-    <!-- Footer Start -->
+
+  <!-- Main Wrapper -->
+  <div class="dashboard-wrapper">
+    <!-- Header -->
+    <div class="dashboard-header">
+      <div>
+        <h1 style="margin: 0; color: var(--secondary-bg); font-size: 1.5rem;">Account Settings</h1>
+      </div>
+      <div class="dashboard-actions">
+        <div id="notification-bell">
+          <span class="material-icons">notifications</span>
+          <span id="notification-count" style="display: none;">0</span>
+        </div>
+        <div id="notification-list">
+          <ul class="list-group">
+            <li class="list-group-item">No new notifications</li>
+          </ul>
+        </div>
+        <a href="logout.html" class="logout-btn">Logout</a>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="container">
+        <h3>Edit Profile</h3>
+        <form id="profile-form" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label for="profile-name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="profile-name" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label for="profile-email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="profile-email" name="email" required>
+          </div>
+          <div class="mb-3">
+            <label for="profile-phone" class="form-label">Phone Number</label>
+            <input type="text" class="form-control" id="profile-phone" name="phone">
+          </div>
+          <div class="mb-3">
+            <label for="profile-links" class="form-label">Links (comma separated)</label>
+            <input type="text" class="form-control" id="profile-links" name="links">
+          </div>
+          <div class="mb-3">
+            <label for="profile-picture" class="form-label">Profile Picture</label>
+            <input type="file" class="form-control" id="profile-picture" name="profilePicture" accept="image/*">
+            <img id="profile-img-preview" src="" alt="Profile Picture" style="max-width:100px; display:none;">
+          </div>
+          <div class="mb-3">
+            <label for="profile-timezone" class="form-label">Time Zone</label>
+            <select class="form-select" id="profile-timezone" name="timeZone">
+              <option value="">Select Time Zone</option>
+              <option value="UTC">UTC</option>
+              <option value="Africa/Nairobi">Africa/Nairobi</option>
+              <option value="Europe/London">Europe/London</option>
+              <option value="America/New_York">America/New_York</option>
+              <!-- Add more as needed -->
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="profile-language" class="form-label">Preferred Language</label>
+            <select class="form-select" id="profile-language" name="language">
+              <option value="">Select Language</option>
+              <option value="en">English</option>
+              <option value="fr">French</option>
+              <option value="ar">Arabic</option>
+              <option value="sw">Swahili</option>
+              <!-- Add more as needed -->
+            </select>
+          </div>
+          <div class="text-center">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+          <div id="profile-msg" class="mt-3 text-center"></div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Footer -->
     <footer class="footer mt-auto">
       <div class="container-fluid">
         <div class="footer-content">
           <div class="footer-logo">
             <img src="images/logo.png" alt="EmpowerPath Logo">
-            <span style="font-size:1.1rem; font-weight:600; color:#fff;">Refugee Techprenures</span>
+            <span style="font-size:1.1rem; font-weight:600;">Refugee Techprenures</span>
           </div>
           <div class="footer-links">
             <a href="courses.html" class="footer-link">Learning Paths</a>
             <a href="mentorship.html" class="footer-link">Mentorship</a>
             <a href="opportunities.html" class="footer-link">Opportunities</a>
-            <a href="toolkit.html" class="footer-link">Resources</a>
+            <a href="resources.html" class="footer-link">Resources</a>
             <a href="#" class="footer-link">Help</a>
             <a href="#" class="footer-link">Privacy</a>
           </div>
@@ -415,7 +536,6 @@
         </div>
       </div>
     </footer>
-    <!-- Footer End -->
   </div>
   <script>
     // Example: Set user name dynamically if you have it in localStorage
