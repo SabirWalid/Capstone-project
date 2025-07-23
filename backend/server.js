@@ -38,6 +38,9 @@ app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // Serve static files from uploads directory
 
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, '../frontend/public')));
+
 // MongoDB local connection
 const uri = process.env.MONGO_URI;
 mongoose.connect(uri)

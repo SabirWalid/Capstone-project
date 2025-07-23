@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resource Library</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
+        /* 60-30-10 Color Palette */
         :root {
             --primary-bg: #f8fffe;
             --secondary-bg: #2c5f5d;
@@ -13,6 +15,7 @@
             --card-bg: #ffffff;
             --border-color: #ddd;
             --text-secondary: #636e72;
+            --shadow: 0 10px 30px rgba(44, 95, 93, 0.08);
         }
         
         * {
@@ -22,305 +25,215 @@
         }
         
         html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      background: var(--primary-bg);
-      font-family: 'Segoe UI', Arial, sans-serif;
-    }
-    body {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: row;
-    }
-    .sidebar {
-      background: var(--secondary-bg);
-      color: #fff;
-      min-height: 100vh;
-      width: 90px;
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-top: 1.5rem;
-    }
-    .sidebar .logo {
-      width: 60px;
-      margin-bottom: 2rem;
-    }
-    .sidebar .profile-img {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-bottom: 1.5rem;
-      border: 2px solid #fff;
-    }
-    .sidebar .nav-link {
-      color: #fff;
-      text-align: center;
-      margin-bottom: 1.5rem;
-      font-size: 1.7rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-decoration: none;
-      transition: background 0.2s, color 0.2s;
-      position: relative;
-      border-radius: 12px;
-      padding: 0.5rem 0;
-    }
-    .sidebar .nav-link.active,
-    .sidebar .nav-link:hover {
-      background: rgba(0, 184, 148, 0.13);
-      color: var(--tertiary-accent);
-    }
-    .sidebar .nav-link .material-icons {
-      font-size: 2.2rem;
-      margin-bottom: 0.1rem;
-      display: block;
-    }
-    .sidebar-label {
-      font-size: 0.85rem;
-      margin-top: 0.1rem;
-      letter-spacing: 0.02em;
-      color: #fff;
-      opacity: 0.85;
-      transition: color 0.2s;
-    }
-    .sidebar .nav-link.active .sidebar-label,
-    .sidebar .nav-link:hover .sidebar-label {
-      color: var(--tertiary-accent);
-      opacity: 1;
-    }
-    .sidebar .badge {
-      position: relative;
-      top: 0;
-      right: 10px;
-      background: var(--tertiary-accent);
-      color: #fff;
-      font-size: 0.8rem;
-      border-radius: 50%;
-      padding: 2px 6px;
-    }
-    .sidebar .sidebar-bottom {
-      margin-top: auto;
-      margin-bottom: 1.5rem;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    
-    .main-content {
-      flex: 1 0 auto;
-      padding: 2rem 2rem 2rem 2rem;
-      min-height: 0;
-    }
-    .user-greeting {
-      font-size: 2.2rem;
-      font-weight: 700;
-      color: #333;
-      margin-bottom: 0.5rem;
-    }
-    .recommendations-label {
-      font-size: 1.2rem;
-      color: #555;
-      margin-bottom: 1.5rem;
-    }
-    .recommendation-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1.2rem;
-      margin-bottom: 2.2rem;
-    }
-    .recommendation-row .btn {
-      flex: 1 1 220px;
-      font-size: 1.15rem;
-      font-weight: 600;
-      padding: 1rem 0;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    }
-    .footer {
-      background: #faf5e0;
-      color: #1d1c1c;
-      font-size: 0.98rem;
-      padding: 0.7rem 0;
-      border-top: 1px solid #333;
-      margin-left: 0;
-      width: 100%;
-      position: static;
-      margin-top: auto;
-    }
-    .footer .container-fluid {
-      padding: 0 !important;
-    }
-    .footer-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-    }
-    .footer-logo {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .footer-logo img {
-      height: 28px;
-    }
-    .footer-links {
-      display: flex;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-    }
-    .footer-link {
-      color: #302f2f;
-      text-decoration: none;
-      margin-right: 1rem;
-      transition: color 0.2s;
-      font-size: 1rem;
-    }
-    .footer-link:hover {
-      color: #2c2c2c;
-      text-decoration: underline;
-    }
-    .footer-social {
-      display: inline-block;
-      margin-left: 0.5rem;
-      margin-right: 0.5rem;
-      vertical-align: middle;
-      transition: opacity 0.2s;
-    }
-    .footer-social:hover svg {
-      fill: #2e2d2d !important;
-    }
-    
-    * {
+            height: 100%;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            background: var(--primary-bg);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: var(--text-color);
         }
 
         body {
-            font-family: 'Arial', sans-serif;
-            background: (135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            display: flex;
+            flex-direction: row;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-            color: white;
-            padding: 40px;
-            text-align: center;
-            position: relative;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
+        .sidebar {
+            background: var(--secondary-bg);
+            color: #fff;
+            min-height: 100vh;
+            width: 90px;
+            position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 1.5rem;
         }
 
-        .header h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            position: relative;
-            z-index: 1;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        .sidebar .logo {
+            width: 60px;
+            margin-bottom: 2rem;
         }
 
-        .header p {
-            font-size: 1.2em;
+        .sidebar .nav-link {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 1.2rem;
+            font-size: 1.7rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            transition: color 0.2s;
             position: relative;
-            z-index: 1;
+            border-radius: 12px;
+            padding: 0.5rem 0;
+            width: 70px;
+        }
+
+        .sidebar .nav-link.active,
+        .sidebar .nav-link:hover {
+            background: rgba(0, 184, 148, 0.15);
+            color: var(--tertiary-accent);
+        }
+
+        .sidebar .nav-link .material-icons {
+            font-size: 2rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .sidebar-label {
+            font-size: 0.85rem;
+            margin-top: 0.1rem;
+            letter-spacing: 0.02em;
+            color: #fff;
+            opacity: 0.85;
+            transition: color 0.2s;
+        }
+
+        .sidebar .nav-link.active .sidebar-label,
+        .sidebar .nav-link:hover .sidebar-label {
+            color: var(--tertiary-accent);
+            opacity: 1;
+        }
+
+        .sidebar .sidebar-bottom {
+            margin-top: auto;
+            margin-bottom: 1.5rem;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .dashboard-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-left: 90px;
+            min-height: 100vh;
+            width: calc(100% - 90px);
+        }
+
+        .dashboard-header {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--secondary-bg);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
         }
 
         .search-section {
-            padding: 30px 40px;
-            background: rgba(255, 255, 255, 0.8);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 800px;
         }
 
         .search-bar {
             display: flex;
-            gap: 15px;
+            gap: 1rem;
             align-items: center;
             flex-wrap: wrap;
         }
 
         .search-input {
             flex: 1;
-            padding: 15px 20px;
-            border: 2px solid transparent;
-            border-radius: 50px;
-            font-size: 16px;
-            background: white;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            min-width: 300px;
+            padding: 1rem 1.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: var(--primary-bg);
+            color: var(--text-color);
             transition: all 0.3s ease;
         }
 
         .search-input:focus {
             outline: none;
-            border-color: #4ecdc4;
-            box-shadow: 0 5px 25px rgba(78, 205, 196, 0.3);
-            transform: translateY(-2px);
+            border-color: var(--tertiary-accent);
+            box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1);
+            background: var(--card-bg);
         }
 
         .filter-select {
-            padding: 15px 20px;
-            border: 2px solid transparent;
-            border-radius: 25px;
-            background: white;
-            font-size: 16px;
+            padding: 1rem 1.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--primary-bg);
+            color: var(--text-color);
+            font-size: 1rem;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
+            min-width: 150px;
         }
 
-        .filter-select:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.15);
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--tertiary-accent);
+            box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1);
+        }
+
+        #resourcesContainer {
+            width: 100%;
+            max-width: 1200px;
         }
 
         .resources-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 30px;
-            padding: 40px;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            width: 100%;
         }
 
         .resource-card {
-            background: white;
-            border-radius: 20px;
+            background: var(--card-bg);
+            border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow);
             transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
             position: relative;
         }
 
         .resource-card:hover {
-            transform: translateY(-10px) rotate(1deg);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(44, 95, 93, 0.15);
+            border-color: var(--tertiary-accent);
         }
 
         .resource-card::before {
@@ -329,96 +242,126 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 5px;
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            height: 4px;
+            background: linear-gradient(90deg, var(--tertiary-accent), #00a085);
         }
 
         .resource-content {
-            padding: 30px;
+            padding: 2rem;
+        }
+
+        .resource-type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(0, 184, 148, 0.1);
+            color: var(--tertiary-accent);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(0, 184, 148, 0.2);
         }
 
         .resource-title {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 15px;
-            line-height: 1.3;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--secondary-bg);
+            margin-bottom: 1rem;
+            line-height: 1.4;
         }
 
         .resource-description {
-            color: #666;
+            color: var(--text-secondary);
             line-height: 1.6;
-            margin-bottom: 20px;
+            margin-bottom: 1.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .resource-meta {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            font-size: 0.9em;
-        }
-
-        .resource-type {
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: bold;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
         }
 
         .resource-date {
-            color: #999;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
         }
 
-        .download-btn {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+        .access-btn {
+            background: var(--tertiary-accent);
             color: white;
             border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
+            font-size: 1rem;
+            font-weight: 600;
             width: 100%;
             transition: all 0.3s ease;
             text-decoration: none;
-            display: inline-block;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
-        .download-btn:hover {
+        .access-btn:hover {
+            background: #00a085;
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
+            color: white;
+            text-decoration: none;
         }
 
         .no-resources {
             text-align: center;
-            padding: 60px 40px;
-            color: #666;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .no-resources-icon {
+            font-size: 4rem;
+            color: var(--border-color);
+            margin-bottom: 1rem;
         }
 
         .no-resources h3 {
-            font-size: 2em;
-            margin-bottom: 20px;
-            color: #999;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--secondary-bg);
         }
 
         .loading {
             text-align: center;
-            padding: 40px;
-            font-size: 1.2em;
-            color: #666;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
         }
 
         .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #4ecdc4;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--tertiary-accent);
             border-radius: 50%;
             width: 40px;
             height: 40px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            margin: 0 auto 1rem;
         }
 
         @keyframes spin {
@@ -426,385 +369,466 @@
             100% { transform: rotate(360deg); }
         }
 
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2em;
+        .footer {
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            color: #747373;
+            font-size: 0.98rem;
+            padding: 2rem 0;
+            margin-top: auto;
+            width: 100%;
+        }
+
+        .footer .container-fluid {
+            padding: 0 2rem;
+        }
+
+        .footer-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer-logo img {
+            height: 28px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: #949393;
+            text-decoration: none;
+            transition: color 0.2s;
+            font-size: 1rem;
+        }
+
+        .footer-link:hover {
+            color: var(--tertiary-accent);
+            text-decoration: underline;
+        }
+
+        .footer-social {
+            display: inline-block;
+            margin: 0 0.5rem;
+            transition: opacity 0.2s;
+        }
+
+        .footer-social:hover svg {
+            fill: var(--tertiary-accent) !important;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .main-content { 
+                padding: 1rem; 
             }
-            
+            .sidebar { 
+                width: 60px; 
+            }
+            .dashboard-wrapper { 
+                margin-left: 60px; 
+                width: calc(100% - 60px);
+            }
             .search-bar {
                 flex-direction: column;
                 align-items: stretch;
             }
-            
+            .search-input {
+                min-width: auto;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                flex-direction: column;
+            }
+            .sidebar {
+                display: none;
+            }
+            .dashboard-wrapper { 
+                margin-left: 0; 
+                width: 100%;
+            }
+            .main-content { 
+                padding: 1rem; 
+            }
+            .dashboard-header { 
+                padding: 1.5rem; 
+            }
+            .page-title {
+                font-size: 2rem;
+            }
             .resources-grid {
                 grid-template-columns: 1fr;
-                gap: 20px;
-                padding: 20px;
+                gap: 1rem;
             }
-
-            /* Responsive Design */
-@media (max-width: 768px) {
-  .opportunities-container {
-    padding: 5px;
-  }
-  
-  .page-title {
-    font-size: 2rem;
-  }
-  
-  .filter-container {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .filter-select {
-    min-width: auto;
-    width: 100%;
-  }
-  
-  #opportunities-list {
-    grid-template-columns: 1fr;
-  }
-}
-  
-    @media (max-width: 900px) {
-      .main-content { padding: 1rem 0.5rem 0 0.5rem; }
-      .sidebar { width: 60px; }
-      .dashboard-wrapper { margin-left: 60px; }
-      .recommendation-row { gap: 0.5rem; }
-    }
-    @media (max-width: 600px) {
-      .dashboard-wrapper, .main-content { margin-left: 0; padding: 0.5rem; }
-      .dashboard-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
-      .recommendation-row { flex-direction: column; }
-      .footer-content { flex-direction: column; gap: 0.5rem; }
-      .footer-links { gap: 0.7rem; }
-    }
+            .footer-content { 
+                flex-direction: column; 
+                gap: 0.5rem; 
+            }
+            .footer-links { 
+                gap: 0.7rem; 
+            }
         }
     </style>
 </head>
 <body>
     <!-- Sidebar -->
-  <div class="sidebar">
-    <img src="images/logo.png" alt="Logo" class="logo">
-    <a href="account.html" class="nav-link" title="Account Settings">
-      <span class="material-icons">account_circle</span>
-      <span class="sidebar-label">Account</span>
-    </a>
-    <a href="dashboard.html" class="nav-link" title="Dashboard">
-      <span class="material-icons">dashboard</span>
-      <span class="sidebar-label">Dashboard</span>
-    </a>
-    <a href="career-test.html" class="nav-link" title="Career Test">
-      <span class="material-icons">psychology</span>
-      <span class="sidebar-label">Career Test</span>
-    </a>
-    <a href="courses.html" class="nav-link" title="Courses">
-      <span class="material-icons">menu_book</span>
-      <span class="sidebar-label">Courses</span>
-    </a>
-    <a href="mentorship.html" class="nav-link" title="Mentorship">
-      <span class="material-icons">group</span>
-      <span class="sidebar-label">Mentorship</span>
-    </a>
-    <a href="opportunities.html" class="nav-link" title="Opportunities">
-      <span class="material-icons">work</span>
-      <span class="sidebar-label">Opportunities</span>
-    </a>
-    <a href="resources.html" class="nav-link active" title="Startup Toolkit">
-      <span class="material-icons">build</span>
-      <span class="sidebar-label">Resources</span>
-    </a>
-    <div class="sidebar-bottom">
-      <a href="settings.html" class="nav-link" title="App Settings">
-        <span class="material-icons">settings</span>
-        <span class="sidebar-label">Settings</span>
-      </a>
-    </div>
-  </div>
-
-    <!-- Main Content -->
-
-    <div class="container">
-        <div class="header">
-            <h1>📚 Resource Library</h1>
-            <p>Discover and access educational resources</p>
-        </div>
-
-        <div class="search-section">
-            <div class="search-bar">
-                <input type="text" id="searchInput" class="search-input" placeholder="Search resources...">
-                <select id="typeFilter" class="filter-select">
-                    <option value="">All Types</option>
-                    <option value="PDF">PDF</option>
-                    <option value="Video">Video</option>
-                    <option value="Document">Document</option>
-                    <option value="Presentation">Presentation</option>
-                    <option value="Audio">Audio</option>
-                </select>
-            </div>
-        </div>
-
-        <div id="resourcesContainer">
-            <div class="loading">
-                <div class="spinner"></div>
-                Loading resources...
-            </div>
+    <div class="sidebar">
+        <img src="images/logo.png" alt="Logo" class="logo">
+        <a href="account.html" class="nav-link" title="Account Settings">
+            <span class="material-icons">account_circle</span>
+            <span class="sidebar-label">Account</span>
+        </a>
+        <a href="dashboard.html" class="nav-link" title="Dashboard">
+            <span class="material-icons">dashboard</span>
+            <span class="sidebar-label">Dashboard</span>
+        </a>
+        <a href="career-test.html" class="nav-link" title="Career Test">
+            <span class="material-icons">psychology</span>
+            <span class="sidebar-label">Career Test</span>
+        </a>
+        <a href="courses.html" class="nav-link" title="Courses">
+            <span class="material-icons">menu_book</span>
+            <span class="sidebar-label">Courses</span>
+        </a>
+        <a href="mentorship.html" class="nav-link" title="Mentorship">
+            <span class="material-icons">group</span>
+            <span class="sidebar-label">Mentorship</span>
+        </a>
+        <a href="opportunities.html" class="nav-link" title="Opportunities">
+            <span class="material-icons">work</span>
+            <span class="sidebar-label">Opportunities</span>
+        </a>
+        <a href="resources.html" class="nav-link active" title="Resources">
+            <span class="material-icons">folder_open</span>
+            <span class="sidebar-label">Resources</span>
+        </a>
+        <div class="sidebar-bottom">
+            <a href="settings.html" class="nav-link" title="Settings">
+                <span class="material-icons">settings</span>
+                <span class="sidebar-label">Settings</span>
+            </a>
         </div>
     </div>
-    <script>
-      class ResourceManager {
-    constructor() {
-        this.resources = [];
-        this.filteredResources = [];
-        this.init();
-    }
 
-    async init() {
-        await this.loadResources();
-        this.setupEventListeners();
-        this.renderResources();
-    }
+    <!-- Main Wrapper -->
+    <div class="dashboard-wrapper">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <h1 class="page-title">
+                <span class="material-icons" style="font-size: 2.5rem;">folder_open</span>
+                Resource Library
+            </h1>
+            <p class="page-subtitle">Discover and access educational resources to advance your skills</p>
+        </div>
 
-    async loadResources() {
-        try {
-            const response = await fetch('/api/resources');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            this.resources = await response.json();
-            this.filteredResources = [...this.resources];
-        } catch (error) {
-            console.error('Error loading resources:', error);
-            this.showError('Failed to load resources. Please try again later.');
-        }
-    }
-
-    setupEventListeners() {
-        const searchInput = document.getElementById('searchInput');
-        const typeFilter = document.getElementById('typeFilter');
-
-        searchInput.addEventListener('input', (e) => {
-            this.filterResources(e.target.value, typeFilter.value);
-        });
-
-        typeFilter.addEventListener('change', (e) => {
-            this.filterResources(searchInput.value, e.target.value);
-        });
-
-        // Add smooth scrolling for better UX
-        document.addEventListener('keydown', (e) => {
-            if (e.key === '/' && e.target !== searchInput) {
-                e.preventDefault();
-                searchInput.focus();
-            }
-        });
-    }
-
-    filterResources(searchTerm = '', typeFilter = '') {
-        this.filteredResources = this.resources.filter(resource => {
-            const matchesSearch = !searchTerm || 
-                resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                resource.description.toLowerCase().includes(searchTerm.toLowerCase());
-            
-            const matchesType = !typeFilter || resource.type === typeFilter;
-            
-            return matchesSearch && matchesType;
-        });
-
-        this.renderResources();
-    }
-
-    renderResources() {
-        const container = document.getElementById('resourcesContainer');
-        
-        if (this.filteredResources.length === 0) {
-            container.innerHTML = `
-                <div class="no-resources">
-                    <h3>🔍 No resources found</h3>
-                    <p>Try adjusting your search terms or filters</p>
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Search Section -->
+            <div class="search-section">
+                <div class="search-bar">
+                    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search resources by title, description, or category...">
+                    <select id="typeFilter" class="filter-select">
+                        <option value="">All Types</option>
+                        <option value="PDF">📄 PDF</option>
+                        <option value="Video">🎥 Video</option>
+                        <option value="Document">📝 Document</option>
+                        <option value="Presentation">📊 Presentation</option>
+                        <option value="Audio">🎵 Audio</option>
+                        <option value="Link">🔗 Link</option>
+                    </select>
                 </div>
-            `;
-            return;
-        }
-
-        const resourcesHTML = `
-            <div class="resources-grid">
-                ${this.filteredResources.map(resource => this.renderResourceCard(resource)).join('')}
             </div>
-        `;
 
-        container.innerHTML = resourcesHTML;
-        this.addCardAnimations();
-    }
+            <!-- Resources Container -->
+            <div id="resourcesContainer">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading resources...
+                </div>
+            </div>
+        </div>
 
-    renderResourceCard(resource) {
-        const formattedDate = new Date(resource.createdAt).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
-
-        const typeIcon = this.getTypeIcon(resource.type);
-
-        return `
-            <div class="resource-card" data-id="${resource._id}">
-                <div class="resource-content">
-                    <h3 class="resource-title">${typeIcon} ${this.escapeHtml(resource.title)}</h3>
-                    <p class="resource-description">${this.escapeHtml(resource.description)}</p>
-                    <div class="resource-meta">
-                        <span class="resource-type">${resource.type}</span>
-                        <span class="resource-date">${formattedDate}</span>
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container-fluid">
+                <div class="footer-content">
+                    <div class="footer-logo">
+                        <img src="images/logo.png" alt="EmpowerPath Logo">
+                        <span style="font-size:1.1rem; font-weight:600; color:#333;">Refugee Techpreneurs</span>
                     </div>
-                    <a href="${this.escapeHtml(resource.url)}" 
-                       class="download-btn" 
-                       target="_blank" 
-                       rel="noopener noreferrer"
-                       onclick="this.trackDownload('${resource._id}')">
-                        📥 Access Resource
-                    </a>
+                    <div class="footer-links">
+                        <a href="courses.html" class="footer-link">Learning Paths</a>
+                        <a href="mentorship.html" class="footer-link">Mentorship</a>
+                        <a href="opportunities.html" class="footer-link">Opportunities</a>
+                        <a href="resources.html" class="footer-link">Resources</a>
+                        <a href="#" class="footer-link">Help</a>
+                        <a href="#" class="footer-link">Privacy</a>
+                    </div>
+                    <div>
+                        <a href="#" class="footer-social" title="Facebook">
+                            <svg width="22" height="22" fill="#bbb" viewBox="0 0 24 24"><path d="M22.675 0h-21.35c-.733 0-1.325.592-1.325 1.326v21.348c0 .733.592 1.326 1.325 1.326h11.495v-9.294h-3.125v-3.622h3.125v-2.672c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.797.143v3.24l-1.918.001c-1.504 0-1.797.715-1.797 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.326v-21.349c0-.734-.593-1.326-1.324-1.326z"/></svg>
+                        </a>
+                        <a href="#" class="footer-social" title="Website">
+                            <svg width="22" height="22" fill="#bbb" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 5.523 4.477 10 10 10s10-4.477 10-10c0-5.523-4.477-10-10-10zm0 18c-1.85 0-3.555-.63-4.9-1.69.03-.04.06-.08.09-.12.37-.48.73-.97 1.08-1.47.16-.23.31-.47.46-.7.13-.2.25-.41.37-.62.09-.16-.18-.32-.27-.48-.08-.15-.16-.3-.23-.45-.07-.15-.13-.3-.19-.45-.06-.15-.12-.3-.17-.45-.05-.15-.09-.3-.13-.45-.04-.15-.07-.3-.1-.45-.03-.15-.05-.3-.07-.45-.02-.15-.03-.3-.04-.45-.01-.15-.02-.3-.02-.45 0-.15.01-.3.02-.45.01-.15.02-.3.04-.45.02-.15.04-.3.07-.45.03-.15.06-.3.1-.45.04-.15.08-.3.13-.45.05-.15.11-.3.17-.45.06-.15.12-.3.19-.45.07-.15.15-.3.23-.45.09-.16.18-.32.27-.48.12-.21.24-.42.37-.62.15-.23.3-.47.46-.7.35-.5.71-.99 1.08-1.47.03-.04.06-.08.09-.12C15.555 19.37 13.85 20 12 20z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 1rem; font-size:0.95rem; color:#bbb; width: 100%;">
+                    © 2025 Refugee Techpreneurs. All rights reserved.
                 </div>
             </div>
-        `;
-    }
+        </footer>
 
-    getTypeIcon(type) {
-        const icons = {
-            'PDF': '📄',
-            'Video': '🎥',
-            'Document': '📝',
-            'Presentation': '📊',
-            'Audio': '🎵',
-            'Image': '🖼️',
-            'Link': '🔗'
-        };
-        return icons[type] || '📁';
-    }
+    </div>
 
-    trackDownload(resourceId) {
-        // Track resource access for analytics
-        fetch(`/api/resources/${resourceId}/access`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
+    <script>
+        class ResourceManager {
+            constructor() {
+                this.resources = [];
+                this.filteredResources = [];
+                this.init();
             }
-        }).catch(error => {
-            console.warn('Failed to track resource access:', error);
-        });
-    }
 
-    addCardAnimations() {
-        const cards = document.querySelectorAll('.resource-card');
-        cards.forEach((card, index) => {
-            card.style.animation = `fadeInUp 0.6s ease forwards ${index * 0.1}s`;
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(30px)';
-        });
+            async init() {
+                await this.loadResources();
+                this.setupEventListeners();
+                this.renderResources();
+            }
 
-        // Add CSS for animation
-        if (!document.getElementById('cardAnimationStyles')) {
-            const style = document.createElement('style');
-            style.id = 'cardAnimationStyles';
-            style.textContent = `
-                @keyframes fadeInUp {
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
+            async loadResources() {
+                try {
+                    const response = await fetch('http://localhost:5000/api/resources');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
+                    this.resources = await response.json();
+                    this.filteredResources = [...this.resources];
+                } catch (error) {
+                    console.error('Error loading resources:', error);
+                    this.showError('Failed to load resources. Please try again later.');
                 }
-            `;
-            document.head.appendChild(style);
+            }
+
+            setupEventListeners() {
+                const searchInput = document.getElementById('searchInput');
+                const typeFilter = document.getElementById('typeFilter');
+
+                searchInput.addEventListener('input', (e) => {
+                    this.filterResources(e.target.value, typeFilter.value);
+                });
+
+                typeFilter.addEventListener('change', (e) => {
+                    this.filterResources(searchInput.value, e.target.value);
+                });
+
+                // Add keyboard shortcut for search
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === '/' && e.target !== searchInput) {
+                        e.preventDefault();
+                        searchInput.focus();
+                    }
+                });
+            }
+
+            filterResources(searchTerm = '', typeFilter = '') {
+                this.filteredResources = this.resources.filter(resource => {
+                    const matchesSearch = !searchTerm || 
+                        resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        resource.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        (resource.category && resource.category.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                        (resource.tags && resource.tags.toLowerCase().includes(searchTerm.toLowerCase()));
+                    
+                    const matchesType = !typeFilter || resource.type === typeFilter;
+                    
+                    return matchesSearch && matchesType;
+                });
+
+                this.renderResources();
+            }
+
+            renderResources() {
+                const container = document.getElementById('resourcesContainer');
+                
+                if (this.filteredResources.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-resources">
+                            <div class="no-resources-icon">📂</div>
+                            <h3>No resources found</h3>
+                            <p>Try adjusting your search terms or filters to find what you're looking for.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const resourcesHTML = `
+                    <div class="resources-grid">
+                        ${this.filteredResources.map(resource => this.renderResourceCard(resource)).join('')}
+                    </div>
+                `;
+
+                container.innerHTML = resourcesHTML;
+                this.addCardAnimations();
+            }
+
+            renderResourceCard(resource) {
+                const formattedDate = new Date(resource.createdAt || Date.now()).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+
+                const typeIcon = this.getTypeIcon(resource.type);
+
+                return `
+                    <div class="resource-card" data-id="${resource._id || resource.id}">
+                        <div class="resource-content">
+                            <div class="resource-type-badge">
+                                ${typeIcon} ${resource.type || 'Resource'}
+                            </div>
+                            <h3 class="resource-title">${this.escapeHtml(resource.title || 'Untitled Resource')}</h3>
+                            <p class="resource-description">${this.escapeHtml(resource.description || 'No description available.')}</p>
+                            <div class="resource-meta">
+                                <div class="resource-date">
+                                    <span class="material-icons" style="font-size: 1rem;">schedule</span>
+                                    ${formattedDate}
+                                </div>
+                                ${resource.category ? `<span style="color: var(--tertiary-accent); font-weight: 600;">${this.escapeHtml(resource.category)}</span>` : ''}
+                            </div>
+                            <a href="${this.escapeHtml(resource.url || '#')}" 
+                               class="access-btn" 
+                               target="_blank" 
+                               rel="noopener noreferrer"
+                               onclick="window.resourceManager.trackDownload('${resource._id || resource.id}')">
+                                <span class="material-icons">download</span>
+                                Access Resource
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }
+
+            getTypeIcon(type) {
+                const icons = {
+                    'PDF': '📄',
+                    'Video': '🎥',
+                    'Document': '📝',
+                    'Presentation': '📊',
+                    'Audio': '🎵',
+                    'Image': '🖼️',
+                    'Link': '🔗'
+                };
+                return icons[type] || '📁';
+            }
+
+            trackDownload(resourceId) {
+                // Track resource access for analytics
+                if (resourceId && resourceId !== 'undefined') {
+                    fetch(`http://localhost:5000/api/resources/${resourceId}/download`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    }).catch(error => {
+                        console.warn('Failed to track resource access:', error);
+                    });
+                }
+            }
+
+            addCardAnimations() {
+                const cards = document.querySelectorAll('.resource-card');
+                cards.forEach((card, index) => {
+                    card.style.animation = `fadeInUp 0.6s ease forwards ${index * 0.1}s`;
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(30px)';
+                });
+
+                // Add CSS for animation if not exists
+                if (!document.getElementById('cardAnimationStyles')) {
+                    const style = document.createElement('style');
+                    style.id = 'cardAnimationStyles';
+                    style.textContent = `
+                        @keyframes fadeInUp {
+                            to {
+                                opacity: 1;
+                                transform: translateY(0);
+                            }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+            }
+
+            showError(message) {
+                const container = document.getElementById('resourcesContainer');
+                container.innerHTML = `
+                    <div class="no-resources">
+                        <div class="no-resources-icon">⚠️</div>
+                        <h3>Error Loading Resources</h3>
+                        <p>${message}</p>
+                        <button onclick="location.reload()" class="access-btn" style="width: auto; margin-top: 20px;">
+                            <span class="material-icons">refresh</span>
+                            Retry
+                        </button>
+                    </div>
+                `;
+            }
+
+            escapeHtml(unsafe) {
+                if (!unsafe) return '';
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+
+            // Public method to refresh resources
+            async refresh() {
+                const container = document.getElementById('resourcesContainer');
+                container.innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Refreshing resources...
+                    </div>
+                `;
+                
+                await this.loadResources();
+                this.renderResources();
+            }
         }
-    }
 
-    showError(message) {
-        const container = document.getElementById('resourcesContainer');
-        container.innerHTML = `
-            <div class="no-resources">
-                <h3>⚠️ Error</h3>
-                <p>${message}</p>
-                <button onclick="location.reload()" class="download-btn" style="width: auto; margin-top: 20px;">
-                    🔄 Retry
-                </button>
-            </div>
-        `;
-    }
+        // Initialize the resource manager when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.resourceManager = new ResourceManager();
+        });
 
-    escapeHtml(unsafe) {
-        return unsafe
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
-    // Public method to refresh resources
-    async refresh() {
-        const container = document.getElementById('resourcesContainer');
-        container.innerHTML = `
-            <div class="loading">
-                <div class="spinner"></div>
-                Refreshing resources...
-            </div>
-        `;
-        
-        await this.loadResources();
-        this.renderResources();
-    }
-}
-
-// Initialize the resource manager when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    window.resourceManager = new ResourceManager();
-});
-
-// Add service worker for offline support (optional)
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-                console.log('SW registered: ', registration);
-            })
-            .catch(registrationError => {
-                console.log('SW registration failed: ', registrationError);
+        // Add service worker for offline support (optional)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
             });
-    });
-}
+        }
     </script>
-
-    <!-- Footer Start -->
-    <footer class="footer">
-      <div class="container-fluid">
-        <div class="footer-content">
-          <div class="footer-logo">
-            <img src="images/logo.png" alt="EmpowerPath Logo">
-            <span style="font-size:1.1rem; font-weight:600; color:#333;">Refugee Techpreneurs</span>
-          </div>
-          <div class="footer-links">
-            <a href="courses.html" class="footer-link">Learning Paths</a>
-            <a href="mentorship.html" class="footer-link">Mentorship</a>
-            <a href="opportunities.html" class="footer-link">Opportunities</a>
-            <a href="resources.html" class="footer-link">Resources</a>
-            <a href="#" class="footer-link">Help</a>
-            <a href="#" class="footer-link">Privacy</a>
-          </div>
-          <div>
-            <a href="#" class="footer-social" title="Facebook">
-              <svg width="22" height="22" fill="#bbb" viewBox="0 0 24 24"><path d="M22.675 0h-21.35c-.733 0-1.325.592-1.325 1.326v21.348c0 .733.592 1.326 1.325 1.326h11.495v-9.294h-3.125v-3.622h3.125v-2.672c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.797.143v3.24l-1.918.001c-1.504 0-1.797.715-1.797 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.326v-21.349c0-.734-.593-1.326-1.324-1.326z"/></svg>
-            </a>
-            <a href="#" class="footer-social" title="Website">
-              <svg width="22" height="22" fill="#bbb" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 5.523 4.477 10 10 10s10-4.477 10-10c0-5.523-4.477-10-10-10zm0 18c-1.85 0-3.555-.63-4.9-1.69.03-.04.06-.08.09-.12.37-.48.73-.97 1.08-1.47.16-.23.31-.47.46-.7.13-.2.25-.41.37-.62.09-.16-.18-.32-.27-.48-.08-.15-.16-.3-.23-.45-.07-.15-.13-.3-.19-.45-.06-.15-.12-.3-.17-.45-.05-.15-.09-.3-.13-.45-.04-.15-.07-.3-.1-.45-.03-.15-.05-.3-.07-.45-.02-.15-.03-.3-.04-.45-.01-.15-.02-.3-.02-.45 0-.15.01-.3.02-.45.01-.15.02-.3.04-.45.02-.15.04-.3.07-.45.03-.15.06-.3.1-.45.04-.15.08-.3.13-.45.05-.15.11-.3.17-.45.06-.15.12-.3.19-.45.07-.15.15-.3.23-.45.09-.16.18-.32.27-.48.12-.21.24-.42.37-.62.15-.23.3-.47.46-.7.35-.5.71-.99 1.08-1.47.03-.04.06-.08.09-.12C15.555 19.37 13.85 20 12 20z"/></svg>
-            </a>
-          </div>
-        </div>
-        <div class="text-center mt-2" style="font-size:0.95rem; color:#bbb;">
-          © 2025 Refugee Techpreneurs. All rights reserved.
-        </div>
-      </div>
-    </footer>
-    <!-- Footer End -->
-
-    <script src="resource.js"></script>
 </body>
 </html>

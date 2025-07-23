@@ -15,6 +15,7 @@
       --card-bg: #ffffff;
       --border-color: #ddd;
       --text-secondary: #636e72;
+      --shadow: 0 10px 30px rgba(44, 95, 93, 0.08);
     }
     
     html, body {
@@ -373,12 +374,12 @@
     /* Footer */
     .footer {
       flex-shrink: 0;
-      background: (--primary-bg);
+      background: var(--secondary-bg);
       color: #fff;
       font-size: 0.98rem;
       padding: 1rem 0;
-      margin-left: 0;
-      width: 100%;
+      margin-left: 90px;
+      width: calc(100% - 90px);
       position: static;
       margin-top: auto;
     }
@@ -484,6 +485,7 @@
     @media (max-width: 900px) {
       .sidebar { width: 60px; }
       .main-wrapper { margin-left: 60px; }
+      .footer { margin-left: 60px; width: calc(100% - 60px); }
       .main-content { padding: 1rem; }
       .mentors-container { 
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
@@ -499,7 +501,9 @@
     }
     
     @media (max-width: 600px) {
+      .sidebar { display: none; }
       .main-wrapper { margin-left: 0; }
+      .footer { margin-left: 0; width: 100%; }
       .main-content { padding: 0.5rem; }
       .mentors-container { 
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
@@ -688,7 +692,7 @@
           <div class="footer-content">
             <div class="footer-logo">
               <img src="images/logo.png" alt="EmpowerPath Logo">
-              <span style="font-size:1.1rem; font-weight:600; color:#fff;">Refugee Techprenures</span>
+              <span style="font-size:1.1rem; font-weight:600; color:#fff;">Refugee Techpreneurs</span>
             </div>
             <div class="footer-links">
               <a href="courses.html" class="footer-link">Learning Paths</a>
@@ -708,7 +712,7 @@
             </div>
           </div>
           <div class="text-center mt-2" style="font-size:0.95rem; color:#bbb;">
-            © 2025 Refugee Techprenures. All rights reserved.
+            © 2025 Refugee Techpreneurs. All rights reserved.
           </div>
         </div>
       </footer>
@@ -716,6 +720,9 @@
   </div>
 
   <script>
+    // Debug: Check if we're on the right page
+    console.log('Mentorship page loaded successfully');
+    
     class MentorManager {
       constructor() {
         this.mentors = [];
@@ -841,75 +848,85 @@
 
       createMentorCard(mentor) {
         // Handle the avatar image URL properly
-        let profileImage = null;
+        let avatarHTML = '';
+        
         if (mentor.avatar) {
+          let profileImage = '';
           if (mentor.avatar.startsWith('http')) {
-            // Full URL already provided
             profileImage = mentor.avatar;
           } else if (mentor.avatar.startsWith('/uploads/')) {
-            // Path starts with /uploads/ so just add the base URL
             profileImage = `http://localhost:5000${mentor.avatar}`;
           } else {
-            // Just filename, add full path
             profileImage = `http://localhost:5000/uploads/${mentor.avatar}`;
           }
-          console.log(`Mentor ${mentor.name} - Avatar: ${mentor.avatar} -> Image URL: ${profileImage}`); // Debug log
+          
+          avatarHTML = `
+            <img src="${profileImage}" alt="${mentor.name}" class="mentor-avatar" 
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div class="mentor-avatar default-avatar" style="display:none;">${mentor.name.charAt(0).toUpperCase()}</div>
+          `;
         } else {
-          console.log(`Mentor ${mentor.name} - No avatar field`); // Debug log
+          avatarHTML = `<div class="mentor-avatar default-avatar">${mentor.name.charAt(0).toUpperCase()}</div>`;
         }
         
         const tagsList = mentor.tags && Array.isArray(mentor.tags) ? 
-          mentor.tags.map(skill => `<span class="mentor-tag">${skill}</span>`).join('') : 
+          mentor.tags.map(skill => `<span class="mentor-tag">${this.escapeHtml(skill)}</span>`).join('') : 
           '';
+        
+        const contactButton = mentor.readMoreLink ? 
+          `<a href="${mentor.readMoreLink}" target="_blank" class="btn-contact">
+            <span class="material-icons">link</span> Learn More
+          </a>` : 
+          `<a href="#" class="btn-contact">
+            <span class="material-icons">email</span> Contact
+          </a>`;
+          
+        const actionButton = mentor.calendarLink ? 
+          `<a href="${mentor.calendarLink}" target="_blank" class="btn-read-more">
+            <span class="material-icons">calendar_today</span> Book Session
+          </a>` :
+          `<button class="btn-read-more" onclick="showMentorDetails('${mentor._id || 'unknown'}')">
+            <span class="material-icons">visibility</span> Read More
+          </button>`;
         
         return `
           <div class="mentor-card">
             <div class="mentor-header">
-              ${profileImage ? 
-                `<img src="${profileImage}" alt="${mentor.name}" class="mentor-avatar" 
-                      onerror="console.log('Image failed to load: ${profileImage}'); this.style.display='none'; this.nextElementSibling.style.display='flex';"
-                      onload="console.log('Image loaded successfully: ${profileImage}'); this.nextElementSibling.style.display='none';">
-                 <div class="mentor-avatar default-avatar" style="display:flex;">${mentor.name.charAt(0).toUpperCase()}</div>` :
-                `<div class="mentor-avatar default-avatar">${mentor.name.charAt(0).toUpperCase()}</div>`
-              }
-              <h3 class="mentor-name">${mentor.name}</h3>
-              <p class="mentor-title">${mentor.title || 'Business Mentor'}</p>
+              ${avatarHTML}
+              <h3 class="mentor-name">${this.escapeHtml(mentor.name || 'Unknown Mentor')}</h3>
+              <p class="mentor-title">${this.escapeHtml(mentor.title || 'Business Mentor')}</p>
             </div>
             <div class="mentor-body">
-              <p class="mentor-bio">${mentor.bio || 'Experienced mentor ready to help you succeed in your entrepreneurial journey.'}</p>
+              <p class="mentor-bio">${this.escapeHtml(mentor.bio || 'Experienced mentor ready to help you succeed in your entrepreneurial journey.')}</p>
               <div class="mentor-tags">
                 ${tagsList}
               </div>
               <div class="mentor-actions">
-                ${mentor.readMoreLink ? 
-                  `<a href="${mentor.readMoreLink}" target="_blank" class="btn-contact">
-                    <span class="material-icons">link</span> Learn More
-                  </a>` : 
-                  `<a href="#" class="btn-contact">
-                    <span class="material-icons">email</span> Contact
-                  </a>`
-                }
-                ${mentor.calendarLink ? 
-                  `<a href="${mentor.calendarLink}" target="_blank" class="btn-read-more">
-                    <span class="material-icons">calendar_today</span> Book Session
-                  </a>` :
-                  `<button class="btn-read-more" onclick="showMentorDetails('${mentor._id}')">
-                    <span class="material-icons">visibility</span> Read More
-                  </button>`
-                }
+                ${contactButton}
+                ${actionButton}
               </div>
             </div>
           </div>
         `;
       }
 
+      escapeHtml(unsafe) {
+        if (!unsafe) return '';
+        return unsafe
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
       showError(message) {
         const container = document.getElementById('mentors-list');
         container.innerHTML = `
-          <div class="error-state">
+          <div class="no-results">
             <span class="material-icons" style="font-size: 48px; color: #ff6b6b;">error_outline</span>
             <h3>Oops! Something went wrong</h3>
-            <p>${message}</p>
+            <p>${this.escapeHtml(message)}</p>
             <button class="btn btn-primary" onclick="location.reload()">Try Again</button>
           </div>
         `;

@@ -5,7 +5,7 @@ const Resource = require('../models/Resource');
 // Get all resources (public view)
 router.get('/', async (req, res) => {
     try {
-        const resources = await Resource.find({ status: 'active' })
+        const resources = await Resource.find({ isActive: true })
             .sort({ createdAt: -1 })
             .select('-__v');
         res.json(resources);
@@ -25,7 +25,7 @@ router.get('/:id', async (req, res) => {
             return res.status(404).json({ error: 'Resource not found' });
         }
         
-        if (resource.status !== 'active') {
+        if (resource.isActive !== true) {
             return res.status(404).json({ error: 'Resource not available' });
         }
         
@@ -44,7 +44,7 @@ router.get('/category/:category', async (req, res) => {
     try {
         const resources = await Resource.find({ 
             category: req.params.category,
-            status: 'active'
+            isActive: true
         })
         .sort({ createdAt: -1 })
         .select('-__v');
@@ -61,7 +61,7 @@ router.get('/search/:query', async (req, res) => {
     try {
         const query = req.params.query;
         const resources = await Resource.find({
-            status: 'active',
+            isActive: true,
             $or: [
                 { title: { $regex: query, $options: 'i' } },
                 { description: { $regex: query, $options: 'i' } },
@@ -87,7 +87,7 @@ router.post('/:id/download', async (req, res) => {
             return res.status(404).json({ error: 'Resource not found' });
         }
         
-        if (resource.status !== 'active') {
+        if (resource.isActive !== true) {
             return res.status(404).json({ error: 'Resource not available' });
         }
         
