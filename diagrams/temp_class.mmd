@@ -1,0 +1,155 @@
+classDiagram
+    class User {
+        -ObjectId _id
+        -String name
+        -String email
+        -String password
+        -String phoneNumber
+        -Date dateOfBirth
+        -String nationality
+        -String educationLevel
+        -String[] skills
+        -String[] interests
+        -String[] customInterests
+        -Date registrationDate
+        -Boolean isActive
+        -String profilePicture
+        +register()
+        +login()
+        +updateProfile()
+        +addCustomInterest()
+        +removeCustomInterest()
+        +deactivateAccount()
+    }
+    
+    class CareerPath {
+        -ObjectId _id
+        -String title
+        -String description
+        -String category
+        -String[] requiredSkills
+        -String[] relatedInterests
+        -String salaryRange
+        -String jobOutlook
+        -String experienceLevel
+        -String[] synonyms
+        -Number skillsWeight
+        -Number interestsWeight
+        -Date createdDate
+        -Date updatedDate
+        +getCareerDetails()
+        +updateCareerInfo()
+        +addSynonym()
+        +calculateMatch()
+    }
+    
+    class LearningModule {
+        -ObjectId _id
+        -String title
+        -String description
+        -String content
+        -String category
+        -String difficulty
+        -Number duration
+        -String[] prerequisites
+        -String[] learningObjectives
+        -Boolean offlineAvailable
+        -String mediaContent
+        -Date createdDate
+        +getContent()
+        +markComplete()
+        +trackProgress()
+        +downloadOffline()
+    }
+    
+    class Mentor {
+        -ObjectId _id
+        -String name
+        -String bio
+        -String title
+        -String[] expertiseAreas
+        -String[] tags
+        -String avatar
+        -String readMoreLink
+        -String calendarLink
+        -String status
+        -Number rating
+        -Number totalMentees
+        -Date joinDate
+        +updateProfile()
+        +acceptMentee()
+        +scheduleSession()
+        +provideFeedback()
+    }
+    
+    class UserProgress {
+        -ObjectId _id
+        -ObjectId userId
+        -ObjectId moduleId
+        -Number completionPercentage
+        -Date startDate
+        -Date completionDate
+        -Number timeSpent
+        -Number quizScore
+        -String status
+        +updateProgress()
+        +calculateCompletion()
+        +generateCertificate()
+    }
+    
+    class CareerAssessment {
+        -ObjectId _id
+        -ObjectId userId
+        -String[] skills
+        -String[] interests
+        -String[] customInterests
+        -String experienceLevel
+        -String[] preferences
+        -Date assessmentDate
+        -Number accuracyScore
+        +generateRecommendations()
+        +calculateMatch()
+        +updateAssessment()
+    }
+    
+    class Application {
+        -ObjectId _id
+        -ObjectId userId
+        -ObjectId opportunityId
+        -String status
+        -Date submissionDate
+        -String[] submittedDocuments
+        -String feedback
+        -Date lastUpdated
+        +submitApplication()
+        +updateStatus()
+        +withdrawApplication()
+    }
+    
+    class Opportunity {
+        -ObjectId _id
+        -String title
+        -String description
+        -String type
+        -String organization
+        -Number fundingAmount
+        -String eligibilityCriteria
+        -Date applicationDeadline
+        -String applicationLink
+        -String[] requiredDocuments
+        -String status
+        -Date postedDate
+        +applyForOpportunity()
+        +checkEligibility()
+        +trackApplication()
+    }
+    
+    User ||--o{ UserProgress : tracks
+    User ||--o{ CareerAssessment : takes
+    User ||--o{ Application : submits
+    
+    LearningModule ||--o{ UserProgress : tracks
+    CareerPath ||--o{ CareerAssessment : recommends
+    Opportunity ||--o{ Application : receives
+    
+    Mentor --|> User : extends

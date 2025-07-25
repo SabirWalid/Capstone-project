@@ -15,20 +15,20 @@ router.get('/', adminAuth, async (req, res) => {
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     
-    const analytics = {
-      totalUsers: users.length,
-      activeUsers: users.filter(user => {
+    const stats = {
+      total: users.length,
+      active: users.filter(user => {
         const lastLogin = new Date(user.lastLogin || user.createdAt);
         return lastLogin > thirtyDaysAgo;
       }).length,
-      recentUsers: users.filter(user => {
+      recent: users.filter(user => {
         const createdAt = new Date(user.createdAt);
         return createdAt > sevenDaysAgo;
       }).length,
-      verifiedUsers: users.filter(user => user.isVerified).length
+      verified: users.filter(user => user.isVerified || user.emailVerified).length
     };
 
-    res.json({ users, analytics });
+    res.json({ users, stats });
   } catch (error) {
     console.error('Error fetching users:', error);
     res.status(500).json({ error: 'Failed to fetch users' });

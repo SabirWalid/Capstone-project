@@ -45,7 +45,7 @@
     }
     .sidebar .logo {
       width: 60px;
-      margin-bottom: 2rem;
+      margin-bottom: 1rem;
     }
     .sidebar .profile-img {
       width: 48px;
@@ -58,7 +58,7 @@
     .sidebar .nav-link {
       color: #fff;
       text-align: center;
-      margin-bottom: 1.2rem;
+      margin-bottom: 0.5rem;
       font-size: 1.7rem;
       display: flex;
       flex-direction: column;
@@ -66,14 +66,33 @@
       text-decoration: none;
       transition: color 0.2s;
       position: relative;
+      border-radius: 12px;
+      padding: 0.3rem 0;
+      width: 70px;
     }
     .sidebar .nav-link.active,
     .sidebar .nav-link:hover {
+      background: rgba(0, 184, 148, 0.15);
       color: var(--tertiary-accent);
     }
     .sidebar .nav-link .material-icons {
-      font-size: 2rem;
-      margin-bottom: 0.2rem;
+      font-size: 1.8rem;
+      margin-bottom: 0.1rem;
+    }
+
+    .sidebar-label {
+      font-size: 0.7rem;
+      margin-top: 0;
+      letter-spacing: 0.02em;
+      color: #fff;
+      opacity: 0.85;
+      transition: color 0.2s;
+    }
+
+    .sidebar .nav-link.active .sidebar-label,
+    .sidebar .nav-link:hover .sidebar-label {
+      color: var(--tertiary-accent);
+      opacity: 1;
     }
     .sidebar .badge {
       position: relative;
@@ -87,7 +106,7 @@
     }
     .sidebar .sidebar-bottom {
       margin-top: auto;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
       width: 100%;
       display: flex;
       flex-direction: column;
@@ -781,27 +800,27 @@
     <img src="images/logo.png" alt="Logo" class="logo">
 <a href="account.html" class="nav-link" title="Account Settings">
   <span class="material-icons">account_circle</span>
-  <span style="font-size:0.85rem;">Account</span>
+  <span class="sidebar-label">Account</span>
 </a>
     <a href="dashboard.html" class="nav-link active" title="Dashboard">
       <span class="material-icons">dashboard</span>
-      <span style="font-size:0.85rem;">Dashboard</span>
+      <span class="sidebar-label">Dashboard</span>
     </a>
     <a href="career-test.html" class="nav-link" title="Career Test">
       <span class="material-icons">psychology</span>
-      <span style="font-size:0.85rem;">Career Test</span>
+      <span class="sidebar-label">Career Test</span>
     </a>
     <a href="courses.html" class="nav-link" title="Courses">
       <span class="material-icons">menu_book</span>
-      <span style="font-size:0.85rem;">Courses</span>
+      <span class="sidebar-label">Courses</span>
     </a>
     <a href="mentorship.html" class="nav-link" title="Mentorship">
       <span class="material-icons">group</span>
-      <span style="font-size:0.85rem;">Mentorship</span>
+      <span class="sidebar-label">Mentorship</span>
     </a>
     <a href="opportunities.html" class="nav-link" title="Opportunities">
       <span class="material-icons">work</span>
-      <span style="font-size:0.85rem;">Opportunities</span>
+      <span class="sidebar-label">Opportunities</span>
     </a>
     <a href="resources.html" class="nav-link" title="Startup Resources">
       <span class="material-icons">build</span>
@@ -810,7 +829,7 @@
     <div class="sidebar-bottom">
       <a href="settings.html" class="nav-link" title="App Settings">
         <span class="material-icons">settings</span>
-        <span style="font-size:0.85rem;">Settings</span>
+        <span class="sidebar-label">Settings</span>
       </a>
     </div>
   </div>
@@ -1068,12 +1087,16 @@
       </div>
     </div>
   </div>
+  <!-- Include offline manager -->
+  <script src="js/offline-manager.js"></script>
+  
   <script>
-    // Dashboard Data Management
+    // Enhanced Dashboard Data Management with Offline Support
     class DashboardManager {
       constructor() {
         this.apiBaseUrl = 'http://localhost:5000/api';
         this.isOnline = navigator.onLine;
+        this.offlineManager = null;
         this.setupOfflineDetection();
         this.init();
       }
@@ -1083,30 +1106,47 @@
         
         window.addEventListener('online', () => {
           this.isOnline = true;
-          offlineBanner.style.display = 'none';
           console.log('Connection restored - refreshing data...');
           this.loadAnalytics();
           this.loadRecentActivities();
+          this.syncOfflineData();
         });
 
         window.addEventListener('offline', () => {
           this.isOnline = false;
-          offlineBanner.style.display = 'block';
-          console.log('Connection lost - dashboard data may be stale');
+          console.log('Connection lost - switching to offline mode');
+          this.loadOfflineData();
         });
 
         // Initial check
         if (!this.isOnline) {
-          offlineBanner.style.display = 'block';
+          this.loadOfflineData();
         }
       }
 
       async init() {
+        // Wait for offline manager to be ready
+        const waitForOfflineManager = () => {
+          return new Promise((resolve) => {
+            const checkManager = () => {
+              if (window.offlineManager) {
+                this.offlineManager = window.offlineManager;
+                resolve();
+              } else {
+                setTimeout(checkManager, 100);
+              }
+            };
+            checkManager();
+          });
+        };
+        
+        await waitForOfflineManager();
         await this.loadUserData();
         await this.loadAnalytics();
         await this.loadCourseProgress();
         await this.loadRecentActivities();
         this.setupNotifications();
+        this.setupOfflineButtons();
       }
 
       async loadUserData() {
@@ -1125,20 +1165,315 @@
         this.showLoadingState();
         
         try {
-          // Fetch real data from backend APIs
-          const analytics = {
-            enrolledCourses: await this.fetchEnrolledCourses(),
-            newOpportunities: await this.fetchNewOpportunities(),
-            totalResources: await this.fetchTotalResources(),
-            availableMentors: await this.fetchAvailableMentors()
-          };
+          let analytics;
+          
+          if (this.isOnline) {
+            // Try to fetch real data from backend APIs
+            analytics = {
+              enrolledCourses: await this.fetchEnrolledCourses(),
+              newOpportunities: await this.fetchNewOpportunities(),
+              totalResources: await this.fetchTotalResources(),
+              availableMentors: await this.fetchAvailableMentors()
+            };
+            
+            // Cache analytics data for offline use
+            localStorage.setItem('cachedAnalytics', JSON.stringify({
+              ...analytics,
+              cachedAt: Date.now()
+            }));
+          } else {
+            // Load from offline cache
+            analytics = await this.loadOfflineAnalytics();
+          }
 
           this.updateAnalyticsCards(analytics);
           this.hideLoadingState();
         } catch (error) {
           console.error('Error loading analytics:', error);
           this.hideLoadingState();
-          this.showErrorMessage('Unable to load dashboard data. Please check your connection and try again.');
+          
+          // Try to load cached data as fallback
+          const fallbackAnalytics = await this.loadOfflineAnalytics();
+          if (fallbackAnalytics) {
+            this.updateAnalyticsCards(fallbackAnalytics);
+            this.showOfflineMessage('Using cached data - some information may be outdated');
+          } else {
+            this.showErrorMessage('Unable to load dashboard data. Please check your connection and try again.');
+          }
+        }
+      }
+
+      async loadOfflineAnalytics() {
+        try {
+          // First try cached analytics
+          const cached = localStorage.getItem('cachedAnalytics');
+          if (cached) {
+            const data = JSON.parse(cached);
+            // Check if cache is not too old (24 hours)
+            if (Date.now() - data.cachedAt < 24 * 60 * 60 * 1000) {
+              return data;
+            }
+          }
+
+          // If no cached data or too old, get from offline manager
+          if (this.offlineManager) {
+            const offlineCourses = await this.offlineManager.getOfflineCourses();
+            const offlineResources = await this.offlineManager.getOfflineResources();
+            
+            return {
+              enrolledCourses: offlineCourses.length,
+              newOpportunities: 0, // Opportunities typically need fresh data
+              totalResources: offlineResources.length,
+              availableMentors: 0, // Mentors need fresh data for availability
+              isOfflineData: true
+            };
+          }
+
+          return null;
+        } catch (error) {
+          console.error('Error loading offline analytics:', error);
+          return null;
+        }
+      }
+
+      async loadOfflineData() {
+        try {
+          console.log('Loading offline data...');
+          
+          // Load analytics from cache
+          const analytics = await this.loadOfflineAnalytics();
+          if (analytics) {
+            this.updateAnalyticsCards(analytics);
+          }
+
+          // Load offline course progress
+          const offlineProgress = await this.loadOfflineCourseProgress();
+          this.renderCourseProgress(offlineProgress);
+
+          // Show offline activities
+          this.renderOfflineActivities();
+          
+          this.showOfflineMessage('You are in offline mode. Data shown may not be current.');
+        } catch (error) {
+          console.error('Error loading offline data:', error);
+        }
+      }
+
+      async loadOfflineCourseProgress() {
+        try {
+          if (!this.offlineManager) return [];
+
+          const userId = localStorage.getItem('userId') || 'anonymous';
+          const offlineProgress = await this.offlineManager.getUserProgress(userId);
+          const offlineCourses = await this.offlineManager.getOfflineCourses();
+
+          return offlineProgress.map(progress => {
+            const course = offlineCourses.find(c => c.id === progress.courseId);
+            return {
+              id: progress.courseId,
+              title: course?.title || 'Unknown Course',
+              progress: progress.progress || 0,
+              totalLessons: course?.materials?.length || 10,
+              completedLessons: Math.floor((progress.progress || 0) / 10)
+            };
+          }).slice(0, 4);
+        } catch (error) {
+          console.error('Error loading offline course progress:', error);
+          return [];
+        }
+      }
+
+      renderOfflineActivities() {
+        const container = document.getElementById('recent-activities');
+        container.innerHTML = `
+          <div style="text-align: center; padding: 2rem; color: #666;">
+            <span class="material-icons" style="font-size: 3rem; margin-bottom: 1rem; display: block;">wifi_off</span>
+            <p>Recent activities unavailable offline</p>
+            <p style="font-size: 0.9rem;">Connect to internet to see latest updates</p>
+          </div>
+        `;
+      }
+
+      async syncOfflineData() {
+        if (this.offlineManager && this.isOnline) {
+          console.log('Syncing offline data...');
+          await this.offlineManager.syncAllOfflineData();
+          
+          // Reload analytics after sync
+          setTimeout(() => {
+            this.loadAnalytics();
+            this.loadCourseProgress();
+          }, 1000);
+        }
+      }
+
+      setupOfflineButtons() {
+        // Add offline download buttons to courses and resources
+        this.addOfflineDownloadButtons();
+        
+        // Add sync button to header if not exists
+        this.addSyncButton();
+        
+        // Add offline status indicator
+        this.addOfflineStatusIndicator();
+      }
+
+      addOfflineDownloadButtons() {
+        // Add download buttons to course cards when viewing courses
+        const style = document.createElement('style');
+        style.textContent = `
+          .offline-download-btn {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-left: 0.5rem;
+            transition: background 0.2s;
+          }
+          .offline-download-btn:hover {
+            background: #138496;
+          }
+          .offline-download-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+          }
+          .offline-indicator {
+            color: #28a745;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
+      addSyncButton() {
+        const dashboardActions = document.querySelector('.dashboard-actions');
+        if (!dashboardActions || document.getElementById('sync-btn')) return;
+
+        const syncButton = document.createElement('button');
+        syncButton.id = 'sync-btn';
+        syncButton.innerHTML = '<span class="material-icons">sync</span>';
+        syncButton.title = 'Sync offline data';
+        syncButton.style.cssText = `
+          background: none;
+          border: 1px solid #ddd;
+          border-radius: 6px;
+          padding: 0.5rem;
+          cursor: pointer;
+          color: #666;
+          transition: all 0.2s;
+        `;
+        
+        syncButton.onmouseover = () => {
+          syncButton.style.borderColor = '#4CAF50';
+          syncButton.style.color = '#4CAF50';
+        };
+        
+        syncButton.onmouseout = () => {
+          syncButton.style.borderColor = '#ddd';
+          syncButton.style.color = '#666';
+        };
+        
+        syncButton.onclick = async () => {
+          syncButton.innerHTML = '<span class="material-icons rotating">sync</span>';
+          syncButton.disabled = true;
+          
+          const style = document.createElement('style');
+          style.textContent = `
+            @keyframes rotating {
+              from { transform: rotate(0deg); }
+              to { transform: rotate(360deg); }
+            }
+            .rotating {
+              animation: rotating 1s linear infinite;
+            }
+          `;
+          document.head.appendChild(style);
+          
+          try {
+            if (this.offlineManager) {
+              await this.offlineManager.forceSyncAll();
+            }
+            await this.loadAnalytics();
+            await this.loadCourseProgress();
+          } catch (error) {
+            console.error('Sync failed:', error);
+          } finally {
+            syncButton.innerHTML = '<span class="material-icons">sync</span>';
+            syncButton.disabled = false;
+            style.remove();
+          }
+        };
+        
+        dashboardActions.insertBefore(syncButton, dashboardActions.firstChild);
+      }
+
+      addOfflineStatusIndicator() {
+        const dashboardHeader = document.querySelector('.dashboard-header h2');
+        if (!dashboardHeader || document.getElementById('offline-status')) return;
+
+        const statusIndicator = document.createElement('span');
+        statusIndicator.id = 'offline-status';
+        statusIndicator.style.cssText = `
+          font-size: 0.8rem;
+          margin-left: 1rem;
+          padding: 0.25rem 0.5rem;
+          border-radius: 4px;
+          font-weight: normal;
+        `;
+        
+        const updateStatus = () => {
+          if (navigator.onLine) {
+            statusIndicator.innerHTML = '<span class="material-icons" style="font-size: 0.8rem; vertical-align: middle;">wifi</span> Online';
+            statusIndicator.style.background = '#d4edda';
+            statusIndicator.style.color = '#155724';
+          } else {
+            statusIndicator.innerHTML = '<span class="material-icons" style="font-size: 0.8rem; vertical-align: middle;">wifi_off</span> Offline';
+            statusIndicator.style.background = '#ffecb3';
+            statusIndicator.style.color = '#b26a00';
+          }
+        };
+        
+        updateStatus();
+        window.addEventListener('online', updateStatus);
+        window.addEventListener('offline', updateStatus);
+        
+        dashboardHeader.appendChild(statusIndicator);
+      }
+
+      showOfflineMessage(message) {
+        // Remove existing offline messages
+        const existingMessage = document.querySelector('.offline-message');
+        if (existingMessage) {
+          existingMessage.remove();
+        }
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'offline-message';
+        messageDiv.style.cssText = `
+          background: #fff3cd;
+          color: #856404;
+          padding: 0.75rem 1rem;
+          border-radius: 8px;
+          margin-bottom: 1rem;
+          border-left: 4px solid #ffc107;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        `;
+        messageDiv.innerHTML = `
+          <span class="material-icons" style="font-size: 1rem;">info</span>
+          <span>${message}</span>
+        `;
+        
+        document.querySelector('.main-content').insertBefore(messageDiv, document.querySelector('.analytics-grid'));
+        
+        // Auto-hide after 5 seconds if online
+        if (this.isOnline) {
+          setTimeout(() => messageDiv.remove(), 5000);
         }
       }
 
@@ -1512,7 +1847,7 @@
       
       // Service worker registration
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').catch(err => {
+        navigator.serviceWorker.register('/js/sw.js').catch(err => {
           console.log('Service Worker registration failed:', err);
         });
       }

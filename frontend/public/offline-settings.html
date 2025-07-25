@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Refugee Techpreneurs</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        :root {
+            --primary-bg: #005c3a;
+            --secondary-bg: #00b494;
+            --tertiary-accent: #00b894;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --text-secondary: #666666;
+            --border-color: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            color: var(--text-color);
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 90px;
+            background: linear-gradient(135deg, var(--primary-bg), var(--secondary-bg));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem 0;
+            z-index: 1000;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+        }
+
+        .sidebar .logo {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+        }
+
+        .sidebar .nav-link {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-size: 1.7rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            transition: color 0.2s;
+            border-radius: 12px;
+            padding: 0.3rem 0;
+            width: 70px;
+        }
+
+        .sidebar .nav-link.active,
+        .sidebar .nav-link:hover {
+            background: rgba(0, 184, 148, 0.15);
+            color: var(--tertiary-accent);
+        }
+
+        .main-content {
+            margin-left: 90px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .settings-header {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+
+        .settings-section {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+
+        .storage-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .storage-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .storage-card h4 {
+            color: var(--tertiary-accent);
+            margin-bottom: 0.5rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .storage-card p {
+            color: var(--text-secondary);
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .offline-course-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .offline-course-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .course-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .course-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--tertiary-accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .btn-danger-outline {
+            color: #dc3545;
+            border-color: #dc3545;
+            background: transparent;
+        }
+
+        .btn-danger-outline:hover {
+            background: #dc3545;
+            border-color: #dc3545;
+            color: white;
+        }
+
+        .progress-bar-custom {
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--tertiary-accent);
+            transition: width 0.3s ease;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--tertiary-accent);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <img src="images/logo.png" alt="Logo" class="logo">
+        <a href="account.html" class="nav-link" title="Account Settings">
+            <span class="material-icons">account_circle</span>
+        </a>
+        <a href="dashboard.html" class="nav-link" title="Dashboard">
+            <span class="material-icons">dashboard</span>
+        </a>
+        <a href="courses.html" class="nav-link" title="Courses">
+            <span class="material-icons">menu_book</span>
+        </a>
+        <a href="resources.html" class="nav-link" title="Resources">
+            <span class="material-icons">build</span>
+        </a>
+        <a href="settings.html" class="nav-link active" title="Settings">
+            <span class="material-icons">settings</span>
+        </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="settings-header">
+            <h1 style="margin: 0; color: var(--primary-bg);">
+                <span class="material-icons" style="vertical-align: middle; margin-right: 0.5rem;">settings</span>
+                Settings
+            </h1>
+            <p style="margin: 0.5rem 0 0 0; color: var(--text-secondary);">
+                Manage your account preferences and offline content
+            </p>
+        </div>
+
+        <!-- Offline Storage Management -->
+        <div class="settings-section">
+            <h3 style="color: var(--primary-bg); margin-bottom: 1rem;">
+                <span class="material-icons" style="vertical-align: middle; margin-right: 0.5rem;">offline_pin</span>
+                Offline Storage
+            </h3>
+            
+            <!-- Storage Info -->
+            <div class="storage-info">
+                <div class="storage-card">
+                    <h4 id="storage-used">0 MB</h4>
+                    <p>Storage Used</p>
+                </div>
+                <div class="storage-card">
+                    <h4 id="offline-courses-count">0</h4>
+                    <p>Offline Courses</p>
+                </div>
+                <div class="storage-card">
+                    <h4 id="offline-resources-count">0</h4>
+                    <p>Offline Resources</p>
+                </div>
+                <div class="storage-card">
+                    <h4 id="last-sync">Never</h4>
+                    <p>Last Sync</p>
+                </div>
+            </div>
+
+            <!-- Offline Settings -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-between align-items-center p-3 border rounded">
+                        <div>
+                            <h6 class="mb-1">Auto-download new courses</h6>
+                            <small class="text-muted">Automatically download enrolled courses for offline access</small>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="auto-download">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-between align-items-center p-3 border rounded">
+                        <div>
+                            <h6 class="mb-1">Sync on WiFi only</h6>
+                            <small class="text-muted">Only sync data when connected to WiFi</small>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="wifi-only" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex gap-2 mb-4">
+                <button class="btn btn-primary" onclick="syncAll()">
+                    <span class="material-icons me-1" style="font-size: 1rem;">sync</span>
+                    Sync All Data
+                </button>
+                <button class="btn btn-outline-secondary" onclick="clearOfflineData()">
+                    <span class="material-icons me-1" style="font-size: 1rem;">delete_sweep</span>
+                    Clear Offline Data
+                </button>
+                <button class="btn btn-outline-info" onclick="downloadAllCourses()">
+                    <span class="material-icons me-1" style="font-size: 1rem;">download</span>
+                    Download All Enrolled Courses
+                </button>
+            </div>
+
+            <!-- Offline Courses List -->
+            <h5 style="color: var(--primary-bg); margin-bottom: 1rem;">Offline Courses</h5>
+            <div id="offline-courses-list" class="offline-course-list">
+                <!-- Courses will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Offline Resources Management -->
+        <div class="settings-section">
+            <h3 style="color: var(--primary-bg); margin-bottom: 1rem;">
+                <span class="material-icons" style="vertical-align: middle; margin-right: 0.5rem;">library_books</span>
+                Offline Resources
+            </h3>
+            
+            <div id="offline-resources-list" class="offline-course-list">
+                <!-- Resources will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Data Management -->
+        <div class="settings-section">
+            <h3 style="color: var(--primary-bg); margin-bottom: 1rem;">
+                <span class="material-icons" style="vertical-align: middle; margin-right: 0.5rem;">storage</span>
+                Data Management
+            </h3>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body">
+                            <h6 class="card-title">Export Progress Data</h6>
+                            <p class="card-text small text-muted">Download your learning progress as a backup</p>
+                            <button class="btn btn-outline-primary btn-sm" onclick="exportProgressData()">
+                                <span class="material-icons me-1" style="font-size: 1rem;">download</span>
+                                Export
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-0 bg-light">
+                        <div class="card-body">
+                            <h6 class="card-title">Sync Status</h6>
+                            <p class="card-text small text-muted">Check synchronization status</p>
+                            <button class="btn btn-outline-info btn-sm" onclick="checkSyncStatus()">
+                                <span class="material-icons me-1" style="font-size: 1rem;">info</span>
+                                Check Status
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include offline manager -->
+    <script src="js/offline-manager.js"></script>
+    
+    <script>
+        class SettingsManager {
+            constructor() {
+                this.offlineManager = null;
+                this.init();
+            }
+
+            async init() {
+                await this.waitForOfflineManager();
+                await this.loadStorageInfo();
+                await this.loadOfflineCourses();
+                await this.loadOfflineResources();
+                this.loadSettings();
+            }
+
+            async waitForOfflineManager() {
+                return new Promise((resolve) => {
+                    const checkManager = () => {
+                        if (window.offlineManager) {
+                            this.offlineManager = window.offlineManager;
+                            resolve();
+                        } else {
+                            setTimeout(checkManager, 100);
+                        }
+                    };
+                    checkManager();
+                });
+            }
+
+            async loadStorageInfo() {
+                try {
+                    // Get storage usage
+                    const usage = await this.offlineManager.getStorageUsage();
+                    if (usage) {
+                        document.getElementById('storage-used').textContent = 
+                            this.formatBytes(usage.used || 0);
+                    }
+
+                    // Get offline content counts
+                    const courses = await this.offlineManager.getOfflineCourses();
+                    const resources = await this.offlineManager.getOfflineResources();
+                    
+                    document.getElementById('offline-courses-count').textContent = courses.length;
+                    document.getElementById('offline-resources-count').textContent = resources.length;
+
+                    // Get last sync time
+                    const lastSync = localStorage.getItem('lastSyncTime');
+                    if (lastSync) {
+                        document.getElementById('last-sync').textContent = 
+                            new Date(parseInt(lastSync)).toLocaleDateString();
+                    }
+                } catch (error) {
+                    console.error('Error loading storage info:', error);
+                }
+            }
+
+            async loadOfflineCourses() {
+                try {
+                    const courses = await this.offlineManager.getOfflineCourses();
+                    const container = document.getElementById('offline-courses-list');
+                    
+                    if (courses.length === 0) {
+                        container.innerHTML = `
+                            <div class="text-center p-4 text-muted">
+                                <span class="material-icons" style="font-size: 3rem; opacity: 0.5;">school</span>
+                                <p>No offline courses available</p>
+                                <a href="courses.html" class="btn btn-outline-primary">Browse Courses</a>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    container.innerHTML = courses.map(course => `
+                        <div class="offline-course-item">
+                            <div class="course-info">
+                                <div class="course-icon">
+                                    <span class="material-icons">school</span>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">${this.escapeHtml(course.title)}</h6>
+                                    <small class="text-muted">
+                                        Downloaded: ${new Date(course.cachedAt).toLocaleDateString()}
+                                        ${course.category ? ` • ${course.category}` : ''}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-primary" 
+                                        onclick="viewCourse('${course.id}')">
+                                    <span class="material-icons" style="font-size: 1rem;">visibility</span>
+                                </button>
+                                <button class="btn btn-sm btn-danger-outline" 
+                                        onclick="removeOfflineCourse('${course.id}')">
+                                    <span class="material-icons" style="font-size: 1rem;">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                } catch (error) {
+                    console.error('Error loading offline courses:', error);
+                }
+            }
+
+            async loadOfflineResources() {
+                try {
+                    const resources = await this.offlineManager.getOfflineResources();
+                    const container = document.getElementById('offline-resources-list');
+                    
+                    if (resources.length === 0) {
+                        container.innerHTML = `
+                            <div class="text-center p-4 text-muted">
+                                <span class="material-icons" style="font-size: 3rem; opacity: 0.5;">library_books</span>
+                                <p>No offline resources available</p>
+                                <a href="resources.html" class="btn btn-outline-primary">Browse Resources</a>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    container.innerHTML = resources.map(resource => `
+                        <div class="offline-course-item">
+                            <div class="course-info">
+                                <div class="course-icon">
+                                    <span class="material-icons">library_books</span>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">${this.escapeHtml(resource.title)}</h6>
+                                    <small class="text-muted">
+                                        ${resource.type} • Downloaded: ${new Date(resource.cachedAt).toLocaleDateString()}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-primary" 
+                                        onclick="viewResource('${resource.id}')">
+                                    <span class="material-icons" style="font-size: 1rem;">visibility</span>
+                                </button>
+                                <button class="btn btn-sm btn-danger-outline" 
+                                        onclick="removeOfflineResource('${resource.id}')">
+                                    <span class="material-icons" style="font-size: 1rem;">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                } catch (error) {
+                    console.error('Error loading offline resources:', error);
+                }
+            }
+
+            loadSettings() {
+                // Load user preferences
+                const autoDownload = localStorage.getItem('autoDownload') === 'true';
+                const wifiOnly = localStorage.getItem('wifiOnly') !== 'false'; // Default true
+                
+                document.getElementById('auto-download').checked = autoDownload;
+                document.getElementById('wifi-only').checked = wifiOnly;
+
+                // Add event listeners
+                document.getElementById('auto-download').addEventListener('change', (e) => {
+                    localStorage.setItem('autoDownload', e.target.checked);
+                });
+
+                document.getElementById('wifi-only').addEventListener('change', (e) => {
+                    localStorage.setItem('wifiOnly', e.target.checked);
+                });
+            }
+
+            formatBytes(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            escapeHtml(unsafe) {
+                if (!unsafe) return '';
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+
+            showNotification(message, type = 'info') {
+                // Create toast notification
+                const toast = document.createElement('div');
+                toast.className = `toast-notification toast-${type}`;
+                toast.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span class="material-icons" style="font-size: 1rem;">
+                            ${type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info'}
+                        </span>
+                        <span>${message}</span>
+                    </div>
+                `;
+                
+                // Add styles if not already added
+                if (!document.querySelector('#toast-styles')) {
+                    const style = document.createElement('style');
+                    style.id = 'toast-styles';
+                    style.textContent = `
+                        .toast-notification {
+                            position: fixed;
+                            top: 20px;
+                            right: 20px;
+                            z-index: 10000;
+                            padding: 1rem 1.5rem;
+                            border-radius: 8px;
+                            color: white;
+                            font-weight: 500;
+                            max-width: 300px;
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                            animation: slideIn 0.3s ease;
+                        }
+                        .toast-success { background: #28a745; }
+                        .toast-error { background: #dc3545; }
+                        .toast-info { background: #17a2b8; }
+                        @keyframes slideIn {
+                            from { transform: translateX(100%); opacity: 0; }
+                            to { transform: translateX(0); opacity: 1; }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+                
+                document.body.appendChild(toast);
+                
+                // Remove after 4 seconds
+                setTimeout(() => {
+                    toast.style.animation = 'slideIn 0.3s ease reverse';
+                    setTimeout(() => toast.remove(), 300);
+                }, 4000);
+            }
+        }
+
+        // Global functions
+        async function syncAll() {
+            if (window.settingsManager && window.settingsManager.offlineManager) {
+                const btn = event.target;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<span class="material-icons rotating me-1" style="font-size: 1rem;">sync</span>Syncing...';
+                btn.disabled = true;
+
+                // Add rotation animation
+                const style = document.createElement('style');
+                style.textContent = `
+                    .rotating { animation: spin 1s linear infinite; }
+                    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                `;
+                document.head.appendChild(style);
+
+                try {
+                    await window.settingsManager.offlineManager.forceSyncAll();
+                    localStorage.setItem('lastSyncTime', Date.now());
+                    await window.settingsManager.loadStorageInfo();
+                    window.settingsManager.showNotification('Data synced successfully!', 'success');
+                } catch (error) {
+                    console.error('Sync failed:', error);
+                    window.settingsManager.showNotification('Sync failed. Please try again.', 'error');
+                } finally {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    style.remove();
+                }
+            }
+        }
+
+        async function clearOfflineData() {
+            if (confirm('Are you sure you want to clear all offline data? This cannot be undone.')) {
+                if (window.settingsManager && window.settingsManager.offlineManager) {
+                    try {
+                        await window.settingsManager.offlineManager.clearOfflineData();
+                        await window.settingsManager.loadStorageInfo();
+                        await window.settingsManager.loadOfflineCourses();
+                        await window.settingsManager.loadOfflineResources();
+                        window.settingsManager.showNotification('Offline data cleared successfully!', 'success');
+                    } catch (error) {
+                        console.error('Error clearing offline data:', error);
+                        window.settingsManager.showNotification('Failed to clear offline data.', 'error');
+                    }
+                }
+            }
+        }
+
+        async function downloadAllCourses() {
+            // This would require getting enrolled courses and downloading them
+            window.settingsManager.showNotification('Feature coming soon - Download all enrolled courses', 'info');
+        }
+
+        function viewCourse(courseId) {
+            window.open(`course-detail.html?id=${courseId}`, '_blank');
+        }
+
+        function viewResource(resourceId) {
+            window.open(`resource-detail.html?id=${resourceId}`, '_blank');
+        }
+
+        async function removeOfflineCourse(courseId) {
+            if (confirm('Remove this course from offline storage?')) {
+                // Implementation would remove from IndexedDB
+                window.settingsManager.showNotification('Course removal feature coming soon', 'info');
+            }
+        }
+
+        async function removeOfflineResource(resourceId) {
+            if (confirm('Remove this resource from offline storage?')) {
+                // Implementation would remove from IndexedDB
+                window.settingsManager.showNotification('Resource removal feature coming soon', 'info');
+            }
+        }
+
+        function exportProgressData() {
+            // Export user progress as JSON
+            const userId = localStorage.getItem('userId') || 'anonymous';
+            const progressData = {
+                userId,
+                exportDate: new Date().toISOString(),
+                // Add progress data here
+            };
+            
+            const blob = new Blob([JSON.stringify(progressData, null, 2)], {
+                type: 'application/json'
+            });
+            
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `progress-data-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            window.settingsManager.showNotification('Progress data exported successfully!', 'success');
+        }
+
+        function checkSyncStatus() {
+            const lastSync = localStorage.getItem('lastSyncTime');
+            const message = lastSync 
+                ? `Last sync: ${new Date(parseInt(lastSync)).toLocaleString()}`
+                : 'No sync performed yet';
+            
+            window.settingsManager.showNotification(message, 'info');
+        }
+
+        // Initialize settings manager
+        document.addEventListener('DOMContentLoaded', () => {
+            window.settingsManager = new SettingsManager();
+        });
+    </script>
+</body>
+</html>

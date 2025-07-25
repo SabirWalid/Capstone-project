@@ -12,23 +12,55 @@ router.get('/forum/general', async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
     const category = req.query.category;
+    const search = req.query.search;
 
     let query = { type: 'general', isArchived: false };
+    
+    // Include both approved messages and pending messages for display
+    // Users should see approved messages, admins should see all
+    if (!query.status) {
+      query.status = { $in: ['approved', 'pending'] };
+    }
+    
     if (category && category !== 'all') {
       query.category = category;
     }
 
+    if (search) {
+      query.$or = [
+        { subject: { $regex: search, $options: 'i' } },
+        { content: { $regex: search, $options: 'i' } },
+        { message: { $regex: search, $options: 'i' } }
+      ];
+    }
+
     const messages = await Message.find(query)
+      .populate('sender', 'name email firstName lastName')
       .sort({ isPinned: -1, createdAt: -1 })
       .limit(limit)
       .skip(skip)
       .lean();
 
+    // Format messages for frontend consumption
+    const formattedMessages = messages.map(message => {
+      const senderName = message.sender ? 
+        (message.sender.name || `${message.sender.firstName || ''} ${message.sender.lastName || ''}`.trim() || message.senderName || 'Unknown User') :
+        (message.senderName || 'Unknown User');
+      
+      return {
+        ...message,
+        senderName: senderName,
+        senderRole: message.senderRole || (message.senderModel === 'Admin' ? 'admin' : message.senderModel === 'Mentor' ? 'mentor' : 'user'),
+        subject: message.subject || 'No subject',
+        content: message.content || message.message || 'No content'
+      };
+    });
+
     const total = await Message.countDocuments(query);
     const totalPages = Math.ceil(total / limit);
 
     res.json({
-      messages,
+      messages: formattedMessages,
       pagination: {
         page,
         limit,

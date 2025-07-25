@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Offline Functionality</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .step {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .step h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-weight: bold;
+        }
+        .status.pending { background: #fff3cd; color: #856404; }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        .console {
+            background: #212529;
+            color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Offline Functionality Debug Tool</h1>
+    
+    <div class="step">
+        <h3>Step 1: Environment Check</h3>
+        <div id="env-status" class="status pending">Checking...</div>
+        <button onclick="checkEnvironment()">Check Environment</button>
+    </div>
+    
+    <div class="step">
+        <h3>Step 2: Service Worker</h3>
+        <div id="sw-status" class="status pending">Not checked</div>
+        <button onclick="checkServiceWorker()">Check Service Worker</button>
+        <button onclick="registerServiceWorker()">Register Service Worker</button>
+        <button onclick="registerSimpleServiceWorker()">Register Simple SW</button>
+        <button onclick="unregisterServiceWorker()">Unregister SW</button>
+    </div>
+    
+    <div class="step">
+        <h3>Step 3: IndexedDB</h3>
+        <div id="db-status" class="status pending">Not checked</div>
+        <button onclick="checkIndexedDB()">Check IndexedDB</button>
+        <button onclick="clearDatabase()">Clear Database</button>
+    </div>
+    
+    <div class="step">
+        <h3>Step 4: Offline Manager</h3>
+        <div id="manager-status" class="status pending">Not checked</div>
+        <button onclick="checkOfflineManager()">Check Manager</button>
+        <button onclick="testDatabaseOps()">Test Database Ops</button>
+    </div>
+    
+    <div class="step">
+        <h3>Step 5: API Test</h3>
+        <div id="api-status" class="status pending">Not checked</div>
+        <input type="text" id="course-id" value="6874f3c8a52b7d1ec329a1a4" placeholder="Course ID" style="width: 300px; padding: 5px;">
+        <button onclick="testAPI()">Test API</button>
+    </div>
+    
+    <div class="step">
+        <h3>Step 6: Cache Course</h3>
+        <div id="cache-status" class="status pending">Not attempted</div>
+        <button onclick="testCacheCourse()" id="cache-btn">Cache Course</button>
+        <button onclick="testCacheWithoutSW()">Cache Without SW</button>
+        <button onclick="listCachedCourses()">List Cached</button>
+    </div>
+    
+    <div class="step">
+        <h3>Console Output</h3>
+        <button onclick="clearConsole()">Clear Console</button>
+        <div id="console" class="console">Ready...\n</div>
+    </div>
+
+    <script>
+        // Console capture
+        function log(message, type = 'INFO') {
+            const console = document.getElementById('console');
+            const timestamp = new Date().toLocaleTimeString();
+            console.textContent += `[${timestamp}] ${type}: ${message}\n`;
+            console.scrollTop = console.scrollHeight;
+            
+            // Also log to browser console
+            if (type === 'ERROR') {
+                window.console.error(message);
+            } else {
+                window.console.log(message);
+            }
+        }
+        
+        function clearConsole() {
+            document.getElementById('console').textContent = 'Console cleared...\n';
+        }
+        
+        function setStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status ${type}`;
+        }
+        
+        // Step 1: Environment Check
+        function checkEnvironment() {
+            log('Checking browser environment...');
+            
+            const checks = {
+                'IndexedDB': !!window.indexedDB,
+                'Service Workers': !!navigator.serviceWorker,
+                'Fetch API': !!window.fetch,
+                'Promises': !!window.Promise,
+                'LocalStorage': !!window.localStorage
+            };
+            
+            let allPassed = true;
+            for (const [feature, supported] of Object.entries(checks)) {
+                if (supported) {
+                    log(`✓ ${feature} supported`);
+                } else {
+                    log(`✗ ${feature} NOT supported`, 'ERROR');
+                    allPassed = false;
+                }
+            }
+            
+            if (allPassed) {
+                setStatus('env-status', 'All required features supported', 'success');
+                log('Environment check passed');
+            } else {
+                setStatus('env-status', 'Some features missing', 'error');
+                log('Environment check failed');
+            }
+        }
+        
+        // Step 2: Service Worker
+        async function checkServiceWorker() {
+            log('Checking service worker status...');
+            
+            if (!navigator.serviceWorker) {
+                setStatus('sw-status', 'Service Workers not supported', 'error');
+                return;
+            }
+            
+            try {
+                const registration = await navigator.serviceWorker.getRegistration();
+                if (registration) {
+                    log(`Service worker registered: ${registration.scope}`);
+                    log(`State: ${registration.active ? 'active' : 'not active'}`);
+                    setStatus('sw-status', 'Service Worker registered and active', 'success');
+                } else {
+                    log('No service worker registration found');
+                    setStatus('sw-status', 'No service worker registered', 'error');
+                }
+            } catch (error) {
+                log(`Error checking service worker: ${error.message}`, 'ERROR');
+                setStatus('sw-status', 'Error checking service worker', 'error');
+            }
+        }
+        
+        async function unregisterServiceWorker() {
+            log('Unregistering service worker...');
+            
+            try {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (let registration of registrations) {
+                    const result = await registration.unregister();
+                    log(`Service worker unregistered: ${result}`);
+                }
+                setStatus('sw-status', 'Service Worker unregistered', 'success');
+            } catch (error) {
+                log(`Error unregistering service worker: ${error.message}`, 'ERROR');
+                setStatus('sw-status', 'Unregistration failed', 'error');
+            }
+        }
+        
+        async function registerSimpleServiceWorker() {
+            log('Registering simple service worker...');
+            
+            try {
+                const registration = await navigator.serviceWorker.register('/js/simple-sw.js');
+                log(`Simple service worker registered: ${registration.scope}`);
+                
+                await navigator.serviceWorker.ready;
+                log('Simple service worker is ready');
+                setStatus('sw-status', 'Simple Service Worker registered', 'success');
+            } catch (error) {
+                log(`Simple service worker registration failed: ${error.message}`, 'ERROR');
+                setStatus('sw-status', 'Simple SW registration failed', 'error');
+            }
+        }
+        
+        async function registerServiceWorker() {
+            log('Registering service worker...');
+            
+            try {
+                const registration = await navigator.serviceWorker.register('/js/sw.js');
+                log(`Service worker registered: ${registration.scope}`);
+                
+                await navigator.serviceWorker.ready;
+                log('Service worker is ready');
+                setStatus('sw-status', 'Service Worker registered successfully', 'success');
+            } catch (error) {
+                log(`Service worker registration failed: ${error.message}`, 'ERROR');
+                setStatus('sw-status', 'Registration failed', 'error');
+            }
+        }
+        
+        // Step 3: IndexedDB
+        async function checkIndexedDB() {
+            log('Testing IndexedDB...');
+            
+            try {
+                const request = indexedDB.open('test-db-check', 1);
+                
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    db.createObjectStore('test', { keyPath: 'id' });
+                };
+                
+                request.onsuccess = async (event) => {
+                    const db = event.target.result;
+                    log('IndexedDB opened successfully');
+                    
+                    // Test write
+                    const tx = db.transaction(['test'], 'readwrite');
+                    const store = tx.objectStore('test');
+                    
+                    const putRequest = store.put({ id: 'test', data: 'test data' });
+                    
+                    putRequest.onsuccess = () => {
+                        log('IndexedDB write test passed');
+                        setStatus('db-status', 'IndexedDB working correctly', 'success');
+                    };
+                    
+                    putRequest.onerror = () => {
+                        log('IndexedDB write test failed', 'ERROR');
+                        setStatus('db-status', 'IndexedDB write failed', 'error');
+                    };
+                    
+                    db.close();
+                };
+                
+                request.onerror = () => {
+                    log('IndexedDB open failed', 'ERROR');
+                    setStatus('db-status', 'IndexedDB open failed', 'error');
+                };
+                
+            } catch (error) {
+                log(`IndexedDB test error: ${error.message}`, 'ERROR');
+                setStatus('db-status', 'IndexedDB test failed', 'error');
+            }
+        }
+        
+        async function clearDatabase() {
+            log('Clearing offline database...');
+            
+            try {
+                const deleteRequest = indexedDB.deleteDatabase('refugee-techpreneurs-offline');
+                deleteRequest.onsuccess = () => {
+                    log('Database cleared successfully');
+                };
+            } catch (error) {
+                log(`Error clearing database: ${error.message}`, 'ERROR');
+            }
+        }
+        
+        // Step 4: Offline Manager
+        function checkOfflineManager() {
+            log('Checking offline manager...');
+            
+            if (window.offlineManager) {
+                log('Offline manager found');
+                log(`Database: ${window.offlineManager.db ? 'connected' : 'not connected'}`);
+                
+                if (window.offlineManager.db) {
+                    const stores = Array.from(window.offlineManager.db.objectStoreNames);
+                    log(`Object stores: ${stores.join(', ')}`);
+                    setStatus('manager-status', 'Offline Manager ready', 'success');
+                } else {
+                    setStatus('manager-status', 'Offline Manager database not ready', 'error');
+                }
+            } else {
+                log('Offline manager not found', 'ERROR');
+                setStatus('manager-status', 'Offline Manager not available', 'error');
+            }
+        }
+        
+        async function testDatabaseOps() {
+            log('Testing database operations...');
+            
+            if (!window.offlineManager) {
+                log('Offline manager not available', 'ERROR');
+                return;
+            }
+            
+            try {
+                const result = await window.offlineManager.testDatabase();
+                if (result) {
+                    log('Database operations test passed');
+                    setStatus('manager-status', 'Database operations working', 'success');
+                } else {
+                    log('Database operations test failed', 'ERROR');
+                    setStatus('manager-status', 'Database operations failed', 'error');
+                }
+            } catch (error) {
+                log(`Database test error: ${error.message}`, 'ERROR');
+                setStatus('manager-status', 'Database test error', 'error');
+            }
+        }
+        
+        // Step 5: API Test
+        async function testAPI() {
+            const courseId = document.getElementById('course-id').value.trim();
+            
+            if (!courseId) {
+                log('Please enter a course ID', 'ERROR');
+                return;
+            }
+            
+            log(`Testing API call for course: ${courseId}`);
+            
+            try {
+                const response = await fetch(`http://localhost:5000/api/courses/${courseId}`);
+                log(`API response status: ${response.status}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`API call successful - Course: ${data.title}`);
+                    setStatus('api-status', 'API working correctly', 'success');
+                } else {
+                    log(`API call failed: ${response.statusText}`, 'ERROR');
+                    setStatus('api-status', 'API call failed', 'error');
+                }
+            } catch (error) {
+                log(`API call error: ${error.message}`, 'ERROR');
+                setStatus('api-status', 'API call error', 'error');
+            }
+        }
+        
+        // Step 6: Cache Course
+        async function testCacheCourse() {
+            const courseId = document.getElementById('course-id').value.trim();
+            
+            if (!courseId) {
+                log('Please enter a course ID', 'ERROR');
+                return;
+            }
+            
+            log(`Attempting to cache course: ${courseId}`);
+            setStatus('cache-status', 'Caching in progress...', 'pending');
+            
+            const btn = document.getElementById('cache-btn');
+            btn.disabled = true;
+            btn.textContent = 'Caching...';
+            
+            try {
+                if (!window.offlineManager) {
+                    throw new Error('Offline manager not available');
+                }
+                
+                // Wait for offline manager to be ready
+                log('Waiting for offline manager to be ready...');
+                if (window.offlineManager.ensureReady) {
+                    const isReady = await window.offlineManager.ensureReady();
+                    if (!isReady) {
+                        throw new Error('Offline manager failed to initialize');
+                    }
+                    log('Offline manager is ready');
+                } else {
+                    log('ensureReady method not available, proceeding anyway');
+                }
+                
+                const result = await window.offlineManager.cacheCourse(courseId);
+                
+                if (result) {
+                    log(`Course cached successfully: ${result.title}`);
+                    setStatus('cache-status', 'Course cached successfully', 'success');
+                } else {
+                    throw new Error('No result returned from cache operation');
+                }
+            } catch (error) {
+                log(`Cache course error: ${error.message}`, 'ERROR');
+                log(`Error stack: ${error.stack}`, 'ERROR');
+                setStatus('cache-status', 'Cache operation failed', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Cache Course';
+            }
+        }
+        
+        async function listCachedCourses() {
+            log('Listing cached courses...');
+            
+            try {
+                if (!window.offlineManager) {
+                    throw new Error('Offline manager not available');
+                }
+                
+                const courses = await window.offlineManager.getOfflineCourses();
+                log(`Found ${courses.length} cached courses`);
+                
+                if (courses.length > 0) {
+                    courses.forEach((course, index) => {
+                        log(`${index + 1}. ${course.title} (${course._id})`);
+                    });
+                } else {
+                    log('No cached courses found');
+                }
+            } catch (error) {
+                log(`Error listing courses: ${error.message}`, 'ERROR');
+            }
+        }
+
+        async function testCacheWithoutSW() {
+            try {
+                log('\n--- Testing Cache Without Service Worker ---');
+                
+                // Mock course data
+                const mockCourse = {
+                    _id: 'test-course-' + Date.now(),
+                    title: 'Test Course Without SW',
+                    description: 'Testing caching without service worker',
+                    modules: [
+                        { _id: 'mod1', title: 'Module 1', content: 'Test content 1' },
+                        { _id: 'mod2', title: 'Module 2', content: 'Test content 2' }
+                    ]
+                };
+
+                log(`Attempting to cache course: ${mockCourse.title}`);
+                
+                // Try to cache course data directly to IndexedDB
+                log('Opening IndexedDB...');
+                const db = await new Promise((resolve, reject) => {
+                    const request = indexedDB.open('OfflineData', 1);
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => resolve(request.result);
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        if (!db.objectStoreNames.contains('courses')) {
+                            const store = db.createObjectStore('courses', { keyPath: '_id' });
+                            log('Created courses object store');
+                        }
+                    };
+                });
+
+                log('Storing course data...');
+                const transaction = db.transaction(['courses'], 'readwrite');
+                const store = transaction.objectStore('courses');
+                await new Promise((resolve, reject) => {
+                    const request = store.put(mockCourse);
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+
+                log(`✅ Successfully cached course without SW: ${mockCourse.title}`);
+
+                // Verify by reading back
+                const readTransaction = db.transaction(['courses'], 'readonly');
+                const readStore = readTransaction.objectStore('courses');
+                const readResult = await new Promise((resolve, reject) => {
+                    const request = readStore.get(mockCourse._id);
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+
+                if (readResult) {
+                    log(`✅ Verification successful: Retrieved course "${readResult.title}"`);
+                } else {
+                    log('❌ Verification failed: Could not retrieve cached course', true);
+                }
+
+            } catch (error) {
+                log(`❌ Error in cache without SW test: ${error.message}`, true);
+                console.error('Full error:', error);
+            }
+        }
+        
+        // Auto-run environment check on load
+        document.addEventListener('DOMContentLoaded', function() {
+            log('Page loaded - starting diagnostics');
+            setTimeout(checkEnvironment, 500);
+        });
+    </script>
+    
+    <!-- Include offline manager -->
+    <script src="js/offline-manager.js"></script>
+</body>
+</html>

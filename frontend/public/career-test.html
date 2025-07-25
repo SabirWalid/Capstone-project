@@ -71,7 +71,7 @@
     }
     .sidebar .logo {
       width: 60px;
-      margin-bottom: 2rem;
+      margin-bottom: 1rem;
     }
     .sidebar .profile-img {
       width: 48px;
@@ -84,7 +84,7 @@
     .sidebar .nav-link {
       color: #fff;
       text-align: center;
-      margin-bottom: 1.2rem;
+      margin-bottom: 0.5rem;
       font-size: 1.7rem;
       display: flex;
       flex-direction: column;
@@ -92,14 +92,33 @@
       text-decoration: none;
       transition: color 0.2s;
       position: relative;
+      border-radius: 12px;
+      padding: 0.3rem 0;
+      width: 70px;
     }
     .sidebar .nav-link.active,
     .sidebar .nav-link:hover {
-      color: #00b0ff;
+      background: rgba(0, 184, 148, 0.15);
+      color: var(--tertiary-accent);
     }
     .sidebar .nav-link .material-icons {
-      font-size: 2rem;
-      margin-bottom: 0.2rem;
+      font-size: 1.8rem;
+      margin-bottom: 0.1rem;
+    }
+
+    .sidebar-label {
+      font-size: 0.7rem;
+      margin-top: 0;
+      letter-spacing: 0.02em;
+      color: #fff;
+      opacity: 0.85;
+      transition: color 0.2s;
+    }
+
+    .sidebar .nav-link.active .sidebar-label,
+    .sidebar .nav-link:hover .sidebar-label {
+      color: var(--tertiary-accent);
+      opacity: 1;
     }
     .sidebar .badge {
       position: relative;
@@ -113,7 +132,7 @@
     }
     .sidebar .sidebar-bottom {
       margin-top: auto;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
       width: 100%;
       display: flex;
       flex-direction: column;
@@ -333,6 +352,24 @@
     .progress-bar {
       transition: width 0.3s ease;
     }
+
+    /* Interest badge styling */
+    .interest-badge {
+      cursor: pointer;
+      transition: all 0.3s ease;
+      user-select: none;
+    }
+
+    .interest-badge:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .interest-badge.selected {
+      background-color: var(--tertiary-accent) !important;
+      color: white !important;
+      border-color: var(--tertiary-accent) !important;
+    }
   </style>
 </head>
 <body>
@@ -342,36 +379,36 @@
       <img src="images/logo.png" alt="Logo" class="logo">
       <a href="account.html" class="nav-link" title="Account Settings">
         <span class="material-icons">account_circle</span>
-        <span style="font-size:0.85rem;">Account</span>
+        <span class="sidebar-label">Account</span>
       </a>
       <a href="dashboard.html" class="nav-link" title="Dashboard">
         <span class="material-icons">dashboard</span>
-        <span style="font-size:0.85rem;">Dashboard</span>
+        <span class="sidebar-label">Dashboard</span>
       </a>
       <a href="career-test.html" class="nav-link active" title="Career Test">
         <span class="material-icons">psychology</span>
-        <span style="font-size:0.85rem;">Career Test</span>
+        <span class="sidebar-label">Career Test</span>
       </a>
       <a href="courses.html" class="nav-link" title="Courses">
         <span class="material-icons">menu_book</span>
-        <span style="font-size:0.85rem;">Courses</span>
+        <span class="sidebar-label">Courses</span>
       </a>
       <a href="mentorship.html" class="nav-link" title="Mentorship">
         <span class="material-icons">group</span>
-        <span style="font-size:0.85rem;">Mentorship</span>
+        <span class="sidebar-label">Mentorship</span>
       </a>
       <a href="opportunities.html" class="nav-link" title="Opportunities">
         <span class="material-icons">work</span>
-        <span style="font-size:0.85rem;">Opportunities</span>
+        <span class="sidebar-label">Opportunities</span>
       </a>
       <a href="resources.html" class="nav-link" title="Startup Toolkit">
         <span class="material-icons">build</span>
-        <span style="font-size:0.85rem;">Resources</span>
+        <span class="sidebar-label">Resources</span>
       </a>
       <div class="sidebar-bottom">
         <a href="settings.html" class="nav-link" title="App Settings">
           <span class="material-icons">settings</span>
-          <span style="font-size:0.85rem;">Settings</span>
+          <span class="sidebar-label">Settings</span>
         </a>
       </div>
     </div>
@@ -379,7 +416,7 @@
   <div class="main-wrapper">
     <div class="container mt-5 flex-grow-1">
       <div class="text-center mb-4">
-        <h2>🎯 AI-Powered Career Path Discovery</h2>
+        <h2>AI-Powered Career Path Discovery</h2>
         <p class="lead text-muted">Discover your ideal career path with our enhanced matching algorithm</p>
       </div>
       

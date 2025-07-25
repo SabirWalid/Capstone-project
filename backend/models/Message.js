@@ -101,6 +101,34 @@ const messageSchema = new mongoose.Schema({
   isArchived: {
     type: Boolean,
     default: false
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'approved', 'flagged', 'rejected'],
+    default: 'pending'
+  },
+  moderatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Admin'
+  },
+  moderatedAt: {
+    type: Date
+  },
+  flagReason: {
+    type: String
+  },
+  isAnnouncement: {
+    type: Boolean,
+    default: false
+  },
+  message: {
+    type: String,
+    get: function() {
+      return this.content;
+    },
+    set: function(value) {
+      this.content = value;
+    }
   }
 }, {
   timestamps: true

@@ -59,12 +59,14 @@ class EnhancedCareerTest {
             "Robotics", "3D Modeling", "Game Design", "Virtual Reality", "Augmented Reality"
         ];
 
-        // Create the checkboxes
-        const checkboxHTML = enhancedInterestsList.map(interest =>
-            `<label class="form-check-label me-3 mb-2">
-                <input type="checkbox" class="form-check-input" name="interests" value="${interest}"> 
-                <span class="badge bg-light text-dark border">${interest}</span>
-            </label>`
+        // Create the clickable interest badges
+        const interestsHTML = enhancedInterestsList.map(interest =>
+            `<span class="interest-badge badge bg-light text-dark border me-2 mb-2" 
+                   data-interest="${interest}" 
+                   style="cursor: pointer; transition: all 0.3s ease;"
+                   onclick="careerTest.toggleInterest('${interest}', this)">
+                ${interest}
+            </span>`
         ).join('');
 
         // Add custom interest input section
@@ -112,10 +114,28 @@ class EnhancedCareerTest {
             </div>
         `;
 
-        container.innerHTML = checkboxHTML + customInterestHTML;
+        container.innerHTML = interestsHTML + customInterestHTML;
 
         // Setup custom interest functionality
         this.setupCustomInterests();
+        
+        // Initialize selected interests tracking
+        this.selectedInterests = new Set();
+    }
+
+    toggleInterest(interest, element) {
+        if (this.selectedInterests.has(interest)) {
+            // Deselect
+            this.selectedInterests.delete(interest);
+            element.classList.remove('selected');
+            element.classList.add('bg-light', 'text-dark');
+        } else {
+            // Select
+            this.selectedInterests.add(interest);
+            element.classList.add('selected');
+            element.classList.remove('bg-light', 'text-dark');
+        }
+        this.updateInterestCounter();
     }
 
     setupCustomInterests() {
@@ -167,7 +187,7 @@ class EnhancedCareerTest {
             <div class="mt-2">
                 <small class="text-muted">Your custom interests:</small><br>
                 ${Array.from(this.customInterests).map(interest => `
-                    <span class="badge bg-success me-1 mb-1">
+                    <span class="badge me-1 mb-1" style="background-color: var(--tertiary-accent); color: white;">
                         ${interest}
                         <button type="button" class="btn-close btn-close-white ms-1" 
                                 onclick="careerTest.removeCustomInterest('${interest}')" 
@@ -227,11 +247,8 @@ class EnhancedCareerTest {
             skillsInput.addEventListener('blur', () => this.validateSkills());
         }
 
-        // Add interest counter
-        const interestCheckboxes = document.querySelectorAll('input[name="interests"]');
-        interestCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', () => this.updateInterestCounter());
-        });
+        // Initialize interest counter
+        this.updateInterestCounter();
 
         // Add history toggle button
         this.addHistoryButton();
@@ -264,16 +281,15 @@ class EnhancedCareerTest {
     }
 
     updateInterestCounter() {
-        const checkedInterests = document.querySelectorAll('input[name="interests"]:checked');
         const counter = document.getElementById('interest-counter') || this.createInterestCounter();
         
-        const checkboxCount = checkedInterests.length;
+        const selectedCount = this.selectedInterests ? this.selectedInterests.size : 0;
         const customCount = this.customInterests ? this.customInterests.size : 0;
-        const totalCount = checkboxCount + customCount;
+        const totalCount = selectedCount + customCount;
         
         const countText = totalCount === 1 ? 'interest' : 'interests';
         const breakdown = customCount > 0 ? 
-            ` (${checkboxCount} selected + ${customCount} custom)` : '';
+            ` (${selectedCount} selected + ${customCount} custom)` : '';
         
         counter.textContent = `${totalCount} ${countText} selected${breakdown}`;
         
@@ -301,7 +317,7 @@ class EnhancedCareerTest {
         const historyBtn = document.createElement('button');
         historyBtn.type = 'button';
         historyBtn.className = 'btn btn-outline-secondary me-2';
-        historyBtn.innerHTML = '📊 View Test History';
+        historyBtn.innerHTML = 'View Test History';
         historyBtn.onclick = () => this.toggleHistory();
         
         const submitBtn = form.querySelector('button[type="submit"]');
@@ -317,7 +333,7 @@ class EnhancedCareerTest {
         
         try {
             // Show loading state
-            submitBtn.innerHTML = '🔄 Analyzing...';
+            submitBtn.innerHTML = 'Analyzing...';
             submitBtn.disabled = true;
 
             const skills = document.getElementById('skills').value
@@ -325,8 +341,7 @@ class EnhancedCareerTest {
                 .map(s => s.trim())
                 .filter(s => s.length > 0);
             
-            const interests = Array.from(document.querySelectorAll('input[name="interests"]:checked'))
-                .map(cb => cb.value)
+            const interests = Array.from(this.selectedInterests || [])
                 .concat(Array.from(this.customInterests || [])); // Include custom interests
 
             console.log('Skills:', skills);
@@ -382,7 +397,7 @@ class EnhancedCareerTest {
         if (!data.matches || data.matches.length === 0) {
             container.innerHTML = `
                 <div class="alert alert-warning">
-                    <h5>🔍 No Strong Matches Found</h5>
+                    <h5>No Strong Matches Found</h5>
                     <p>Don't worry! Here are some suggestions:</p>
                     <ul>
                         <li>Try adding more specific skills or interests</li>
@@ -397,15 +412,15 @@ class EnhancedCareerTest {
 
         const resultsHTML = `
             <div class="card mt-4">
-                <div class="card-header bg-success text-white">
-                    <h4 class="mb-0">🎯 Your Career Match Results</h4>
+                <div class="card-header" style="background-color: var(--tertiary-accent); color: white;">
+                    <h4 class="mb-0">Your Career Match Results</h4>
                     <small>Found ${data.matchesFound} matches from ${data.totalCareersAnalyzed} career paths</small>
                 </div>
                 <div class="card-body">
                     ${data.matches.map((match, index) => this.renderCareerMatch(match, index)).join('')}
                     
-                    <div class="mt-4 p-3 bg-light rounded">
-                        <h6>💡 Next Steps:</h6>
+                    <div class="mt-4 p-3 rounded" style="background-color: var(--primary-bg);">
+                        <h6>Next Steps:</h6>
                         <ul class="mb-0">
                             <li>Start with the highest-scored career path</li>
                             <li>Enroll in recommended beginner courses</li>
@@ -426,14 +441,14 @@ class EnhancedCareerTest {
                                match.confidence >= 60 ? 'warning' : 'info';
         
         const salaryInfo = match.salaryRange ? 
-            `<small class="text-muted">💰 $${match.salaryRange.min?.toLocaleString()} - $${match.salaryRange.max?.toLocaleString()} ${match.salaryRange.currency}</small>` : '';
+            `<small class="text-muted">Salary: $${match.salaryRange.min?.toLocaleString()} - $${match.salaryRange.max?.toLocaleString()} ${match.salaryRange.currency}</small>` : '';
 
         return `
             <div class="career-match-card border rounded p-3 mb-3 ${index === 0 ? 'border-success' : ''}">
                 <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h5 class="text-primary mb-1">
-                        ${index === 0 ? '🏆 ' : ''}${match.title}
-                        ${index === 0 ? '<span class="badge bg-success ms-2">Best Match</span>' : ''}
+                    <h5 class="mb-1" style="color: var(--secondary-bg);">
+                        ${match.title}
+                        ${index === 0 ? '<span class="badge ms-2" style="background-color: var(--tertiary-accent); color: white;">Best Match</span>' : ''}
                     </h5>
                     <div class="text-end">
                         <div class="badge bg-${confidenceColor} fs-6">${match.score}% Match</div>
@@ -446,25 +461,25 @@ class EnhancedCareerTest {
                 
                 <div class="row mt-3">
                     <div class="col-md-6">
-                        <h6>✅ Matched Skills:</h6>
+                        <h6>Matched Skills:</h6>
                         <div class="matched-skills">
                             ${match.matchedSkills.map(skill => 
-                                `<span class="badge bg-primary me-1 mb-1" title="${skill.type} match (${Math.round(skill.confidence * 100)}%)">${skill.skill}</span>`
+                                `<span class="badge me-1 mb-1" style="background-color: var(--secondary-bg); color: white;" title="${skill.type} match (${Math.round(skill.confidence * 100)}%)">${skill.skill}</span>`
                             ).join('')}
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <h6>❤️ Matched Interests:</h6>
+                        <h6>Matched Interests:</h6>
                         <div class="matched-interests">
                             ${match.matchedInterests.map(interest => 
-                                `<span class="badge bg-info me-1 mb-1" title="${interest.type} match (${Math.round(interest.confidence * 100)}%)">${interest.interest}</span>`
+                                `<span class="badge me-1 mb-1" style="background-color: var(--tertiary-accent); color: white;" title="${interest.type} match (${Math.round(interest.confidence * 100)}%)">${interest.interest}</span>`
                             ).join('')}
                         </div>
                     </div>
                 </div>
                 
                 <div class="mt-3">
-                    <h6>📚 Recommended Learning Path:</h6>
+                    <h6>Recommended Learning Path:</h6>
                     <div class="course-recommendations">
                         ${match.courses.map(course => `
                             <div class="course-item d-flex justify-content-between align-items-center p-2 border rounded mb-1">
@@ -479,14 +494,14 @@ class EnhancedCareerTest {
                 </div>
                 
                 <div class="mt-3 d-flex gap-2">
-                    <button class="btn btn-primary btn-sm" onclick="careerTest.bookmarkCareer('${match.career}')">
-                        🔖 Bookmark
+                    <button class="btn btn-sm" style="background-color: var(--tertiary-accent); color: white;" onclick="careerTest.bookmarkCareer('${match.career}')">
+                        Bookmark
                     </button>
                     <button class="btn btn-outline-primary btn-sm" onclick="careerTest.viewCareerDetails('${match.career}')">
-                        📋 View Details
+                        View Details
                     </button>
-                    <button class="btn btn-outline-success btn-sm" onclick="careerTest.startLearningPath('${match.career}')">
-                        🚀 Start Learning
+                    <button class="btn btn-sm" style="background-color: var(--secondary-bg); color: white;" onclick="careerTest.startLearningPath('${match.career}')">
+                        Start Learning
                     </button>
                 </div>
             </div>
@@ -519,7 +534,7 @@ class EnhancedCareerTest {
 
             const data = await response.json();
             if (data.success) {
-                this.showToast('Career bookmarked successfully! 🔖');
+                this.showToast('Career bookmarked successfully!');
             }
         } catch (error) {
             console.error('Bookmark error:', error);
@@ -635,7 +650,7 @@ class EnhancedCareerTest {
         if (this.testHistory.length === 0) {
             container.innerHTML = `
                 <div class="alert alert-info">
-                    <h5>📊 Test History</h5>
+                    <h5>Test History</h5>
                     <p>No previous tests found. Take your first career test above!</p>
                 </div>
             `;
@@ -644,8 +659,8 @@ class EnhancedCareerTest {
 
         const historyHTML = `
             <div class="card">
-                <div class="card-header">
-                    <h5>📊 Your Career Test History</h5>
+                <div class="card-header" style="background-color: var(--tertiary-accent); color: white;">
+                    <h5>Your Career Test History</h5>
                 </div>
                 <div class="card-body">
                     ${this.testHistory.map((test, index) => `
@@ -656,7 +671,7 @@ class EnhancedCareerTest {
                             </div>
                             <div class="top-results">
                                 ${test.results.slice(0, 3).map(result => `
-                                    <span class="badge bg-primary me-2">${result.careerPath.title || 'Career'} (${result.score}%)</span>
+                                    <span class="badge me-2" style="background-color: var(--secondary-bg); color: white;">${result.careerPath.title || 'Career'} (${result.score}%)</span>
                                 `).join('')}
                             </div>
                         </div>
@@ -672,10 +687,10 @@ class EnhancedCareerTest {
         const container = document.getElementById('career-suggestion');
         container.innerHTML = `
             <div class="alert alert-danger">
-                <h5>❌ Error</h5>
+                <h5>Error</h5>
                 <p>${message}</p>
                 <button class="btn btn-outline-danger" onclick="location.reload()">
-                    🔄 Try Again
+                    Try Again
                 </button>
             </div>
         `;

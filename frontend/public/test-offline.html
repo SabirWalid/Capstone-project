@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Offline Download</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .log {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+            height: 200px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>Offline Download Test</h1>
+    
+    <div class="test-section">
+        <h2>Service Worker Status</h2>
+        <div id="sw-status" class="status">Checking...</div>
+        <button onclick="checkServiceWorker()">Check Service Worker</button>
+        <button onclick="registerServiceWorker()">Register Service Worker</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Offline Manager Status</h2>
+        <div id="offline-status" class="status">Checking...</div>
+        <button onclick="checkOfflineManager()">Check Offline Manager</button>
+        <button onclick="testIndexedDB()">Test IndexedDB</button>
+        <button onclick="testDatabaseFunctionality()">Test Database</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Course Download Test</h2>
+        <div>
+            <label>Course ID: 
+                <input type="text" id="course-id" value="6874f3c8a52b7d1ec329a1a4" style="width: 300px; padding: 5px;">
+            </label>
+        </div>
+        <br>
+        <button onclick="testDownloadCourse()" id="download-btn">Download Course</button>
+        <button onclick="testAPICall()">Test API Call</button>
+        <button onclick="listOfflineCourses()">List Offline Courses</button>
+        <button onclick="clearOfflineData()">Clear Offline Data</button>
+        <button onclick="clearIndexedDB()">Clear IndexedDB</button>
+        <div id="download-status" class="status" style="display: none;"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Debug Log</h2>
+        <button onclick="clearLog()">Clear Log</button>
+        <div id="log" class="log"></div>
+    </div>
+
+    <!-- Include offline manager -->
+    <script src="js/offline-manager.js"></script>
+    
+    <script>
+        // Override console.log to capture logs
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        const originalConsoleWarn = console.warn;
+        
+        function log(message, type = 'log') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.textContent += `[${timestamp}] ${type.toUpperCase()}: ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            
+            // Call original console methods
+            if (type === 'error') originalConsoleError(message);
+            else if (type === 'warn') originalConsoleWarn(message);
+            else originalConsoleLog(message);
+        }
+        
+        // Override console methods
+        console.log = (msg) => log(msg, 'log');
+        console.error = (msg) => log(msg, 'error');
+        console.warn = (msg) => log(msg, 'warn');
+        
+        function clearLog() {
+            document.getElementById('log').textContent = '';
+        }
+        
+        function showStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.className = `status ${type}`;
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+        
+        async function checkServiceWorker() {
+            log('Checking service worker...');
+            
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.getRegistration();
+                    if (registration) {
+                        showStatus('sw-status', `Service Worker registered: ${registration.scope}`, 'success');
+                        log(`Service Worker found: ${registration.scope}`);
+                        
+                        if (registration.active) {
+                            log('Service Worker is active');
+                        } else {
+                            log('Service Worker is not active');
+                        }
+                        
+                        if (navigator.serviceWorker.controller) {
+                            log('Service Worker controller available');
+                        } else {
+                            log('No Service Worker controller');
+                        }
+                    } else {
+                        showStatus('sw-status', 'No Service Worker registered', 'error');
+                        log('No Service Worker found');
+                    }
+                } catch (error) {
+                    showStatus('sw-status', `Error: ${error.message}`, 'error');
+                    log(`Service Worker check error: ${error.message}`);
+                }
+            } else {
+                showStatus('sw-status', 'Service Worker not supported', 'error');
+                log('Service Worker not supported in this browser');
+            }
+        }
+        
+        async function registerServiceWorker() {
+            log('Registering service worker...');
+            
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.register('/js/sw.js');
+                    showStatus('sw-status', 'Service Worker registered successfully', 'success');
+                    log(`Service Worker registered: ${registration.scope}`);
+                    
+                    // Wait for it to be ready
+                    await navigator.serviceWorker.ready;
+                    log('Service Worker is ready');
+                    
+                } catch (error) {
+                    showStatus('sw-status', `Registration failed: ${error.message}`, 'error');
+                    log(`Service Worker registration failed: ${error.message}`);
+                }
+            } else {
+                showStatus('sw-status', 'Service Worker not supported', 'error');
+                log('Service Worker not supported');
+            }
+        }
+        
+        function checkOfflineManager() {
+            log('Checking offline manager...');
+            
+            if (window.offlineManager) {
+                showStatus('offline-status', 'Offline Manager available', 'success');
+                log('Offline Manager is available');
+                log(`Database: ${window.offlineManager.db ? 'Connected' : 'Not connected'}`);
+                
+                if (window.offlineManager.db) {
+                    const stores = Array.from(window.offlineManager.db.objectStoreNames);
+                    log(`Object stores: ${stores.join(', ')}`);
+                }
+            } else {
+                showStatus('offline-status', 'Offline Manager not available', 'error');
+                log('Offline Manager not found');
+            }
+        }
+        
+        async function testIndexedDB() {
+            log('Testing IndexedDB directly...');
+            
+            try {
+                // Test basic IndexedDB functionality
+                const request = indexedDB.open('test-db', 1);
+                
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    const store = db.createObjectStore('test-store', { keyPath: 'id' });
+                    log('Test database created');
+                };
+                
+                request.onsuccess = async (event) => {
+                    const db = event.target.result;
+                    log('Test database opened successfully');
+                    
+                    // Test write
+                    const tx = db.transaction(['test-store'], 'readwrite');
+                    const store = tx.objectStore('test-store');
+                    
+                    const putRequest = store.put({ id: 'test', data: 'test data', timestamp: Date.now() });
+                    
+                    putRequest.onsuccess = () => {
+                        log('Test data written successfully');
+                        
+                        // Test read
+                        const getTx = db.transaction(['test-store'], 'readonly');
+                        const getStore = getTx.objectStore('test-store');
+                        const getRequest = getStore.get('test');
+                        
+                        getRequest.onsuccess = () => {
+                            if (getRequest.result) {
+                                log('Test data read successfully:', getRequest.result);
+                                log('IndexedDB is working correctly');
+                            } else {
+                                log('No test data found');
+                            }
+                        };
+                        
+                        getRequest.onerror = () => {
+                            log('Error reading test data:', getRequest.error);
+                        };
+                    };
+                    
+                    putRequest.onerror = () => {
+                        log('Error writing test data:', putRequest.error);
+                    };
+                    
+                    db.close();
+                };
+                
+                request.onerror = () => {
+                    log('Error opening test database:', request.error);
+                };
+                
+            } catch (error) {
+                log(`IndexedDB test error: ${error.message}`);
+            }
+        }
+        
+        async function testDatabaseFunctionality() {
+            log('Testing database functionality...');
+            
+            if (!window.offlineManager) {
+                log('Offline manager not available');
+                return;
+            }
+            
+            try {
+                const result = await window.offlineManager.testDatabase();
+                if (result) {
+                    log('Database test passed - database is working correctly');
+                } else {
+                    log('Database test failed');
+                }
+            } catch (error) {
+                log(`Database test error: ${error.message}`);
+            }
+        }
+        
+        async function testAPICall() {
+            const courseId = document.getElementById('course-id').value.trim();
+            
+            if (!courseId) {
+                log('Please enter a course ID');
+                return;
+            }
+            
+            log(`Testing direct API call for course: ${courseId}`);
+            
+            try {
+                const apiUrl = `http://localhost:5000/api/courses/${courseId}`;
+                log(`Making request to: ${apiUrl}`);
+                
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    cache: 'no-cache'
+                });
+                
+                log(`Response status: ${response.status}`);
+                log(`Response ok: ${response.ok}`);
+                
+                if (response.ok) {
+                    const course = await response.json();
+                    log('Course data received:');
+                    log(`- ID: ${course._id}`);
+                    log(`- Title: ${course.title}`);
+                    log(`- Category: ${course.category}`);
+                    log(`- Materials: ${course.materials ? course.materials.length : 0} items`);
+                } else {
+                    const errorText = await response.text();
+                    log(`API error: ${response.status} ${response.statusText}`);
+                    log(`Error details: ${errorText}`);
+                }
+                
+            } catch (error) {
+                log(`Fetch error: ${error.message}`);
+                log(`Error stack: ${error.stack}`);
+            }
+        }
+        
+        async function testDownloadCourse() {
+            const courseId = document.getElementById('course-id').value.trim();
+            
+            if (!courseId) {
+                showStatus('download-status', 'Please enter a course ID', 'error');
+                return;
+            }
+            
+            log(`Starting download test for course: ${courseId}`);
+            
+            const downloadBtn = document.getElementById('download-btn');
+            downloadBtn.disabled = true;
+            downloadBtn.textContent = 'Downloading...';
+            
+            showStatus('download-status', 'Starting download...', 'info');
+            
+            try {
+                if (!window.offlineManager) {
+                    throw new Error('Offline Manager not available');
+                }
+                
+                log('Calling offline manager cacheCourse...');
+                const result = await window.offlineManager.cacheCourse(courseId);
+                
+                if (result) {
+                    showStatus('download-status', 'Course downloaded successfully!', 'success');
+                    log(`Download successful: ${result.title}`);
+                } else {
+                    throw new Error('No result returned from cacheCourse');
+                }
+                
+            } catch (error) {
+                showStatus('download-status', `Download failed: ${error.message}`, 'error');
+                log(`Download failed: ${error.message}`);
+            } finally {
+                downloadBtn.disabled = false;
+                downloadBtn.textContent = 'Download Course';
+            }
+        }
+        
+        async function listOfflineCourses() {
+            log('Listing offline courses...');
+            
+            try {
+                if (!window.offlineManager) {
+                    throw new Error('Offline Manager not available');
+                }
+                
+                const courses = await window.offlineManager.getOfflineCourses();
+                log(`Found ${courses.length} offline courses:`);
+                
+                if (courses.length > 0) {
+                    courses.forEach((course, index) => {
+                        log(`${index + 1}. ${course.title} (ID: ${course.id || course._id})`);
+                    });
+                } else {
+                    log('No offline courses found');
+                }
+                
+            } catch (error) {
+                log(`Error listing courses: ${error.message}`);
+            }
+        }
+        
+        async function clearOfflineData() {
+            log('Clearing offline data...');
+            
+            try {
+                if (!window.offlineManager) {
+                    throw new Error('Offline Manager not available');
+                }
+                
+                await window.offlineManager.clearAllOfflineData();
+                log('Offline data cleared successfully');
+                
+            } catch (error) {
+                log(`Error clearing data: ${error.message}`);
+            }
+        }
+        
+        async function clearIndexedDB() {
+            log('Clearing IndexedDB completely...');
+            
+            try {
+                // Delete the entire database
+                const deleteRequest = indexedDB.deleteDatabase('refugee-techpreneurs-offline');
+                
+                deleteRequest.onsuccess = function() {
+                    log('IndexedDB deleted successfully');
+                };
+                
+                deleteRequest.onerror = function() {
+                    log('Error deleting IndexedDB');
+                };
+                
+            } catch (error) {
+                log(`Error clearing IndexedDB: ${error.message}`);
+            }
+        }
+        
+        // Initial checks
+        document.addEventListener('DOMContentLoaded', function() {
+            log('Page loaded, starting initial checks...');
+            
+            setTimeout(() => {
+                checkServiceWorker();
+                checkOfflineManager();
+            }, 1000);
+        });
+        
+        // Listen for offline manager ready
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                if (window.offlineManager) {
+                    log('Offline Manager detected after page load');
+                    checkOfflineManager();
+                }
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

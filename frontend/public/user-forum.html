@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Community Forum - Refugee Tech Platform</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    :root {
+      --primary-accent: #00b894;
+      --secondary-accent: #00a085;
+      --tertiary-accent: #008f7a;
+      --background-color: #f8fafc;
+      --card-bg: #ffffff;
+      --text-primary: #2c3e50;
+      --text-secondary: #6c757d;
+      --border-color: #e9ecef;
+      --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      background: var(--background-color);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--text-primary);
+    }
+
+    .forum-header {
+      background: linear-gradient(135deg, var(--primary-accent), var(--tertiary-accent));
+      color: white;
+      padding: 2rem 0;
+      margin-bottom: 2rem;
+    }
+
+    .forum-card {
+      background: var(--card-bg);
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 2rem;
+    }
+
+    .message-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .message-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .sender-badge {
+      background: var(--tertiary-accent);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .admin-badge {
+      background: #e74c3c;
+    }
+
+    .user-badge {
+      background: var(--tertiary-accent);
+    }
+
+    .btn-primary {
+      background: var(--tertiary-accent);
+      border: none;
+      border-radius: 10px;
+      padding: 0.75rem 2rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background: #00a085;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 184, 148, 0.2);
+    }
+
+    .form-control, .form-select {
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.75rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--tertiary-accent);
+      box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1);
+    }
+
+    .back-btn {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-secondary);
+    }
+
+    .post-form {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <!-- Header -->
+    <div class="forum-header">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h1 class="mb-2">💬 Community Forum</h1>
+            <p class="mb-0">Connect, share, and learn from fellow techpreneurs</p>
+          </div>
+          <a href="index.html" class="back-btn">
+            <span class="material-icons">arrow_back</span>
+            Back to Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8">
+          <!-- Post New Message Form -->
+          <div class="forum-card">
+            <h4 class="mb-3">
+              <span class="material-icons me-2">create</span>
+              Share Your Thoughts
+            </h4>
+            <form id="messageForm" class="post-form">
+              <div class="mb-3">
+                <label for="messageSubject" class="form-label">Subject</label>
+                <input type="text" class="form-control" id="messageSubject" placeholder="What's on your mind?" required>
+              </div>
+              <div class="mb-3">
+                <label for="messageContent" class="form-label">Message</label>
+                <textarea class="form-control" id="messageContent" rows="4" placeholder="Share your thoughts, ask questions, or start a discussion..." required></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="messageCategory" class="form-label">Category</label>
+                <select class="form-select" id="messageCategory" required>
+                  <option value="">Select a category</option>
+                  <option value="general">General Discussion</option>
+                  <option value="question">Question</option>
+                  <option value="help">Help Needed</option>
+                  <option value="announcement">Announcement</option>
+                  <option value="success">Success Story</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary">
+                <span class="material-icons me-2">send</span>
+                Post Message
+              </button>
+            </form>
+          </div>
+
+          <!-- Forum Messages -->
+          <div class="forum-card">
+            <h4 class="mb-3">
+              <span class="material-icons me-2">forum</span>
+              Community Discussions
+            </h4>
+            
+            <!-- Filter Options -->
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <select id="categoryFilter" class="form-select">
+                  <option value="all">All Categories</option>
+                  <option value="general">General Discussion</option>
+                  <option value="announcement">Announcements</option>
+                  <option value="question">Questions</option>
+                  <option value="help">Help Needed</option>
+                  <option value="success">Success Stories</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <div class="input-group">
+                  <input type="text" class="form-control" id="searchMessages" placeholder="Search messages...">
+                  <button class="btn btn-secondary" onclick="loadMessages()">
+                    <span class="material-icons">search</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Messages List -->
+            <div id="messagesContainer">
+              <div class="loading">Loading messages...</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <!-- User Info -->
+          <div class="forum-card">
+            <h5 class="mb-3">
+              <span class="material-icons me-2">person</span>
+              Your Profile
+            </h5>
+            <div id="userInfo">
+              <div class="loading">Loading user info...</div>
+            </div>
+          </div>
+
+          <!-- Forum Stats -->
+          <div class="forum-card">
+            <h5 class="mb-3">
+              <span class="material-icons me-2">analytics</span>
+              Forum Activity
+            </h5>
+            <div class="stats">
+              <div class="d-flex justify-content-between mb-2">
+                <span>Total Messages:</span>
+                <span id="totalMessages" class="fw-bold">-</span>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Active Users:</span>
+                <span id="activeUsers" class="fw-bold">-</span>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Your Messages:</span>
+                <span id="userMessages" class="fw-bold">-</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="forum-card">
+            <h5 class="mb-3">
+              <span class="material-icons me-2">notifications</span>
+              Recent Activity
+            </h5>
+            <div id="recentActivity">
+              <div class="loading">Loading activity...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    // Get current user from authentication
+    let currentUser = null;
+    let isAdmin = false;
+    
+    // Check if user is admin
+    const adminToken = localStorage.getItem('adminToken');
+    if (adminToken) {
+      isAdmin = true;
+      currentUser = { id: 'admin', role: 'admin' };
+    } else {
+      // Check if regular user is logged in
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        currentUser = JSON.parse(userData);
+      }
+    }
+
+    // Redirect if not logged in
+    if (!currentUser) {
+      alert('Please log in to access the forum');
+      window.location.href = 'index.html';
+    }
+
+    // Initialize forum
+    document.addEventListener('DOMContentLoaded', function() {
+      loadMessages();
+      loadUserInfo();
+      loadStats();
+    });
+
+    // Load forum messages
+    async function loadMessages() {
+      try {
+        const category = document.getElementById('categoryFilter').value;
+        const search = document.getElementById('searchMessages').value;
+        
+        let url = 'http://localhost:5000/api/forum/general';
+        const params = new URLSearchParams();
+        if (category !== 'all') params.append('category', category);
+        if (search) params.append('search', search);
+        if (params.toString()) url += '?' + params.toString();
+
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Failed to fetch messages');
+        
+        const data = await response.json();
+        console.log('Messages loaded:', data);
+        
+        displayMessages(data.messages || []);
+      } catch (error) {
+        console.error('Error loading messages:', error);
+        document.getElementById('messagesContainer').innerHTML = 
+          '<div class="alert alert-danger">Error loading messages. Please try again later.</div>';
+      }
+    }
+
+    // Display messages
+    function displayMessages(messages) {
+      const container = document.getElementById('messagesContainer');
+      
+      if (!messages || messages.length === 0) {
+        container.innerHTML = '<div class="text-center py-4">No messages yet. Be the first to start the conversation!</div>';
+        return;
+      }
+
+      container.innerHTML = messages.map(message => {
+        const senderName = message.senderName || 'Anonymous';
+        const senderRole = message.senderRole || 'user';
+        const roleColor = senderRole === 'admin' ? 'text-danger' : 'text-primary';
+        const roleBadge = senderRole === 'admin' ? 'Admin' : 'User';
+        
+        return `
+          <div class="message-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div>
+                <h6 class="mb-1">
+                  <span class="${roleColor}">
+                    <i class="material-icons" style="font-size: 16px; vertical-align: middle;">
+                      ${senderRole === 'admin' ? 'admin_panel_settings' : 'person'}
+                    </i>
+                    ${senderName}
+                  </span>
+                  <span class="badge ${senderRole === 'admin' ? 'bg-danger' : 'bg-primary'} ms-2">${roleBadge}</span>
+                </h6>
+                ${message.subject ? `<h6 class="text-dark mb-2">${message.subject}</h6>` : ''}
+              </div>
+              <small class="text-muted">${new Date(message.createdAt).toLocaleDateString()}</small>
+            </div>
+            <p class="mb-2">${message.content || message.message || 'No content'}</p>
+            <div class="d-flex align-items-center gap-3">
+              <span class="badge bg-secondary">${message.category || 'general'}</span>
+              <small class="text-muted">
+                <i class="material-icons" style="font-size: 14px;">schedule</i>
+                ${new Date(message.createdAt).toLocaleString()}
+              </small>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Load user info
+    function loadUserInfo() {
+      const container = document.getElementById('userInfo');
+      
+      if (currentUser) {
+        container.innerHTML = `
+          <div class="text-center">
+            <div class="mb-3">
+              <i class="material-icons" style="font-size: 48px; color: var(--tertiary-accent);">account_circle</i>
+            </div>
+            <h6>${currentUser.name || currentUser.username || 'User'}</h6>
+            <p class="text-muted mb-0">${currentUser.email || 'No email provided'}</p>
+            <span class="badge ${isAdmin ? 'bg-danger' : 'bg-primary'} mt-2">
+              ${isAdmin ? 'Admin' : 'Community Member'}
+            </span>
+          </div>
+        `;
+      } else {
+        container.innerHTML = '<p class="text-muted">Not logged in</p>';
+      }
+    }
+
+    // Load forum stats
+    async function loadStats() {
+      try {
+        // Load basic stats (you can expand this with actual API calls)
+        document.getElementById('totalMessages').textContent = '..loading';
+        document.getElementById('activeUsers').textContent = '..loading';
+        document.getElementById('userMessages').textContent = '..loading';
+        
+        // Load recent activity
+        document.getElementById('recentActivity').innerHTML = `
+          <div class="mb-2">
+            <small class="text-muted">Welcome to the forum!</small>
+          </div>
+          <div class="mb-2">
+            <small class="text-muted">Connect with other entrepreneurs</small>
+          </div>
+          <div class="mb-2">
+            <small class="text-muted">Share your experiences</small>
+          </div>
+        `;
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+    }
+
+    // Handle message form submission
+    document.getElementById('messageForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      if (!currentUser) {
+        alert('Please log in to post messages');
+        return;
+      }
+      
+      const formData = {
+        senderId: currentUser.id || currentUser._id,
+        senderType: isAdmin ? 'admin' : 'user',
+        senderName: currentUser.name || currentUser.username || 'User',
+        type: 'general',
+        subject: document.getElementById('messageSubject').value,
+        content: document.getElementById('messageContent').value,
+        category: document.getElementById('messageCategory').value
+      };
+
+      try {
+        const headers = {
+          'Content-Type': 'application/json'
+        };
+        
+        // Add authorization header if admin
+        if (isAdmin && adminToken) {
+          headers['Authorization'] = `Bearer ${adminToken}`;
+        }
+
+        const response = await fetch('http://localhost:5000/api/forum/message', {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+          this.reset();
+          loadMessages();
+          alert('Message posted successfully!');
+        } else {
+          const errorData = await response.json();
+          alert('Failed to post message: ' + (errorData.message || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Error posting message:', error);
+        alert('Error posting message. Please try again.');
+      }
+    });
+
+    // Event listeners for filters
+    document.getElementById('categoryFilter').addEventListener('change', loadMessages);
+    document.getElementById('searchMessages').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        loadMessages();
+      }
+    });
+  </script>
+</body>
+</html>

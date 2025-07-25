@@ -30,6 +30,8 @@ const mentorRoutes = require('./routes/mentor'); // Import mentor routes
 const publicRoutes = require('./routes/public'); // Import public routes
 const adminResourcesRoutes = require('./routes/adminResources'); // Import admin resources route
 const forumRoutes = require('./routes/forum'); // Import forum routes
+const adminForumRoutes = require('./routes/adminForum'); // Import admin forum routes
+const syncRoutes = require('./routes/sync'); // Import sync routes for offline functionality
 
 const app = express();
 app.use(cors());
@@ -74,7 +76,9 @@ app.use('/api/public', publicRoutes);
 // The /api/mentors route is now handled correctly.
 app.use('/api/resources', resourcesRoutes); // Use resources route
 app.use('/api/admin/resources', adminResourcesRoutes); // Use admin resources route
+app.use('/api/admin', adminForumRoutes); // Use admin forum routes
 app.use('/api', forumRoutes); // Use forum routes
+app.use('/api/sync', syncRoutes); // Use sync routes for offline functionality
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Server running on port ${port}`));

@@ -582,7 +582,22 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // Global variables
-    let currentAdminId = 'admin123'; // This should come from authentication
+    // Get current user from authentication
+    let currentUser = null;
+    let isAdmin = false;
+    
+    // Check if user is admin
+    const adminToken = localStorage.getItem('adminToken');
+    if (adminToken) {
+      isAdmin = true;
+      currentUser = { id: 'admin', role: 'admin' };
+    } else {
+      // Check if regular user is logged in
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        currentUser = JSON.parse(userData);
+      }
+    }
     let currentPage = 1;
     const limit = 10;
 
@@ -601,8 +616,8 @@
     // Load general messages/announcements
     async function loadGeneralMessages(page = 1) {
       try {
-        const category = document.getElementById('categoryFilter').value;
-        const search = document.getElementById('searchMessages').value;
+        const category = document.getElementById('categoryFilter')?.value || 'all';
+        const search = document.getElementById('searchMessages')?.value || '';
         
         let url = `http://localhost:5000/api/forum/general?page=${page}&limit=${limit}`;
         if (category !== 'all') url += `&category=${category}`;
@@ -612,11 +627,15 @@
         const data = await response.json();
 
         displayGeneralMessages(data.messages);
-        displayPagination(data.pagination, 'generalPagination', loadGeneralMessages);
+        if (data.pagination) {
+          displayPagination(data.pagination, 'generalPagination', loadGeneralMessages);
+        }
       } catch (error) {
         console.error('Error loading messages:', error);
-        document.getElementById('generalMessages').innerHTML = 
-          '<div class="alert alert-danger">Failed to load messages</div>';
+        const container = document.getElementById('generalMessages') || document.getElementById('general-messages');
+        if (container) {
+          container.innerHTML = '<div class="alert alert-danger">Failed to load messages</div>';
+        }
       }
     }
 
@@ -853,10 +872,15 @@
     document.getElementById('announcementForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       
+      if (!currentUser) {
+        alert('Please log in to post messages');
+        return;
+      }
+      
       const formData = {
-        senderId: currentAdminId,
-        senderType: 'admin',
-        senderName: 'Admin', // This should come from current admin data
+        senderId: currentUser.id || currentUser._id,
+        senderType: isAdmin ? 'admin' : 'user',
+        senderName: currentUser.name || currentUser.username || 'User',
         type: 'general',
         subject: document.getElementById('announcementSubject').value,
         content: document.getElementById('announcementContent').value,
@@ -864,11 +888,18 @@
       };
 
       try {
+        const headers = {
+          'Content-Type': 'application/json'
+        };
+        
+        // Add authorization header if admin
+        if (isAdmin && adminToken) {
+          headers['Authorization'] = `Bearer ${adminToken}`;
+        }
+
         const response = await fetch('http://localhost:5000/api/forum/message', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: headers,
           body: JSON.stringify(formData)
         });
 
@@ -876,9 +907,10 @@
           bootstrap.Modal.getInstance(document.getElementById('announcementModal')).hide();
           this.reset();
           loadGeneralMessages();
-          alert('Announcement posted successfully!');
+          alert('Message posted successfully!');
         } else {
-          alert('Failed to post announcement');
+          const errorData = await response.json();
+          alert('Failed to post message: ' + (errorData.message || 'Unknown error'));
         }
       } catch (error) {
         console.error('Error posting announcement:', error);
@@ -889,12 +921,17 @@
     document.getElementById('privateMessageForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       
+      if (!currentUser) {
+        alert('Please log in to send messages');
+        return;
+      }
+      
       const recipient = document.getElementById('messageRecipient').value.split(':');
       const recipientId = recipient[0];
       const recipientType = recipient[1];
 
       const formData = {
-        senderId: currentAdminId,
+        senderId: currentUser.id || currentUser._id,
         senderType: 'admin',
         senderName: 'Admin',
         recipientId: recipientId,

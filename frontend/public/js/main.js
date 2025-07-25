@@ -288,46 +288,258 @@ window.addEventListener('DOMContentLoaded', fetchNotifications);
 // Use idb for IndexedDB (add <script src="https://unpkg.com/idb@7/build/iife/index-min.js"></script> in your HTML)
 let db;
 async function setupDB() {
-  db = await idb.openDB('empower-db', 1, {
-    upgrade(db) {
-      db.createObjectStore('progress', { keyPath: 'courseId' });
-    }
+  // Use the same database as offline manager for consistency
+  db = await openIndexedDB();
+}
+
+// Helper function to open IndexedDB (consistent with offline manager)
+function openIndexedDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('refugee-techpreneurs-offline', 1);
+    
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+    
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      
+      if (!db.objectStoreNames.contains('offlineProgress')) {
+        const progressStore = db.createObjectStore('offlineProgress', { 
+          keyPath: 'id', 
+          autoIncrement: true 
+        });
+        progressStore.createIndex('courseId', 'courseId', { unique: false });
+        progressStore.createIndex('userId', 'userId', { unique: false });
+      }
+      
+      // Add other stores as needed
+      if (!db.objectStoreNames.contains('progress')) {
+        db.createObjectStore('progress', { keyPath: 'courseId' });
+      }
+    };
   });
 }
 
-// Save progress locally
-async function saveProgress(courseId, completed) {
-  await db.put('progress', { courseId, completed, timestamp: Date.now() });
+// Enhanced save progress function with offline support
+async function saveProgress(courseId, progressData) {
+  if (!db) await setupDB();
+  
+  const userId = localStorage.getItem('userId') || 'anonymous';
+  const timestamp = Date.now();
+  
+  // Save to local progress store (for backwards compatibility)
+  await db.put('progress', { 
+    courseId, 
+    ...progressData, 
+    timestamp 
+  });
+  
+  // Save to offline progress store for syncing
+  const tx = db.transaction(['offlineProgress'], 'readwrite');
+  const store = tx.objectStore('offlineProgress');
+  await store.add({
+    courseId,
+    userId,
+    progress: progressData.progress || 0,
+    completedLessons: progressData.completedLessons || 0,
+    timeSpent: progressData.timeSpent || 0,
+    lastAccessed: timestamp,
+    timestamp,
+    synced: false
+  });
+  
+  console.log('Progress saved:', { courseId, ...progressData });
+  
+  // Try to sync immediately if online
+  if (navigator.onLine && window.offlineManager) {
+    try {
+      await window.offlineManager.syncProgress();
+    } catch (error) {
+      console.log('Immediate sync failed, will retry later:', error);
+    }
+  }
 }
 
 // Load progress locally
 async function loadProgress() {
+  if (!db) await setupDB();
   const tx = db.transaction('progress', 'readonly');
   return await tx.store.getAll();
 }
 
-async function loadOpportunities() {
-  const res = await fetch('/api/admin/opportunities');
-  const opps = await res.json();
-  // ...render as before...
-}
-
-// Sync progress with backend
+// Enhanced sync progress with backend
 async function syncProgress(userId) {
-  if (!navigator.onLine) return;
-  const all = await loadProgress();
-  await fetch('/api/sync-progress', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userId, progress: all })
-  });
+  if (!navigator.onLine || !db) return;
+  
+  try {
+    const tx = db.transaction(['offlineProgress'], 'readonly');
+    const store = tx.objectStore('offlineProgress');
+    const index = store.index('userId');
+    const userProgress = await index.getAll(userId);
+    
+    if (userProgress.length === 0) return;
+    
+    const unsyncedProgress = userProgress.filter(p => !p.synced);
+    if (unsyncedProgress.length === 0) return;
+    
+    const response = await fetch('/api/sync/progress', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      },
+      body: JSON.stringify({ userId, progressData: unsyncedProgress })
+    });
+    
+    if (response.ok) {
+      // Mark progress as synced
+      const updateTx = db.transaction(['offlineProgress'], 'readwrite');
+      const updateStore = updateTx.objectStore('offlineProgress');
+      
+      for (const progress of unsyncedProgress) {
+        progress.synced = true;
+        await updateStore.put(progress);
+      }
+      
+      console.log('Progress synced successfully');
+      
+      // Store last sync time
+      localStorage.setItem('lastSyncTime', Date.now());
+    }
+  } catch (error) {
+    console.error('Error syncing progress:', error);
+  }
 }
 
-// Auto-sync when online
+// Enhanced auto-sync when online
 window.addEventListener('online', () => {
   const userId = localStorage.getItem('userId');
-  if (userId) syncProgress(userId);
+  if (userId) {
+    syncProgress(userId);
+    
+    // Also trigger offline manager sync if available
+    if (window.offlineManager) {
+      window.offlineManager.syncAllOfflineData();
+    }
+  }
 });
+
+// Course completion handler with offline support
+async function markCourseComplete(courseId) {
+  const progressData = {
+    progress: 100,
+    completedLessons: await getCourseMaxLessons(courseId),
+    timeSpent: 0, // Could be tracked separately
+    completed: true
+  };
+  
+  await saveProgress(courseId, progressData);
+  
+  // Show notification
+  if (typeof addNotification === 'function') {
+    addNotification('Course completed! Progress will sync when online.');
+  }
+}
+
+// Helper function to get course max lessons
+async function getCourseMaxLessons(courseId) {
+  try {
+    // Try to get from cached course data
+    const cached = localStorage.getItem('cachedCourses');
+    if (cached) {
+      const data = JSON.parse(cached);
+      const course = data.courses?.find(c => c._id === courseId || c.id === courseId);
+      if (course && course.materials) {
+        return course.materials.length;
+      }
+    }
+    
+    // Default fallback
+    return 10;
+  } catch (error) {
+    return 10;
+  }
+}
+
+// Enrollment with offline support
+async function enrollInCourse(courseId) {
+  const userId = localStorage.getItem('userId') || 'anonymous';
+  
+  if (navigator.onLine) {
+    try {
+      const response = await fetch('/api/enrollments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+        body: JSON.stringify({ courseId, userId })
+      });
+      
+      if (response.ok) {
+        addNotification('Successfully enrolled in course!');
+        return true;
+      } else {
+        throw new Error('Enrollment failed');
+      }
+    } catch (error) {
+      console.error('Online enrollment failed:', error);
+      // Fallback to offline enrollment
+      return await enrollOffline(courseId, userId);
+    }
+  } else {
+    return await enrollOffline(courseId, userId);
+  }
+}
+
+// Offline enrollment
+async function enrollOffline(courseId, userId) {
+  if (!db) await setupDB();
+  
+  try {
+    const enrollmentData = {
+      courseId,
+      userId,
+      enrolledAt: Date.now(),
+      progress: 0,
+      status: 'enrolled'
+    };
+    
+    // Store in offline enrollments for syncing later
+    if (window.offlineManager) {
+      await window.offlineManager.enrollOffline(courseId, userId);
+    } else {
+      // Fallback storage
+      const enrollments = JSON.parse(localStorage.getItem('offlineEnrollments') || '[]');
+      enrollments.push(enrollmentData);
+      localStorage.setItem('offlineEnrollments', JSON.stringify(enrollments));
+    }
+    
+    addNotification('Enrolled in course (will sync when online)');
+    return true;
+  } catch (error) {
+    console.error('Offline enrollment failed:', error);
+    addNotification('Failed to enroll in course');
+    return false;
+  }
+}
+
+// Initialize database on page load
+document.addEventListener('DOMContentLoaded', () => {
+  setupDB().catch(error => {
+    console.error('Failed to setup database:', error);
+  });
+});
+
+// Export functions for use in other scripts
+window.courseHelpers = {
+  saveProgress,
+  loadProgress,
+  syncProgress,
+  markCourseComplete,
+  enrollInCourse,
+  enrollOffline
+};
 
 // Example usage in your course page
 document.getElementById('complete-btn').onclick = () => {

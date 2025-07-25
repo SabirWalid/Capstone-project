@@ -1,0 +1,93 @@
+classDiagram
+    class User {
+        -ObjectId _id
+        -String name
+        -String email
+        -String password
+        -String phoneNumber
+        -Date dateOfBirth
+        -String nationality
+        -String educationLevel
+        -String[] skills
+        -String[] interests
+        -String[] customInterests
+        -Date registrationDate
+        -Boolean isActive
+        -String profilePicture
+        +register()
+        +login()
+        +updateProfile()
+        +addCustomInterest()
+        +removeCustomInterest()
+        +deactivateAccount()
+    }
+    
+    class CareerPath {
+        -ObjectId _id
+        -String title
+        -String description
+        -String category
+        -String[] requiredSkills
+        -String[] relatedInterests
+        -String salaryRange
+        -String jobOutlook
+        -String experienceLevel
+        +getCareerDetails()
+        +updateCareerInfo()
+        +calculateMatch()
+    }
+    
+    class LearningModule {
+        -ObjectId _id
+        -String title
+        -String description
+        -String content
+        -String category
+        -String difficulty
+        -Number duration
+        -Boolean offlineAvailable
+        +getContent()
+        +markComplete()
+        +trackProgress()
+    }
+    
+    class Mentor {
+        -ObjectId _id
+        -String name
+        -String bio
+        -String title
+        -String[] expertiseAreas
+        -Number rating
+        -Number totalMentees
+        +updateProfile()
+        +acceptMentee()
+        +scheduleSession()
+    }
+    
+    class UserProgress {
+        -ObjectId _id
+        -ObjectId userId
+        -ObjectId moduleId
+        -Number completionPercentage
+        -Date startDate
+        -Date completionDate
+        +updateProgress()
+        +generateCertificate()
+    }
+    
+    class CareerAssessment {
+        -ObjectId _id
+        -ObjectId userId
+        -String[] skills
+        -String[] interests
+        -String experienceLevel
+        -Date assessmentDate
+        +generateRecommendations()
+        +calculateMatch()
+    }
+    
+    User ||--o{ UserProgress
+    User ||--o{ CareerAssessment
+    LearningModule ||--o{ UserProgress
+    CareerPath ||--o{ CareerAssessment
+    Mentor --|> User

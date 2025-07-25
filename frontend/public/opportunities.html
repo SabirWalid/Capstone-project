@@ -1,602 +1,817 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Latest Opportunities - Empower Refugees</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    :root {
-      --primary-bg: #f8fffe;
-      --secondary-bg: #2c5f5d;
-      --tertiary-accent: #00b894;
-      --text-color: #2d3436;
-      --card-bg: #ffffff;
-      --border-color: #ddd;
-      --text-secondary: #636e72;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opportunities - Refugee Techpreneurs</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* 60-30-10 Color Palette */
+        :root {
+            --primary-bg: #f8fffe;
+            --secondary-bg: #2c5f5d;
+            --tertiary-accent: #00b894;
+            --text-color: #2d3436;
+            --card-bg: #ffffff;
+            --border-color: #ddd;
+            --text-secondary: #636e72;
+            --shadow: 0 10px 30px rgba(44, 95, 93, 0.08);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: var(--primary-bg);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: var(--text-color);
+        }
 
-    /* sidebar and footer sstyling */
-  
-    html, body {
-      height: 50%;
-      margin: 0;
-      padding: 0;
-      background: var(--primary-bg);
-      font-family: 'Segoe UI', Arial, sans-serif;
-    }
-    body {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-    }
-    .sidebar {
-      background: var(--secondary-bg);
-      color: #fff;
-      min-height: 100vh;
-      width: 90px;
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-top: 1.5rem;
-    }
-    .sidebar .logo {
-      width: 60px;
-      margin-bottom: 2rem;
-    }
-    .sidebar .profile-img {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-bottom: 1.5rem;
-      border: 2px solid #fff;
-    }
-    .sidebar .nav-link {
-      color: #fff;
-      text-align: center;
-      margin-bottom: 1.2rem;
-      font-size: 1.7rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-decoration: none;
-      transition: color 0.2s;
-      position: relative;
-    }
-    .sidebar .nav-link.active,
-    .sidebar .nav-link:hover {
-      color: var(--tertiary-accent);
-    }
-    .sidebar .nav-link .material-icons {
-      font-size: 2rem;
-      margin-bottom: 0.2rem;
-    }
-    .sidebar .badge {
-      position: relative;
-      top: 0;
-      right: 10px;
-      background: var(--tertiary-accent);
-      color: #fff;
-      font-size: 0.8rem;
-      border-radius: 50%;
-      padding: 2px 6px;
-    }
-    .sidebar .sidebar-bottom {
-      margin-top: auto;
-      margin-bottom: 1.5rem;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .dashboard-wrapper {
-      flex: 1 1 auto;
-      min-height: 100vh;
-      margin-left: 90px;
-      display: flex;
-      flex-direction: column;
-    }
-    .main-content {
-      flex: 1 0 auto;
-      padding: 2rem 2rem 2rem 2rem;
-      min-height: 0;
-    }
-    .dashboard-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 2rem;
-    }
-    .dashboard-header h2 {
-      font-weight: 700;
-      color: #444;
-      margin: 0;
-    }
-    .user-greeting {
-      font-size: 2.2rem;
-      font-weight: 700;
-      color: #333;
-      margin-bottom: 0.5rem;
-    }
-    .recommendations-label {
-      font-size: 1.2rem;
-      color: #555;
-      margin-bottom: 1.5rem;
-    }
-    .recommendation-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1.2rem;
-      margin-bottom: 2.2rem;
-    }
-    .recommendation-row .btn {
-      flex: 1 1 220px;
-      font-size: 1.15rem;
-      font-weight: 600;
-      padding: 1rem 0;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    }
-    .opportunities-container {
-      display: grid;
-      grid-template-columns: (auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-      padding: 20px;
-      margin-left: 5px;
-    }
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: row;
+        }
 
-.opportunities-header {
-  text-align: center;
-  margin-bottom: 5px;
-  margin-top: 5px;
-}
+        .sidebar {
+            background: var(--secondary-bg);
+            color: #fff;
+            min-height: 100vh;
+            width: 90px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 1.5rem;
+        }
 
-.page-title {
-  color: #2c3e50;
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin-bottom: 0px;
-}
+        .sidebar .logo {
+            width: 60px;
+            margin-bottom: 1rem;
+        }
 
-/* Filter Section - Ensure it appears BEFORE opportunities */
-.filter-section {
-  width: 50%;
-  margin-left: 5px;
-  display: flex;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 5px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  position: relative;
-  z-index: 10; /* Ensure filter stays on top */
-}
+        .sidebar .nav-link {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-size: 1.7rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            transition: color 0.2s;
+            position: relative;
+            border-radius: 12px;
+            padding: 0.3rem 0;
+            width: 70px;
+        }
 
-.filter-container {
-  display: flex;
-  align-items: flex-start;
-  gap: 15px;
-  flex-wrap: wrap;
-  margin-left: 20px;
-}
+        .sidebar .nav-link.active,
+        .sidebar .nav-link:hover {
+            background: rgba(0, 184, 148, 0.15);
+            color: var(--tertiary-accent);
+        }
 
-.filter-label {
-  font-weight: 600;
-  color: #2c3e50;
-  font-size: 1.1rem;
-}
+        .sidebar .nav-link .material-icons {
+            font-size: 1.8rem;
+            margin-bottom: 0.1rem;
+        }
 
-.filter-select {
-  padding: 10px 15px;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  background: white;
-  font-size: 1rem;
-  min-width: 200px;
-}
+        .sidebar-label {
+            font-size: 0.7rem;
+            margin-top: 0;
+            letter-spacing: 0.02em;
+            color: #fff;
+            opacity: 0.85;
+            transition: color 0.2s;
+        }
 
-/* Opportunities List Container */
-.opportunities-list-container {
-  position: relative;
-  z-index: 1; /* Lower z-index than filter */
-  display: flex;
-  flex-direction: column;
-}
+        .sidebar .nav-link.active .sidebar-label,
+        .sidebar .nav-link:hover .sidebar-label {
+            color: var(--tertiary-accent);
+            opacity: 1;
+        }
 
-#opportunities-list {
-  display: grid;
-  gap: 20px;
-  grid-template-columns: (auto-fill, minmax(350px, 1fr));
-  flex-direction: column;
-}
+        .sidebar .sidebar-bottom {
+            margin-top: auto;
+            margin-bottom: 1rem;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-/* Individual Opportunity Card Styling */
-.opportunity-card {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 15px;
-  padding: 15px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  width: 500px;
-  margin-left: 5px;
-  
-}
+        .dashboard-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-left: 90px;
+            min-height: 100vh;
+            width: calc(100% - 90px);
+        }
 
-.opportunity-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
-}
+        .dashboard-header {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
 
-.opportunity-title {
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: #2c3e50;
-  margin-bottom: 0;
-}
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--secondary-bg);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
 
-.opportunity-description {
-  color: #666;
-  margin-bottom: 15px;
-  line-height: 1.5;
-}
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
 
-.opportunity-badges {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 15px;
-  flex-wrap: wrap;
-}
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
 
-.badge {
-  padding: 5px 10px;
-  border-radius: 15px;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
+        .search-section {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 800px;
+        }
 
-.badge-category {
-  background: #6c757d;
-  color: white;
-}
+        .search-bar {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
 
-.badge-type {
-  background: #17a2b8;
-  color: white;
-}
+        .search-input {
+            flex: 1;
+            min-width: 300px;
+            padding: 1rem 1.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: var(--primary-bg);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
 
-.badge-deadline {
-  background: #ffc107;
-  color: #212529;
-}
+        .search-input:focus {
+            outline: none;
+            border-color: var(--tertiary-accent);
+            box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1);
+            background: var(--card-bg);
+        }
 
-.apply-button {
-  background: #00b894;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  text-decoration: none;
-  display: inline-block;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
+        .filter-select {
+            padding: 1rem 1.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--primary-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 150px;
+        }
 
-.apply-button:hover {
-  background: #00a085;
-  color: white;
-  text-decoration: none;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 184, 148, 0.3);
-}
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--tertiary-accent);
+            box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.1);
+        }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .opportunities-container {
-    padding: 5px;
-  }
-  
-  .page-title {
-    font-size: 2rem;
-  }
-  
-  .filter-container {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .filter-select {
-    min-width: auto;
-    width: 100%;
-  }
-  
-  #opportunities-list {
-    grid-template-columns: 1fr;
-  }
-}
-  
-    .footer {
-      background: var(--primary-bg);
-      color: #1d1c1c;
-      font-size: 0.98rem;
-      padding: 0.7rem 0;
-      border-top: 1px solid #333;
-      margin-left: 0;
-      margin-bottom: 0;
-      width: 100%;
-      position: static;
-      margin-top: auto;
-    }
-    .footer .container-fluid {
-      padding: 0 !important;
-    }
-    .footer-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-    }
-    .footer-logo {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .footer-logo img {
-      height: 28px;
-    }
-    .footer-links {
-      display: flex;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-    }
-    .footer-link {
-      color: #302f2f;
-      text-decoration: none;
-      margin-right: 1rem;
-      transition: color 0.2s;
-      font-size: 1rem;
-    }
-    .footer-link:hover {
-      color: #2c2c2c;
-      text-decoration: underline;
-    }
-    .footer-social {
-      display: inline-block;
-      margin-left: 0.5rem;
-      margin-right: 0.5rem;
-      vertical-align: middle;
-      transition: opacity 0.2s;
-    }
-    .footer-social:hover svg {
-      fill: #2e2d2d !important;
-    }
-    @media (max-width: 900px) {
-      .main-content { padding: 1rem 0.5rem 0 0.5rem; }
-      .sidebar { width: 60px; }
-      .dashboard-wrapper { margin-left: 60px; }
-      .recommendation-row { gap: 0.5rem; }
-    }
-    @media (max-width: 600px) {
-      .dashboard-wrapper, .main-content { margin-left: 0; padding: 0.5rem; }
-      .dashboard-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
-      .recommendation-row { flex-direction: column; }
-      .footer-content { flex-direction: column; gap: 0.5rem; }
-      .footer-links { gap: 0.7rem; }
-    }
-  </style>
+        #opportunitiesContainer {
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .opportunities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+            width: 100%;
+        }
+
+        .opportunity-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .opportunity-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(44, 95, 93, 0.15);
+            border-color: var(--tertiary-accent);
+        }
+
+        .opportunity-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--tertiary-accent), #00a085);
+        }
+
+        .opportunity-content {
+            padding: 2rem;
+        }
+
+        .opportunity-type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(0, 184, 148, 0.1);
+            color: var(--tertiary-accent);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(0, 184, 148, 0.2);
+        }
+
+        .opportunity-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--secondary-bg);
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .opportunity-company {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--tertiary-accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .opportunity-location {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .opportunity-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .opportunity-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .opportunity-deadline {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .salary-range {
+            font-weight: 600;
+            color: var(--secondary-bg);
+        }
+
+        .apply-btn {
+            background: var(--tertiary-accent);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .apply-btn:hover {
+            background: #00a085;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+        .no-opportunities {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .no-opportunities-icon {
+            font-size: 4rem;
+            color: var(--border-color);
+            margin-bottom: 1rem;
+        }
+
+        .no-opportunities h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--secondary-bg);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .spinner {
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--tertiary-accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            color: #747373;
+            font-size: 0.98rem;
+            padding: 2rem 0;
+            margin-top: auto;
+            width: 100%;
+        }
+
+        .footer .container-fluid {
+            padding: 0 2rem;
+        }
+
+        .footer-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer-logo img {
+            height: 28px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: #949393;
+            text-decoration: none;
+            transition: color 0.2s;
+            font-size: 1rem;
+        }
+
+        .footer-link:hover {
+            color: var(--tertiary-accent);
+            text-decoration: underline;
+        }
+
+        .footer-social {
+            display: inline-block;
+            margin: 0 0.5rem;
+            transition: opacity 0.2s;
+        }
+
+        .footer-social:hover svg {
+            fill: var(--tertiary-accent) !important;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .main-content { 
+                padding: 1rem; 
+            }
+            .sidebar { 
+                width: 60px; 
+            }
+            .dashboard-wrapper { 
+                margin-left: 60px; 
+                width: calc(100% - 60px);
+            }
+            .search-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-input {
+                min-width: auto;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                flex-direction: column;
+            }
+            .sidebar {
+                display: none;
+            }
+            .dashboard-wrapper { 
+                margin-left: 0; 
+                width: 100%;
+            }
+            .main-content { 
+                padding: 1rem; 
+            }
+            .dashboard-header { 
+                padding: 1.5rem; 
+            }
+            .page-title {
+                font-size: 2rem;
+            }
+            .opportunities-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            .footer-content { 
+                flex-direction: column; 
+                gap: 0.5rem; 
+            }
+            .footer-links { 
+                gap: 0.7rem; 
+            }
+        }
+    </style>
 </head>
 <body>
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <img src="images/logo.png" alt="Logo" class="logo">
-    <a href="account.html" class="nav-link" title="Account Settings">
-      <span class="material-icons">account_circle</span>
-      <span style="font-size:0.85rem;">Account</span>
-    </a>
-    <a href="dashboard.html" class="nav-link active" title="Dashboard">
-      <span class="material-icons">dashboard</span>
-      <span style="font-size:0.85rem;">Dashboard</span>
-    </a>
-    <a href="career-test.html" class="nav-link" title="Career Test">
-      <span class="material-icons">psychology</span>
-      <span style="font-size:0.85rem;">Career Test</span>
-    </a>
-    <a href="courses.html" class="nav-link" title="Courses">
-      <span class="material-icons">menu_book</span>
-      <span style="font-size:0.85rem;">Courses</span>
-    </a>
-    <a href="mentorship.html" class="nav-link" title="Mentorship">
-      <span class="material-icons">group</span>
-      <span style="font-size:0.85rem;">Mentorship</span>
-    </a>
-    <a href="opportunities.html" class="nav-link" title="Opportunities">
-      <span class="material-icons">work</span>
-      <span style="font-size:0.85rem;">Opportunities</span>
-    </a>
-    <a href="resources.html" class="nav-link" title="Startup Toolkit">
-      <span class="material-icons">build</span>
-      <span style="font-size:0.85rem;">Resources</span>
-    </a>
-    <div class="sidebar-bottom">
-      <a href="settings.html" class="nav-link" title="App Settings">
-        <span class="material-icons">settings</span>
-        <span style="font-size:0.85rem;">Settings</span>
-      </a>
-    </div>
-  </div>
-
-  <div class="dashboard-wrapper">
-    <div class="main-content">
-      <div class="opportunities-container">
-        <!-- Header Section -->
-        <div class="opportunities-header">
-          <h1 class="page-title">Latest Opportunities</h1>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <img src="images/logo.png" alt="Logo" class="logo">
+        <a href="account.html" class="nav-link" title="Account Settings">
+            <span class="material-icons">account_circle</span>
+            <span class="sidebar-label">Account</span>
+        </a>
+        <a href="dashboard.html" class="nav-link" title="Dashboard">
+            <span class="material-icons">dashboard</span>
+            <span class="sidebar-label">Dashboard</span>
+        </a>
+        <a href="career-test.html" class="nav-link" title="Career Test">
+            <span class="material-icons">psychology</span>
+            <span class="sidebar-label">Career Test</span>
+        </a>
+        <a href="courses.html" class="nav-link" title="Courses">
+            <span class="material-icons">menu_book</span>
+            <span class="sidebar-label">Courses</span>
+        </a>
+        <a href="mentorship.html" class="nav-link" title="Mentorship">
+            <span class="material-icons">group</span>
+            <span class="sidebar-label">Mentorship</span>
+        </a>
+        <a href="opportunities.html" class="nav-link active" title="Opportunities">
+            <span class="material-icons">work</span>
+            <span class="sidebar-label">Opportunities</span>
+        </a>
+        <a href="resources.html" class="nav-link" title="Resources">
+            <span class="material-icons">folder_open</span>
+            <span class="sidebar-label">Resources</span>
+        </a>
+        <div class="sidebar-bottom">
+            <a href="settings.html" class="nav-link" title="Settings">
+                <span class="material-icons">settings</span>
+                <span class="sidebar-label">Settings</span>
+            </a>
         </div>
-
-        <!-- Filter Section - This should come FIRST -->
-        <div class="filter-section">
-          <div class="filter-container">
-            <label for="opportunity-filter" class="filter-label">Filter by Type:</label>
-            <select id="opportunity-filter" class="filter-select">
-              <option value="">All</option>
-              <option value="Scholarship">Scholarship</option>
-              <option value="Job">Job</option>
-              <option value="Funding">Funding</option>
-              <option value="Internship">Internship</option>
-              <option value="Competition">Competition</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Opportunities List Section - This should come AFTER filter -->
-        <div class="opportunities-list-container">
-          <div id="opportunities-list">
-            <!-- Sample opportunities for demonstration -->
-            <div class="opportunity-card">
-              <h3 class="opportunity-title">Fully Funded Scholarship</h3>
-              <p class="opportunity-description">This is your chance to apply for a fully funded scholarship opportunity.</p>
-              
-              <div class="opportunity-badges">
-                <span class="badge badge-category">studies</span>
-                <span class="badge badge-type">Scholarship</span>
-                <span class="badge badge-deadline">Deadline: 7/22/2025</span>
-              </div>
-              
-              <a href="#" class="apply-button">Apply Now</a>
-            </div>
-
-            <div class="opportunity-card">
-              <h3 class="opportunity-title">Business Grants</h3>
-              <p class="opportunity-description">This is a great chance to get funding for your business idea.</p>
-              
-              <div class="opportunity-badges">
-                <span class="badge badge-category">business</span>
-                <span class="badge badge-type">Funding</span>
-                <span class="badge badge-deadline">Deadline: 7/22/2025</span>
-              </div>
-              
-              <a href="#" class="apply-button">Apply Now</a>
-            </div>
-
-            <div class="opportunity-card">
-              <h3 class="opportunity-title">Tech Internship Program</h3>
-              <p class="opportunity-description">Join a leading tech company for a 6-month internship program.</p>
-              
-              <div class="opportunity-badges">
-                <span class="badge badge-category">technology</span>
-                <span class="badge badge-type">Internship</span>
-                <span class="badge badge-deadline">Deadline: 8/15/2025</span>
-              </div>
-              
-              <a href="#" class="apply-button">Apply Now</a>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
 
-    <!-- Footer Start -->
-    <footer class="footer">
-      <div class="container-fluid">
-        <div class="footer-content">
-          <div class="footer-logo">
-            <img src="images/logo.png" alt="EmpowerPath Logo">
-            <span style="font-size:1.1rem; font-weight:600; color:#fff;">Refugee Techpreneurs</span>
-          </div>
-          <div class="footer-links">
-            <a href="courses.html" class="footer-link">Learning Paths</a>
-            <a href="mentorship.html" class="footer-link">Mentorship</a>
-            <a href="opportunities.html" class="footer-link">Opportunities</a>
-            <a href="toolkit.html" class="footer-link">Resources</a>
-            <a href="#" class="footer-link">Help</a>
-            <a href="#" class="footer-link">Privacy</a>
-          </div>
-          <div>
-            <a href="#" class="footer-social" title="Facebook">
-              <svg width="22" height="22" fill="#bbb" viewBox="0 0 24 24"><path d="M22.675 0h-21.35c-.733 0-1.325.592-1.325 1.326v21.348c0 .733.592 1.326 1.325 1.326h11.495v-9.294h-3.125v-3.622h3.125v-2.672c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.797.143v3.24l-1.918.001c-1.504 0-1.797.715-1.797 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.326v-21.349c0-.734-.593-1.326-1.324-1.326z"/></svg>
-            </a>
-            <a href="#" class="footer-social" title="Website">
-              <svg width="22" height="22" fill="#bbb" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 5.523 4.477 10 10 10s10-4.477 10-10c0-5.523-4.477-10-10-10zm0 18c-1.85 0-3.555-.63-4.9-1.69.03-.04.06-.08.09-.12.37-.48.73-.97 1.08-1.47.16-.23.31-.47.46-.7.13-.2.25-.41.37-.62.09-.16-.18-.32-.27-.48-.08-.15-.16-.3-.23-.45-.07-.15-.13-.3-.19-.45-.06-.15-.12-.3-.17-.45-.05-.15-.09-.3-.13-.45-.04-.15-.07-.3-.1-.45-.03-.15-.05-.3-.07-.45-.02-.15-.03-.3-.04-.45-.01-.15-.02-.3-.02-.45 0-.15.01-.3.02-.45.01-.15.02-.3.04-.45.02-.15.04-.3.07-.45.03-.15.06-.3.1-.45.04-.15.08-.3.13-.45.05-.15.11-.3.17-.45.06-.15.12-.3.19-.45.07-.15.15-.3.23-.45.09-.16.18-.32.27-.48.12-.21.24-.42.37-.62.15-.23.3-.47.46-.7.35-.5.71-.99 1.08-1.47.03-.04.06-.08.09-.12C15.555 19.37 13.85 20 12 20z"/></svg>
-            </a>
-          </div>
+    <!-- Main Wrapper -->
+    <div class="dashboard-wrapper">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <h1 class="page-title">
+                <span class="material-icons" style="font-size: 2.5rem;">work</span>
+                Career Opportunities
+            </h1>
+            <p class="page-subtitle">Discover exciting career opportunities and advance your professional journey</p>
         </div>
-        <div class="text-center mt-2" style="font-size:0.95rem; color:#bbb;">
-          © 2025 Refugee Techpreneurs. All rights reserved.
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Search Section -->
+            <div class="search-section">
+                <div class="search-bar">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search opportunities by title, company, or location...">
+                    <select id="typeFilter" class="filter-select">
+                        <option value="">All Types</option>
+                        <option value="Full-time">Full-time</option>
+                        <option value="Part-time">Part-time</option>
+                        <option value="Contract">Contract</option>
+                        <option value="Internship">Internship</option>
+                        <option value="Remote">Remote</option>
+                    </select>
+                    <select id="categoryFilter" class="filter-select">
+                        <option value="">All Categories</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Business">Business</option>
+                        <option value="Design">Design</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Finance">Finance</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Opportunities Container -->
+            <div id="opportunitiesContainer">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading opportunities...
+                </div>
+            </div>
         </div>
-      </div>
-    </footer>
-  </div>
 
-  <!-- Floating Chatbot Button -->
-  <button id="open-chatbot" style="position:fixed;bottom:30px;right:30px;z-index:999;" class="btn btn-primary rounded-circle">
-    <span class="material-icons">chat</span>
-  </button>
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container-fluid">
+                <div class="footer-content">
+                    <div class="footer-logo">
+                        <img src="images/logo.png" alt="Refugee Techpreneurs Logo">
+                        <span style="font-size:1.1rem; font-weight:600; color:#333;">Refugee Techpreneurs</span>
+                    </div>
+                    <div class="footer-links">
+                        <a href="courses.html" class="footer-link">Learning Paths</a>
+                        <a href="mentorship.html" class="footer-link">Mentorship</a>
+                        <a href="opportunities.html" class="footer-link">Opportunities</a>
+                        <a href="resources.html" class="footer-link">Resources</a>
+                        <a href="#" class="footer-link">Help</a>
+                        <a href="#" class="footer-link">Privacy</a>
+                    </div>
+                    <div>
+                        <a href="#" class="footer-social" title="Facebook">
+                            <svg width="22" height="22" fill="#bbb" viewBox="0 0 24 24"><path d="M22.675 0h-21.35c-.733 0-1.325.592-1.325 1.326v21.348c0 .733.592 1.326 1.325 1.326h11.495v-9.294h-3.125v-3.622h3.125v-2.672c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.797.143v3.24l-1.918.001c-1.504 0-1.797.715-1.797 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.326v-21.349c0-.734-.593-1.326-1.324-1.326z"/></svg>
+                        </a>
+                        <a href="#" class="footer-social" title="Website">
+                            <svg width="22" height="22" fill="#bbb" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 5.523 4.477 10 10 10s10-4.477 10-10c0-5.523-4.477-10-10-10zm0 18c-1.85 0-3.555-.63-4.9-1.69.03-.04.06-.08.09-.12.37-.48.73-.97 1.08-1.47.16-.23.31-.47.46-.7.13-.2.25-.41.37-.62.09-.16-.18-.32-.27-.48-.08-.15-.16-.3-.23-.45-.07-.15-.13-.3-.19-.45-.06-.15-.12-.3-.17-.45-.05-.15-.09-.3-.13-.45-.04-.15-.07-.3-.1-.45-.03-.15-.05-.3-.07-.45-.02-.15-.03-.3-.04-.45-.01-.15-.02-.3-.02-.45 0-.15.01-.3.02-.45.01-.15.02-.3.04-.45.02-.15.04-.3.07-.45.03-.15.06-.3.1-.45.04-.15.08-.3.13-.45.05-.15.11-.3.17-.45.06-.15.12-.3.19-.45.07-.15.15-.3.23-.45.09-.16.18-.32.27-.48.12-.21.24-.42.37-.62.15-.23.3-.47.46-.7.35-.5.71-.99 1.08-1.47.03-.04.06-.08.09-.12C15.555 19.37 13.85 20 12 20z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 1rem; font-size:0.95rem; color:#bbb; width: 100%;">
+                    © 2025 Refugee Techpreneurs. All rights reserved.
+                </div>
+            </div>
+        </footer>
 
-  <!-- Hidden Chat Widget -->
-  <div id="chatbot-widget" style="display:none;position:fixed;bottom:90px;right:30px;max-width:400px;z-index:1000;">
-    <div id="chatbot-messages" style="height:300px;overflow-y:auto;border:1px solid #ccc;padding:1rem;background:#fafafa;"></div>
-    <form id="chatbot-form" style="display:flex;gap:0.5rem;margin-top:0.5rem;">
-      <input type="text" id="chatbot-input" class="form-control" placeholder="Type your message..." required autocomplete="off">
-      <button type="submit" class="btn btn-primary">Send</button>
-    </form>
-  </div>
+    </div>
 
-  <script>
-    // js/opportunities.js
-let opportunities = [];
+    <script>
+        class OpportunityManager {
+            constructor() {
+                this.opportunities = [];
+                this.filteredOpportunities = [];
+                this.init();
+            }
 
-// User-side opportunities loading function
-async function loadUserOpportunities() {
-  const filter = document.getElementById('opportunity-filter').value;
-  
-  try {
-    const res = await fetch(`http://localhost:5000/api/opportunities?type=${filter}`);
-    if (!res.ok) {
-      throw new Error('Failed to load opportunities');
-    }
-    
-    const opportunities = await res.json();
-    
-    // Generate HTML for opportunities
-    const opportunitiesHTML = opportunities.map(opp => `
-      <div class="opportunity-card">
-        <h3 class="opportunity-title">${opp.title}</h3>
-        <p class="opportunity-description">${opp.description}</p>
-        
-        <div class="opportunity-badges">
-          ${opp.category ? `<span class="badge badge-category">${opp.category}</span>` : ''}
-          <span class="badge badge-type">${opp.type}</span>
-          ${opp.deadline ? `<span class="badge badge-deadline">Deadline: ${new Date(opp.deadline).toLocaleDateString()}</span>` : '<span class="badge badge-deadline">No deadline</span>'}
-        </div>
-        
-        ${opp.link ? `<a href="${opp.link}" class="apply-button" target="_blank">Apply Now</a>` : ''}
-      </div>
-    `).join('');
-    
-    // Insert opportunities into the list container (AFTER the filter)
-    document.getElementById('opportunities-list').innerHTML = opportunitiesHTML;
-    
-  } catch (error) {
-    console.error('Error loading opportunities:', error);
-    document.getElementById('opportunities-list').innerHTML = 
-      '<div class="alert alert-danger">Failed to load opportunities. Please try again later.</div>';
-  }
-}
+            async init() {
+                await this.loadOpportunities();
+                this.setupEventListeners();
+                this.renderOpportunities();
+            }
 
-// Add event listener for filter changes
-document.getElementById('opportunity-filter').addEventListener('change', loadUserOpportunities);
+            async loadOpportunities() {
+                try {
+                    const response = await fetch('http://localhost:5000/api/opportunities');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    this.opportunities = await response.json();
+                    this.filteredOpportunities = [...this.opportunities];
+                } catch (error) {
+                    console.error('Error loading opportunities:', error);
+                    this.showError('Failed to load opportunities. Please try again later.');
+                }
+            }
 
-// Load opportunities when page loads
-document.addEventListener('DOMContentLoaded', loadUserOpportunities);
-  </script>
+            setupEventListeners() {
+                const searchInput = document.getElementById('searchInput');
+                const typeFilter = document.getElementById('typeFilter');
+                const categoryFilter = document.getElementById('categoryFilter');
 
-  <!-- Material Icons (if not already included) -->
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <script src="js/chatbot.js"></script>
+                searchInput.addEventListener('input', (e) => {
+                    this.filterOpportunities(e.target.value, typeFilter.value, categoryFilter.value);
+                });
+
+                typeFilter.addEventListener('change', (e) => {
+                    this.filterOpportunities(searchInput.value, e.target.value, categoryFilter.value);
+                });
+
+                categoryFilter.addEventListener('change', (e) => {
+                    this.filterOpportunities(searchInput.value, typeFilter.value, e.target.value);
+                });
+            }
+
+            filterOpportunities(searchTerm = '', typeFilter = '', categoryFilter = '') {
+                this.filteredOpportunities = this.opportunities.filter(opportunity => {
+                    const matchesSearch = !searchTerm || 
+                        opportunity.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        opportunity.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        (opportunity.company && opportunity.company.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                        (opportunity.location && opportunity.location.toLowerCase().includes(searchTerm.toLowerCase()));
+                    
+                    const matchesType = !typeFilter || opportunity.type === typeFilter;
+                    const matchesCategory = !categoryFilter || opportunity.category === categoryFilter;
+                    
+                    return matchesSearch && matchesType && matchesCategory;
+                });
+
+                this.renderOpportunities();
+            }
+
+            renderOpportunities() {
+                const container = document.getElementById('opportunitiesContainer');
+                
+                if (this.filteredOpportunities.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-opportunities">
+                            <div class="no-opportunities-icon">💼</div>
+                            <h3>No opportunities found</h3>
+                            <p>Try adjusting your search terms or filters to find what you're looking for.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const opportunitiesHTML = `
+                    <div class="opportunities-grid">
+                        ${this.filteredOpportunities.map(opportunity => this.renderOpportunityCard(opportunity)).join('')}
+                    </div>
+                `;
+
+                container.innerHTML = opportunitiesHTML;
+                this.addCardAnimations();
+            }
+
+            renderOpportunityCard(opportunity) {
+                const typeIcons = {
+                    'Full-time': 'work',
+                    'Part-time': 'schedule',
+                    'Contract': 'assignment',
+                    'Internship': 'school',
+                    'Remote': 'home'
+                };
+
+                const typeIcon = typeIcons[opportunity.type] || 'work';
+
+                const salaryInfo = opportunity.salary ? 
+                    `<div class="salary-range">${opportunity.salary}</div>` : '';
+
+                const deadlineInfo = opportunity.deadline ? 
+                    `<div class="opportunity-deadline">
+                        <span class="material-icons" style="font-size: 1rem;">schedule</span>
+                        Apply by: ${new Date(opportunity.deadline).toLocaleDateString()}
+                    </div>` : '';
+
+                return `
+                    <div class="opportunity-card" data-id="${opportunity._id || opportunity.id}">
+                        <div class="opportunity-content">
+                            <div class="opportunity-type-badge">
+                                <span class="material-icons" style="font-size: 1rem;">${typeIcon}</span>
+                                ${opportunity.type || 'Opportunity'}
+                            </div>
+                            <h3 class="opportunity-title">${this.escapeHtml(opportunity.title || 'Untitled Opportunity')}</h3>
+                            <div class="opportunity-company">${this.escapeHtml(opportunity.company || 'Company')}</div>
+                            <div class="opportunity-location">
+                                <span class="material-icons" style="font-size: 1rem;">location_on</span>
+                                ${this.escapeHtml(opportunity.location || 'Location not specified')}
+                            </div>
+                            <p class="opportunity-description">${this.escapeHtml(opportunity.description || 'No description available.')}</p>
+                            <div class="opportunity-meta">
+                                ${deadlineInfo}
+                                ${salaryInfo}
+                            </div>
+                            <a href="${opportunity.applyUrl || '#'}" 
+                               class="apply-btn" 
+                               target="_blank" 
+                               rel="noopener noreferrer">
+                                <span class="material-icons">send</span>
+                                Apply Now
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }
+
+            addCardAnimations() {
+                const cards = document.querySelectorAll('.opportunity-card');
+                cards.forEach((card, index) => {
+                    card.style.animation = `fadeInUp 0.6s ease forwards ${index * 0.1}s`;
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(30px)';
+                });
+
+                if (!document.getElementById('cardAnimationStyles')) {
+                    const style = document.createElement('style');
+                    style.id = 'cardAnimationStyles';
+                    style.textContent = `
+                        @keyframes fadeInUp {
+                            to {
+                                opacity: 1;
+                                transform: translateY(0);
+                            }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+            }
+
+            showError(message) {
+                const container = document.getElementById('opportunitiesContainer');
+                container.innerHTML = `
+                    <div class="no-opportunities">
+                        <div class="no-opportunities-icon">⚠️</div>
+                        <h3>Error Loading Opportunities</h3>
+                        <p>${message}</p>
+                        <button onclick="location.reload()" class="apply-btn" style="width: auto; margin-top: 20px;">
+                            <span class="material-icons">refresh</span>
+                            Retry
+                        </button>
+                    </div>
+                `;
+            }
+
+            escapeHtml(unsafe) {
+                if (!unsafe) return '';
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
+        }
+
+        // Initialize opportunity manager when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            window.opportunityManager = new OpportunityManager();
+        });
+    </script>
 </body>
 </html>
