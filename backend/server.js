@@ -74,8 +74,6 @@ app.use('/uploads', (req, res, next) => {
 // MongoDB Atlas connection
 const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
 mongoose.connect(uri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
   retryWrites: true,
   w: 'majority'
 })
