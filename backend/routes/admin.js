@@ -2,10 +2,31 @@ const express = require('express');
 const router = express.Router();
 const adminAuth = require('../middleware/adminAuth');
 const Opportunity = require('../models/Opportunity');
+const Course = require('../models/Course');
+const Resource = require('../models/Resource');
+const Mentor = require('../models/Mentor');
 
-// Example GET route for admin
-router.get('/', (req, res) => {
-  res.json({ message: 'Admin route is working!' });
+// Get admin dashboard data
+router.get('/', adminAuth, async (req, res) => {
+  try {
+    const [courses, opportunities, resources, mentors] = await Promise.all([
+      Course.countDocuments(),
+      Opportunity.countDocuments(),
+      Resource.countDocuments(),
+      Mentor.countDocuments()
+    ]);
+    
+    res.json({
+      counts: {
+        courses,
+        opportunities,
+        resources,
+        mentors
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 });
 
 router.post("/opportunities", adminAuth, async (req, res) => {

@@ -26,6 +26,60 @@ router.post('/auth/register', async (req, res) => {
   }
 });
 
+// Get all active mentors
+router.get('/mentors', async (req, res) => {
+  try {
+    const { expertise, availability, search } = req.query;
+    const filter = { status: 'active' };
+
+    // Apply filters
+    if (expertise) {
+      filter.expertise = { $in: expertise.split(',') };
+    }
+    if (availability) {
+      filter.availability = availability;
+    }
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { bio: { $regex: search, $options: 'i' } },
+        { expertise: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    const mentors = await Mentor.find(filter)
+      .select('name avatar bio expertise availability rating company position socialLinks')
+      .sort({ rating: -1 })
+      .lean();
+
+    // Get mentorship stats for each mentor
+    const mentorsWithStats = await Promise.all(mentors.map(async (mentor) => {
+      const menteeCount = await MentorBooking.countDocuments({ 
+        mentor: mentor._id,
+        status: 'completed'
+      });
+      const reviewCount = await Review.countDocuments({ mentor: mentor._id });
+      
+      return {
+        ...mentor,
+        stats: {
+          menteeCount,
+          reviewCount
+        }
+      };
+    }));
+
+    res.json({
+      mentors: mentorsWithStats,
+      total: mentorsWithStats.length,
+      filters: { expertise, availability, search }
+    });
+  } catch (err) {
+    console.error('Error fetching mentors:', err);
+    res.status(500).json({ error: 'Failed to fetch mentors' });
+  }
+});
+
 // Mentor Login
 router.post('/auth/login', async (req, res) => {
   const { email, password } = req.body;

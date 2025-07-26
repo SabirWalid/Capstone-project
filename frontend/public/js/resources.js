@@ -1,16 +1,55 @@
 // Helper for client-side validation
 function validateResourceForm(form) {
   const name = form.querySelector('[name="name"]').value.trim();
+  const description = form.querySelector('[name="description"]').value.trim();
   const link = form.querySelector('[name="link"]').value.trim();
+  const category = form.querySelector('[name="category"]').value.trim();
+  
+  const errors = [];
+  
   if (!name) {
-    alert("Resource name is required.");
+    errors.push("Resource name is required");
+  }
+  
+  if (!description) {
+    errors.push("Resource description is required");
+  }
+  
+  if (!link) {
+    errors.push("Resource link is required");
+  } else if (!/^https?:\/\/.+/.test(link)) {
+    errors.push("Please enter a valid URL starting with http:// or https://");
+  }
+  
+  if (!category) {
+    errors.push("Please select a category");
+  }
+  
+  if (errors.length > 0) {
+    showFormErrors(errors);
     return false;
   }
-  if (!link || !/^https?:\/\/.+/.test(link)) {
-    alert("Valid resource link is required.");
-    return false;
-  }
+  
   return true;
+}
+
+// Show form errors in a more user-friendly way
+function showFormErrors(errors) {
+  const errorContainer = document.getElementById('form-errors');
+  if (!errorContainer) return;
+  
+  errorContainer.innerHTML = `
+    <div class="alert alert-danger">
+      <h6>Please correct the following errors:</h6>
+      <ul class="mb-0">
+        ${errors.map(error => `<li>${error}</li>`).join('')}
+      </ul>
+    </div>
+  `;
+  errorContainer.style.display = 'block';
+  
+  // Scroll to errors
+  errorContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 class AdminResourceManager {

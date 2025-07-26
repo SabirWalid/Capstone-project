@@ -5,12 +5,37 @@ const Opportunity = require('../models/Opportunity');
 // Get all approved opportunities for users
 router.get('/', async (req, res) => {
   try {
-    const { type } = req.query;
+    const { type, search, category, location } = req.query;
     const filter = { status: 'approved' };
-    if (type) filter.type = type;
     
-    const opportunities = await Opportunity.find(filter).sort({ createdAt: -1 });
-    res.json(opportunities);
+    // Apply filters
+    if (type) filter.type = type;
+    if (category) filter.category = category;
+    if (location) filter.location = { $regex: location, $options: 'i' };
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+        { company: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    const opportunities = await Opportunity.find(filter)
+      .populate('mentor', 'name avatar company position')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Add application counts
+    const opportunitiesWithCounts = await Promise.all(opportunities.map(async (opp) => {
+      const applicationCount = await Application.countDocuments({ opportunity: opp._id });
+      return { ...opp, applicationCount };
+    }));
+
+    res.json({
+      opportunities: opportunitiesWithCounts,
+      total: opportunitiesWithCounts.length,
+      filters: { type, search, category, location }
+    });
   } catch (err) {
     console.error('Error fetching opportunities:', err);
     res.status(500).json({ error: 'Failed to fetch opportunities' });

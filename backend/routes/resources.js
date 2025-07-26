@@ -5,10 +5,51 @@ const Resource = require('../models/Resource');
 // Get all resources (public view)
 router.get('/', async (req, res) => {
     try {
-        const resources = await Resource.find({ isActive: true })
-            .sort({ createdAt: -1 })
-            .select('-__v');
-        res.json(resources);
+        const { category, search, sort = 'newest' } = req.query;
+        
+        // Build query
+        const query = { isActive: true };
+        if (category) {
+            query.category = category;
+        }
+        if (search) {
+            query.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } },
+                { tags: { $in: [new RegExp(search, 'i')] } }
+            ];
+        }
+        
+        // Build sort
+        let sortOptions = {};
+        switch (sort) {
+            case 'popular':
+                sortOptions = { views: -1 };
+                break;
+            case 'oldest':
+                sortOptions = { createdAt: 1 };
+                break;
+            case 'newest':
+            default:
+                sortOptions = { createdAt: -1 };
+        }
+        
+        const resources = await Resource.find(query)
+            .sort(sortOptions)
+            .select('-__v')
+            .populate('creator', 'name avatar');
+            
+        const totalCount = await Resource.countDocuments(query);
+        
+        res.json({
+            resources,
+            total: totalCount,
+            filters: {
+                category,
+                search,
+                sort
+            }
+        });
     } catch (error) {
         console.error('Error fetching resources:', error);
         res.status(500).json({ error: 'Failed to fetch resources' });
