@@ -1,16 +1,38 @@
-const api = 'http://localhost:5000/api';
+import config from './config.js';
 
 // Login handler
 if (document.getElementById('login-form')) {
   document.getElementById('login-form').onsubmit = async (e) => {
     e.preventDefault();
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
-    const res = await fetch(`${api}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
+    
+    try {
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      
+      console.log('Attempting login to:', `${config.apiUrl}/auth/login`);
+      
+      const res = await fetch(`${config.apiUrl}/auth/login`, {
+        method: 'POST',
+        ...config.fetchOptions,
+        body: JSON.stringify({ email, password })
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
+      const data = await res.json();
+      
+      if (data.success) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+        window.location.href = 'dashboard.html';
+      } else {
+        alert(data.error || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      alert('Login failed: ' + error.message);
+    }
     const data = await res.json();
     if (data.success) {
       localStorage.setItem('user', JSON.stringify(data.user));

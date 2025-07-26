@@ -98,6 +98,15 @@
       <p>Don't have an account? <a href="register.html">Create one here</a></p>
     </div>
   </div>
-  <script src="js/auth.js"></script>
+  <script type="module" src="js/auth.js"></script>
+  <script>
+    // Add error handling for module loading
+    window.addEventListener('error', function(e) {
+      if (e.message.includes('module')) {
+        console.error('Module loading error:', e);
+        alert('Error loading application. Please check console for details.');
+      }
+    });
+  </script>
 </body>
 </html>
