@@ -131,30 +131,42 @@ app.post('/api/test/auth', (req, res) => {
 // Configure CORS for production
 const allowedOrigins = [
     'https://sabir-techpreneurs.netlify.app',
+    'https://sabir-techpreneurs.netlify.app/',
     'http://localhost:3000',
-    'http://localhost:5000'
+    'http://localhost:5000',
+    'https://capstone-project-g2g8.onrender.com'
 ];
 
 app.use(cors({
     origin: function(origin, callback) {
+        console.log('Request Origin:', origin);
+        
         // Allow requests with no origin (like mobile apps, curl requests)
         if (!origin) {
+            console.log('No origin specified, allowing request');
             return callback(null, true);
         }
         
         // Remove trailing slash if it exists
         const normalizedOrigin = origin.endsWith('/') ? origin.slice(0, -1) : origin;
         
-        if (allowedOrigins.indexOf(normalizedOrigin) !== -1) {
+        // Check if the origin is allowed
+        const isAllowed = allowedOrigins.includes(normalizedOrigin) || allowedOrigins.includes(origin);
+        
+        if (isAllowed) {
+            console.log('Origin allowed:', origin);
             callback(null, true);
         } else {
-            console.log('Blocked by CORS:', normalizedOrigin);
+            console.log('Origin blocked:', origin);
+            console.log('Allowed origins:', allowedOrigins);
             callback(new Error('Not allowed by CORS'));
         }
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    exposedHeaders: ['Content-Length', 'X-Requested-With'],
+    maxAge: 86400 // 24 hours
 }));
 
 // Security headers middleware

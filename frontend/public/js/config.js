@@ -6,7 +6,7 @@ const config = {
     
     // Request configuration
     fetchOptions: {
-        credentials: 'include',
+        mode: 'cors',
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
