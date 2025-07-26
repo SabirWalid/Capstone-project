@@ -7,9 +7,15 @@ console.log('MongoDB URI exists:', !!process.env.MONGODB_URI || !!process.env.MO
 console.log('JWT Secret exists:', !!process.env.JWT_SECRET);
 console.log('Allowed Origins:', process.env.ALLOWED_ORIGINS || 'Not set');
 
+// Core dependencies
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
+const bodyParser = require('body-parser');
+
+// Initialize Express app
+const app = express();
 
 // Global error handlers
 process.on('unhandledRejection', (reason, promise) => {
@@ -68,6 +74,11 @@ const corsOptions = {
     maxAge: 86400 // 24 hours
 };
 
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Route imports
 const authRoutes = require('./routes/auth');
 const careerRoutes = require('./routes/career');
 const moduleRoutes = require('./routes/modules');
@@ -77,28 +88,24 @@ const opportunitiesRoutes = require('./routes/opportunities');
 const adminRoutes = require('./routes/admin');
 const notificationRoutes = require('./routes/notification');
 const progressRoutes = require('./routes/progress');
-const enrollmentsRoutes = require('./routes/enrollments'); // Import enrollments route
-const mentorBookingsRouter = require('./routes/mentorBookings'); // Import mentor bookings route
-const bodyParser = require('body-parser');
-const accountRoutes = require('./routes/account'); // Import account route
-const chatbotRoutes = require('./routes/chatbot'); // Import chatbot route
-const adminAuthRoutes = require('./routes/adminAuth'); // Import admin authentication route
-const adminCoursesRoutes = require('./routes/adminCourses'); // Import admin courses route
-const adminOpportunitiesRoutes = require('./routes/adminOpportunities'); // Import admin opportunities route
-const adminSettingsRoutes = require('./routes/adminSettings'); // Import admin settings route
-const adminMentorsRoutes = require('./routes/adminMentors'); // Import admin mentors route
-const adminUsersRoutes = require('./routes/adminUsers'); // Import admin users route
-const path = require('path'); // Import path module for serving static files
-const coursesRoutes = require('./routes/courses'); // Import courses route
-const mentorAuthRoutes = require('./routes/mentorAuth'); // Import mentor authentication route
-const mentorRoutes = require('./routes/mentor'); // Import mentor routes
-const publicRoutes = require('./routes/public'); // Import public routes
-const adminResourcesRoutes = require('./routes/adminResources'); // Import admin resources route
-const forumRoutes = require('./routes/forum'); // Import forum routes
-const adminForumRoutes = require('./routes/adminForum'); // Import admin forum routes
-const syncRoutes = require('./routes/sync'); // Import sync routes for offline functionality
-
-const app = express();
+const enrollmentsRoutes = require('./routes/enrollments');
+const mentorBookingsRouter = require('./routes/mentorBookings');
+const accountRoutes = require('./routes/account');
+const chatbotRoutes = require('./routes/chatbot');
+const adminAuthRoutes = require('./routes/adminAuth');
+const adminCoursesRoutes = require('./routes/adminCourses');
+const adminOpportunitiesRoutes = require('./routes/adminOpportunities');
+const adminSettingsRoutes = require('./routes/adminSettings');
+const adminMentorsRoutes = require('./routes/adminMentors');
+const adminUsersRoutes = require('./routes/adminUsers');
+const coursesRoutes = require('./routes/courses');
+const mentorAuthRoutes = require('./routes/mentorAuth');
+const mentorRoutes = require('./routes/mentor');
+const publicRoutes = require('./routes/public');
+const adminResourcesRoutes = require('./routes/adminResources');
+const forumRoutes = require('./routes/forum');
+const adminForumRoutes = require('./routes/adminForum');
+const syncRoutes = require('./routes/sync');
 
 // Health check endpoint
 app.get('/', async (req, res) => {
@@ -166,38 +173,7 @@ app.post('/api/test/auth', (req, res) => {
     });
 });
 
-// Apply CORS configuration
-app.use(cors({
-    origin: function(origin, callback) {
-        console.log('Request Origin:', origin);
-        
-        // Allow requests with no origin (like mobile apps, curl requests)
-        if (!origin) {
-            console.log('No origin specified, allowing request');
-            return callback(null, true);
-        }
-        
-        // Remove trailing slash if it exists
-        const normalizedOrigin = origin.endsWith('/') ? origin.slice(0, -1) : origin;
-        
-        // Check if the origin is allowed
-        const isAllowed = allowedOrigins.includes(normalizedOrigin) || allowedOrigins.includes(origin);
-        
-        if (isAllowed) {
-            console.log('Origin allowed:', origin);
-            callback(null, true);
-        } else {
-            console.log('Origin blocked:', origin);
-            console.log('Allowed origins:', allowedOrigins);
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    exposedHeaders: ['Content-Length', 'X-Requested-With'],
-    maxAge: 86400 // 24 hours
-}));
+// No duplicate CORS configuration needed here as it's already applied above
 
 // Security headers middleware
 app.use((req, res, next) => {
@@ -211,10 +187,7 @@ app.use((req, res, next) => {
     next();
 });
 
-// Body parsing middleware
-app.use(express.json());
-app.use(bodyParser.json());
-app.use(express.urlencoded({ extended: true }));
+// Body parsing middleware is already configured above
 
 // Health check endpoint
 app.get('/', (req, res) => {
@@ -282,36 +255,54 @@ const connectDB = async () => {
 // Connect to MongoDB
 connectDB();
 
+// Public routes
+app.use('/api/public', publicRoutes);
+
+// Authentication routes
 app.use('/api/auth', authRoutes);
+app.use('/api/mentor/auth', mentorAuthRoutes);
+app.use('/api/admin/auth', adminAuthRoutes);
+
+// Core feature routes
 app.use('/api/career', careerRoutes);
 app.use('/api/modules', moduleRoutes);
 app.use('/api/resources', resourcesRoutes);
-app.use('/api/mentorship', mentorshipRoutes);
+app.use('/api/courses', coursesRoutes);
 app.use('/api/opportunities', opportunitiesRoutes);
-app.use('/api/admin/courses', adminCoursesRoutes); // Use admin courses route
-app.use('/api/admin/opportunities', adminOpportunitiesRoutes); // Use admin opportunities route
-app.use('/api/admin/settings', adminSettingsRoutes); // Use admin settings route
-app.use('/api/admin/mentors', adminMentorsRoutes); // Use admin mentors route
-app.use('/api/admin/users', adminUsersRoutes); // Use admin users route
-// Only use /api/mentors for user-facing mentor routes, not admin
-app.use('/api/admin', adminRoutes);
-app.use('/api/notification', notificationRoutes);
+app.use('/api/forum', forumRoutes);
+
+// User-specific routes
+app.use('/api/account', accountRoutes);
 app.use('/api/progress', progressRoutes);
-app.use('/api/enrollments', enrollmentsRoutes); // Use enrollments route
-app.use('/api', mentorBookingsRouter); // Use mentor bookings route
-app.use('/api/account', accountRoutes); // Use account route
-app.use('/uploads', express.static('uploads')); // Serve uploaded files
-app.use('/api/chatbot', chatbotRoutes); // Use chatbot route
-app.use('/api/admin', adminAuthRoutes); // Use admin authentication route
-app.use('/api/courses', coursesRoutes); // Use courses route
-app.use('/api/mentor', mentorAuthRoutes); // Use mentor authentication route
-app.use('/api/public', publicRoutes);
-// The /api/mentors route is now handled correctly.
-app.use('/api/resources', resourcesRoutes); // Use resources route
-app.use('/api/admin/resources', adminResourcesRoutes); // Use admin resources route
-app.use('/api/admin', adminForumRoutes); // Use admin forum routes
-app.use('/api', forumRoutes); // Use forum routes
-app.use('/api/sync', syncRoutes); // Use sync routes for offline functionality
+app.use('/api/enrollments', enrollmentsRoutes);
+app.use('/api/notification', notificationRoutes);
+
+// Mentorship routes
+app.use('/api/mentorship', mentorshipRoutes);
+app.use('/api/mentor', mentorRoutes);
+app.use('/api/mentor/bookings', mentorBookingsRouter);
+
+// Admin routes
+app.use('/api/admin', adminRoutes); // Base admin routes
+app.use('/api/admin/courses', adminCoursesRoutes);
+app.use('/api/admin/opportunities', adminOpportunitiesRoutes);
+app.use('/api/admin/settings', adminSettingsRoutes);
+app.use('/api/admin/mentors', adminMentorsRoutes);
+app.use('/api/admin/users', adminUsersRoutes);
+app.use('/api/admin/resources', adminResourcesRoutes);
+app.use('/api/admin/forum', adminForumRoutes);
+
+// Additional features
+app.use('/api/chatbot', chatbotRoutes);
+app.use('/api/sync', syncRoutes);
+
+// Static file serving
+app.use('/uploads', express.static('uploads', {
+    setHeaders: (res) => {
+        res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+        res.set('Access-Control-Allow-Origin', allowedOrigins.join(','));
+    }
+}));
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Server running on port ${port}`));
