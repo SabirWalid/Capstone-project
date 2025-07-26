@@ -1,8 +1,24 @@
 require('dotenv').config();
-console.log("Mongo URI:", process.env.MONGO_URI);
+
+// Initial environment check
+console.log('=== Server Starting ===');
+console.log('Environment:', process.env.NODE_ENV);
+console.log('MongoDB URI exists:', !!process.env.MONGODB_URI || !!process.env.MONGO_URI);
+console.log('JWT Secret exists:', !!process.env.JWT_SECRET);
+console.log('Allowed Origins:', process.env.ALLOWED_ORIGINS || 'Not set');
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+
+// Global error handlers
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception:', error);
+});
 
 // Configure CORS for production
 const corsOptions = {
@@ -45,6 +61,46 @@ const adminForumRoutes = require('./routes/adminForum'); // Import admin forum r
 const syncRoutes = require('./routes/sync'); // Import sync routes for offline functionality
 
 const app = express();
+
+// Health check endpoint
+app.get('/', async (req, res) => {
+    try {
+        const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+        
+        const health = {
+            status: 'ok',
+            timestamp: new Date().toISOString(),
+            environment: process.env.NODE_ENV,
+            database: {
+                status: dbStatus,
+                host: mongoose.connection.host,
+                name: mongoose.connection.name
+            },
+            server: {
+                uptime: process.uptime(),
+                memory: process.memoryUsage(),
+                nodeVersion: process.version
+            },
+            cors: {
+                allowedOrigins: allowedOrigins
+            }
+        };
+        
+        res.json(health);
+    } catch (error) {
+        res.status(500).json({
+            status: 'error',
+            timestamp: new Date().toISOString(),
+            error: error.message
+        });
+    }
+});
+
+// Test route for quick API check
+app.get('/api/test', (req, res) => {
+    res.json({ message: 'API is working' });
+});
+
 // Configure CORS for production
 const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['http://localhost:3000'];
 app.use(cors({
@@ -62,6 +118,16 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Health check endpoint
+app.get('/', (req, res) => {
+    res.json({
+        status: 'ok',
+        message: 'Server is running',
+        environment: process.env.NODE_ENV,
+        timestamp: new Date().toISOString()
+    });
+});
+
 // Serve uploads with security headers
 app.use('/uploads', (req, res, next) => {
   res.set({
@@ -73,9 +139,20 @@ app.use('/uploads', (req, res, next) => {
 
 // MongoDB Atlas connection
 const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
+console.log('Attempting to connect to MongoDB...');
+
 mongoose.connect(uri, {
   retryWrites: true,
   w: 'majority'
+})
+.then(() => {
+    console.log('Successfully connected to MongoDB Atlas');
+    console.log('Database connection state:', mongoose.connection.readyState);
+})
+.catch(err => {
+    console.error('MongoDB connection error:', err);
+    console.error('Connection URI (redacted):', uri.replace(/mongodb\+srv:\/\/([^:]+):([^@]+)@/, 'mongodb+srv://****:****@'));
+    console.error('Environment:', process.env.NODE_ENV);
 })
 .then(() => console.log("Connected to MongoDB Atlas!"))
 .catch(err => console.error("MongoDB connection error:", err));
