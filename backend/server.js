@@ -25,6 +25,8 @@ const allowedOrigins = [
     'https://sabir-techpreneurs.netlify.app',
     'http://localhost:5000',
     'http://localhost:3000',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
     'https://capstone-project-g2g8.onrender.com'
 ];
 
