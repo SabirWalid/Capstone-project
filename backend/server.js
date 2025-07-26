@@ -20,14 +20,50 @@ process.on('uncaughtException', (error) => {
     console.error('Uncaught Exception:', error);
 });
 
-// Configure CORS for production
+// Configure CORS for all environments
+const allowedOrigins = [
+    'https://sabir-techpreneurs.netlify.app',
+    'http://localhost:5000',
+    'http://localhost:3000',
+    'https://capstone-project-g2g8.onrender.com'
+];
+
+// Add any additional origins from environment variables
+const envOrigins = (process.env.ALLOWED_ORIGINS || '').split(',').filter(origin => origin);
+allowedOrigins.push(...envOrigins);
+
 const corsOptions = {
-    origin: process.env.NODE_ENV === 'production'
-        ? ['https://sabir-techpreneurs.netlify.app', 'http://localhost:3000']
-        : 'http://localhost:3000',
+    origin: function(origin, callback) {
+        console.log('Request Origin:', origin);
+        
+        // Allow requests with no origin (like mobile apps, curl requests)
+        if (!origin) {
+            console.log('No origin specified, allowing request');
+            return callback(null, true);
+        }
+        
+        // Remove trailing slash if it exists
+        const normalizedOrigin = origin.endsWith('/') ? origin.slice(0, -1) : origin;
+        
+        // Check if the origin is allowed
+        const isAllowed = allowedOrigins.includes(normalizedOrigin) || 
+                         allowedOrigins.includes(origin) || 
+                         process.env.NODE_ENV !== 'production';
+        
+        if (isAllowed) {
+            console.log('Origin allowed:', origin);
+            callback(null, true);
+        } else {
+            console.log('Origin blocked:', origin);
+            console.log('Allowed origins:', allowedOrigins);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+    exposedHeaders: ['Content-Length', 'X-Requested-With'],
+    maxAge: 86400 // 24 hours
 };
 
 const authRoutes = require('./routes/auth');
@@ -128,15 +164,7 @@ app.post('/api/test/auth', (req, res) => {
     });
 });
 
-// Configure CORS for production
-const allowedOrigins = [
-    'https://sabir-techpreneurs.netlify.app',
-    'https://sabir-techpreneurs.netlify.app/',
-    'http://localhost:3000',
-    'http://localhost:5000',
-    'https://capstone-project-g2g8.onrender.com'
-];
-
+// Apply CORS configuration
 app.use(cors({
     origin: function(origin, callback) {
         console.log('Request Origin:', origin);
@@ -205,25 +233,52 @@ app.use('/uploads', (req, res, next) => {
   next();
 }, express.static(path.join(__dirname, 'uploads')));
 
-// MongoDB Atlas connection
-const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
-console.log('Attempting to connect to MongoDB...');
+// MongoDB connection setup
+const connectDB = async () => {
+    try {
+        // Choose URI based on environment
+        const uri = process.env.NODE_ENV === 'production'
+            ? process.env.MONGODB_URI_PROD
+            : (process.env.MONGODB_URI || 'mongodb://localhost:27017/refugee_techpreneurs');
 
-mongoose.connect(uri, {
-  retryWrites: true,
-  w: 'majority'
-})
-.then(() => {
-    console.log('Successfully connected to MongoDB Atlas');
-    console.log('Database connection state:', mongoose.connection.readyState);
-})
-.catch(err => {
-    console.error('MongoDB connection error:', err);
-    console.error('Connection URI (redacted):', uri.replace(/mongodb\+srv:\/\/([^:]+):([^@]+)@/, 'mongodb+srv://****:****@'));
-    console.error('Environment:', process.env.NODE_ENV);
-})
-.then(() => console.log("Connected to MongoDB Atlas!"))
-.catch(err => console.error("MongoDB connection error:", err));
+        console.log('Attempting to connect to MongoDB...');
+        console.log('Environment:', process.env.NODE_ENV);
+        
+        await mongoose.connect(uri, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            retryWrites: true,
+            w: 'majority',
+            serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds
+            socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+        });
+
+        console.log('Successfully connected to MongoDB!');
+        console.log('Database connection state:', mongoose.connection.readyState);
+        
+        // Handle connection events
+        mongoose.connection.on('error', err => {
+            console.error('MongoDB connection error:', err);
+        });
+
+        mongoose.connection.on('disconnected', () => {
+            console.log('MongoDB disconnected. Attempting to reconnect...');
+        });
+
+        mongoose.connection.on('reconnected', () => {
+            console.log('MongoDB reconnected successfully!');
+        });
+
+    } catch (err) {
+        console.error('MongoDB connection error:', err);
+        console.error('Environment:', process.env.NODE_ENV);
+        // Exit process with failure if this is the initial connection
+        process.exit(1);
+    }
+};
+
+// Connect to MongoDB
+connectDB();
 
 app.use('/api/auth', authRoutes);
 app.use('/api/career', careerRoutes);

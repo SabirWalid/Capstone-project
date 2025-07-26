@@ -25,9 +25,7 @@ class EnhancedCareerTest {
         console.log('Current user:', this.currentUser);
         
         // Set API base URL based on current environment
-        // Import API configuration
-        import config from './config.js';
-        this.apiBaseUrl = config.apiUrl;
+        this.apiBaseUrl = window.appConfig.apiUrl;
         console.log('API Base URL:', this.apiBaseUrl);
         
         this.init();

@@ -121,7 +121,16 @@
       e.preventDefault();
       const email = document.getElementById('admin-email').value;
       const password = document.getElementById('admin-password').value;
-      const res = await fetch('http://localhost:5000/api/admin/login', {
+      // Get the API URL based on the environment
+      const API_URL = window.location.hostname === 'localhost' 
+        ? 'http://localhost:5000' 
+        : 'https://capstone-project-g2g8.onrender.com'; // Production backend URL
+      
+      try {
+        const msgElement = document.getElementById('admin-login-msg');
+        msgElement.textContent = 'Logging in...';
+        
+        const res = await fetch(`${API_URL}/api/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })

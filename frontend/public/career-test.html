@@ -522,9 +522,9 @@
   <script src="js/enhanced-career-test.js"></script>
   <script src="js/chatbot.js"></script>
   <script>
-    // Initialize enhanced career test when page loads
+    // Initialize enhanced career test when page loads and store it globally
     document.addEventListener('DOMContentLoaded', function() {
-      new EnhancedCareerTest();
+      window.careerTest = new EnhancedCareerTest();
     });
   </script>
 </body>

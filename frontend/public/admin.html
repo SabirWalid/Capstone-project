@@ -763,7 +763,7 @@
     // Verify admin token
     async function verifyAdminToken(token) {
       try {
-        const response = await fetch('http://localhost:5000/api/admin/verify', {
+        const response = await fetch('http://localhost:3000/api/admin/verify', {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -815,7 +815,7 @@
       clearAlerts();
       
       try {
-        const response = await fetch('http://localhost:5000/api/admin/login', {
+        const response = await fetch('http://localhost:3000/api/admin/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -870,7 +870,7 @@
       clearAlerts();
       
       try {
-        const response = await fetch('http://localhost:5000/api/admin/register', {
+        const response = await fetch('http://localhost:3000/api/admin/register', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
