@@ -3,6 +3,17 @@ console.log("Mongo URI:", process.env.MONGO_URI);
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+
+// Configure CORS for production
+const corsOptions = {
+    origin: process.env.NODE_ENV === 'production'
+        ? ['https://sabir-techpreneurs.netlify.app', 'http://localhost:3000']
+        : 'http://localhost:3000',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
+
 const authRoutes = require('./routes/auth');
 const careerRoutes = require('./routes/career');
 const moduleRoutes = require('./routes/modules');
@@ -34,20 +45,42 @@ const adminForumRoutes = require('./routes/adminForum'); // Import admin forum r
 const syncRoutes = require('./routes/sync'); // Import sync routes for offline functionality
 
 const app = express();
-app.use(cors());
+// Configure CORS for production
+const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['http://localhost:3000'];
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // Serve static files from uploads directory
 
-// Serve frontend static files
-app.use(express.static(path.join(__dirname, '../frontend/public')));
+// Serve uploads with security headers
+app.use('/uploads', (req, res, next) => {
+  res.set({
+    'Cross-Origin-Resource-Policy': 'cross-origin',
+    'Access-Control-Allow-Origin': allowedOrigins.join(',')
+  });
+  next();
+}, express.static(path.join(__dirname, 'uploads')));
 
-// MongoDB local connection
-const uri = process.env.MONGO_URI;
-mongoose.connect(uri)
-  .then(() => console.log("Connected to local MongoDB!"))
-  .catch(err => console.error("MongoDB connection error:", err));
+// MongoDB Atlas connection
+const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
+mongoose.connect(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  retryWrites: true,
+  w: 'majority'
+})
+.then(() => console.log("Connected to MongoDB Atlas!"))
+.catch(err => console.error("MongoDB connection error:", err));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/career', careerRoutes);

@@ -1,47 +1,93 @@
-// Enhanced Career Test Frontend
+/**
+ * Enhanced Career Test System
+ * This class implements an intelligent career recommendation system that:
+ * 1. Matches user skills and interests to career paths
+ * 2. Provides personalized learning recommendations
+ * 3. Tracks user progress and history
+ * 4. Offers detailed career insights and guidance
+ */
 class EnhancedCareerTest {
+    /**
+     * Initialize the career test system
+     * - Sets up user context
+     * - Initializes test history tracking
+     * - Creates custom interests storage
+     * - Configures API endpoints
+     */
     constructor() {
         console.log('EnhancedCareerTest constructor called');
+        // Get current user data from localStorage
         this.currentUser = this.getUserFromStorage();
+        // Initialize array to store user's test history
         this.testHistory = [];
-        this.customInterests = new Set(); // Initialize custom interests
+        // Create Set to store user's custom interests
+        this.customInterests = new Set(); // Enables unique interest tracking
         console.log('Current user:', this.currentUser);
         
         // Set API base URL based on current environment
-        this.apiBaseUrl = this.getApiBaseUrl();
+        // Import API configuration
+        import config from './config.js';
+        this.apiBaseUrl = config.apiUrl;
         console.log('API Base URL:', this.apiBaseUrl);
         
         this.init();
     }
 
+    /**
+     * Determines the correct API base URL based on the environment
+     * - Uses localhost:5000 for development
+     * - Uses relative paths for production
+     * @returns {string} The base URL for API calls
+     */
     getApiBaseUrl() {
-        // If we're on Live Server (port 5500), point to backend server
-        if (window.location.port === '5500' || window.location.hostname === '127.0.0.1') {
-            return 'http://localhost:5000';
-        }
-        // If we're on the backend server, use relative paths
-        return '';
+        // Get API URL from configuration
+        return window.appConfig.apiUrl;
     }
 
+    /**
+     * Retrieves the current user's data from localStorage
+     * @returns {Object|null} User data object or null if not logged in
+     */
     getUserFromStorage() {
         const user = localStorage.getItem('user');
         return user ? JSON.parse(user) : null;
     }
 
+    /**
+     * Initializes all components of the career test:
+     * 1. Renders interest selection interface
+     * 2. Sets up event handlers
+     * 3. Loads user's test history
+     * 4. Initializes skill autocomplete
+     */
     async init() {
         console.log('Initializing Enhanced Career Test components...');
+        // Create the interest selection interface
         this.renderInterestCheckboxes();
+        // Set up form and interaction handlers
         this.setupEventListeners();
+        // Load previous test results for the user
         this.loadUserHistory();
+        // Initialize skill input suggestions
         this.setupSkillAutocomplete();
         console.log('Enhanced Career Test initialization complete');
     }
 
+    /**
+     * Renders the interest selection interface
+     * Features:
+     * - Pre-defined interest categories
+     * - Custom interest input
+     * - Interactive selection UI
+     * - Interest grouping by category
+     */
     renderInterestCheckboxes() {
         const container = document.getElementById('interests-checkboxes');
         if (!container) return;
 
+        // Comprehensive list of career interests across various domains
         const enhancedInterestsList = [
+            // Technology & Development
             "Programming", "Web Development", "Data Science", "Machine Learning", "AI", 
             "Cybersecurity", "Mobile Development", "Game Development", "DevOps", "Cloud Computing",
             "UI/UX Design", "Graphic Design", "Product Design", "Visual Design", "Creative Arts",
@@ -324,6 +370,32 @@ class EnhancedCareerTest {
         submitBtn.parentNode.insertBefore(historyBtn, submitBtn);
     }
 
+    /**
+     * Handles the career test form submission
+     * 
+     * Career Matching Algorithm:
+     * 1. Skills Analysis:
+     *    - Exact matches: Direct skill matches (e.g., "JavaScript" = "JavaScript")
+     *    - Fuzzy matches: Similar skills (e.g., "JS" ≈ "JavaScript")
+     *    - Skill families: Related skills (e.g., "React" → "Frontend Development")
+     * 
+     * 2. Interest Mapping:
+     *    - Primary interests: Direct field matches
+     *    - Related interests: Connected fields
+     *    - Interest weights: Higher priority to strong matches
+     * 
+     * 3. Career Score Calculation:
+     *    - Skill match weight: 60%
+     *    - Interest match weight: 40%
+     *    - Confidence score: Based on data quality
+     * 
+     * 4. Results Processing:
+     *    - Filters high-confidence matches
+     *    - Ranks careers by match score
+     *    - Adds learning recommendations
+     * 
+     * @param {Event} e - Form submission event
+     */
     async handleFormSubmit(e) {
         e.preventDefault();
         console.log('Form submitted - Enhanced Career Test');
@@ -391,6 +463,32 @@ class EnhancedCareerTest {
         }
     }
 
+    /**
+     * Displays the career match results with detailed insights
+     * 
+     * Result Components:
+     * 1. Overall Match Score:
+     *    - Percentage match with career path
+     *    - Confidence level in the match
+     * 
+     * 2. Skill Analysis:
+     *    - Matched skills with confidence levels
+     *    - Missing critical skills
+     *    - Skill development suggestions
+     * 
+     * 3. Career Path Details:
+     *    - Career description
+     *    - Required qualifications
+     *    - Industry insights
+     *    - Salary ranges
+     * 
+     * 4. Learning Recommendations:
+     *    - Suggested courses
+     *    - Learning path progression
+     *    - Skill development timeline
+     * 
+     * @param {Object} data - Career match results data
+     */
     displayEnhancedResults(data) {
         const container = document.getElementById('career-suggestion');
         
