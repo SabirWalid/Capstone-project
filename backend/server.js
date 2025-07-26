@@ -211,17 +211,17 @@ app.use('/uploads', (req, res, next) => {
 // MongoDB connection setup
 const connectDB = async () => {
     try {
-        // Choose URI based on environment
-        const uri = process.env.NODE_ENV === 'production'
-            ? process.env.MONGODB_URI_PROD
-            : (process.env.MONGODB_URI || 'mongodb://localhost:27017/refugee_techpreneurs');
+        // Get MongoDB URI from environment variables
+        const uri = process.env.MONGO_URI || process.env.MONGODB_URI;
+        
+        if (!uri) {
+            throw new Error('MongoDB URI is not defined. Please set the MONGO_URI environment variable.');
+        }
 
         console.log('Attempting to connect to MongoDB...');
         console.log('Environment:', process.env.NODE_ENV);
         
         await mongoose.connect(uri, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
             retryWrites: true,
             w: 'majority',
             serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds
