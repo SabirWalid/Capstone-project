@@ -9,7 +9,11 @@ if (document.getElementById('login-form')) {
       const email = document.getElementById('login-email').value;
       const password = document.getElementById('login-password').value;
       
-      console.log('Attempting login to:', `${config.apiUrl}/auth/login`);
+      console.log('Login attempt:', {
+        url: `${config.apiUrl}/auth/login`,
+        email: email,
+        config: config.fetchOptions
+      });
       
       const res = await fetch(`${config.apiUrl}/auth/login`, {
         method: 'POST',
@@ -17,28 +21,34 @@ if (document.getElementById('login-form')) {
         body: JSON.stringify({ email, password })
       });
 
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+      // Get the response text first
+      const responseText = await res.text();
+      console.log('Raw response:', responseText);
+
+      // Try to parse it as JSON
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        console.error('Failed to parse JSON response:', e);
+        throw new Error('Invalid response format from server');
       }
-      
-      const data = await res.json();
-      
+
+      if (!res.ok) {
+        throw new Error(data.error || `Server error: ${res.status}`);
+      }
+
       if (data.success) {
+        console.log('Login successful:', data);
         localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('token', data.token); // Save token if provided
         window.location.href = 'dashboard.html';
       } else {
-        alert(data.error || 'Login failed');
+        throw new Error(data.error || 'Login failed');
       }
     } catch (error) {
-      console.error('Login error:', error);
-      alert('Login failed: ' + error.message);
-    }
-    const data = await res.json();
-    if (data.success) {
-      localStorage.setItem('user', JSON.stringify(data.user));
-      window.location.href = 'dashboard.html';
-    } else {
-      alert(data.error || 'Login failed');
+      console.error('Login error details:', error);
+      alert(error.message || 'Login failed. Please try again.');
     }
   };
 }
