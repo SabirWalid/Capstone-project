@@ -96,6 +96,10 @@ https://www.figma.com/design/DkTzOiGUHFvHzZv7aJrWPU/Untitled?node-id=0-1&p=f&t=w
    For questions or contributions, please open an issue or pull request on the GitHub repo https://github.com/SabirWalid/Capstone-project.
 
 
-**Demo Video**
+**Initial product Demo Video**
    ```sh
    https://youtu.be/4_8D3hckKVY
+
+**Final Product/Solution Demo**
+   ```sh
+   https://youtu.be/VhzZod3zAgI

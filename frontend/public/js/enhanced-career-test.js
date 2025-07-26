@@ -22,11 +22,28 @@ class EnhancedCareerTest {
         this.testHistory = [];
         // Create Set to store user's custom interests
         this.customInterests = new Set(); // Enables unique interest tracking
-        console.log('Current user:', this.currentUser);
+        
+        // Initialize DOM elements
+        this.form = document.getElementById('career-test-form');
+        this.skillsInput = document.getElementById('skills');
+        this.interestsContainer = document.getElementById('interests-checkboxes');
+        this.progressBar = document.getElementById('form-progress');
+        this.suggestionDiv = document.getElementById('career-suggestion');
         
         // Set API base URL based on current environment
         this.apiBaseUrl = window.appConfig.apiUrl;
         console.log('API Base URL:', this.apiBaseUrl);
+        
+        // Initialize predefined tech interests
+        this.predefinedInterests = [
+            'Web Development', 'Mobile Apps', 'Data Science', 'AI/Machine Learning',
+            'Cybersecurity', 'Cloud Computing', 'DevOps', 'UX/UI Design',
+            'Game Development', 'Blockchain', 'IoT', 'Software Architecture',
+            'Digital Marketing', 'Product Management', 'Tech Writing', 'QA Testing',
+            'Database Administration', 'Network Engineering', 'IT Support',
+            'Business Analysis', 'Tech Sales', 'Tech Consulting', 'E-commerce',
+            'FinTech', 'EdTech', 'HealthTech', 'AR/VR Development', 'Robotics'
+        ];
         
         this.init();
     }
@@ -68,6 +85,8 @@ class EnhancedCareerTest {
         this.loadUserHistory();
         // Initialize skill input suggestions
         this.setupSkillAutocomplete();
+        // Initialize AI assessment
+        this.initializeAIAssessment();
         console.log('Enhanced Career Test initialization complete');
     }
 
@@ -79,6 +98,148 @@ class EnhancedCareerTest {
      * - Interactive selection UI
      * - Interest grouping by category
      */
+    /**
+     * Initializes the AI assessment functionality
+     * Sets up event handlers and UI elements for AI-powered career assessment
+     */
+    initializeAIAssessment() {
+        // Add submit handler for AI assessment
+        this.form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await this.processAIAssessment();
+        });
+    }
+
+    /**
+     * Processes the AI assessment based on user input
+     * Collects user data, sends to AI API, and displays results
+     */
+    async processAIAssessment() {
+        try {
+            // Show loading state
+            this.showLoading();
+
+            // Collect form data
+            const skills = this.skillsInput.value.split(',').map(s => s.trim());
+            const interests = Array.from(document.querySelectorAll('input[name="interests"]:checked'))
+                .map(cb => cb.value);
+
+            // Prepare assessment data
+            const assessmentData = {
+                userId: this.currentUser?.id,
+                skills: skills,
+                interests: interests,
+                customInterests: Array.from(this.customInterests)
+            };
+
+            // Send to AI API
+            const response = await fetch(`${this.apiBaseUrl}/api/career-assessment/ai-assessment`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify(assessmentData)
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to get AI assessment');
+            }
+
+            const result = await response.json();
+            
+            // Display results
+            this.displayAIResults(result);
+            
+            // Save to history
+            await this.saveAssessmentHistory(result);
+
+        } catch (error) {
+            console.error('AI Assessment Error:', error);
+            this.showError('Failed to complete AI assessment. Please try again.');
+        } finally {
+            this.hideLoading();
+        }
+    }
+
+    /**
+     * Displays the AI assessment results in the UI
+     * @param {Object} results - The AI assessment results
+     */
+    displayAIResults(results) {
+        const { careerPath, explanation, learningPath, marketDemand } = results;
+        
+        // Create results HTML
+        const resultsHTML = `
+            <div class="ai-assessment-results">
+                <h3>🎯 Recommended Career Path</h3>
+                <p class="career-path">${careerPath}</p>
+                
+                <h4>📝 Analysis</h4>
+                <p class="explanation">${explanation}</p>
+                
+                <h4>📚 Learning Path</h4>
+                <ul class="learning-path">
+                    ${learningPath.map(step => `<li>${step}</li>`).join('')}
+                </ul>
+                
+                <h4>📈 Market Demand</h4>
+                <p class="market-demand">${marketDemand}</p>
+            </div>
+        `;
+        
+        // Update UI
+        this.suggestionDiv.innerHTML = resultsHTML;
+        this.suggestionDiv.style.display = 'block';
+    }
+
+    /**
+     * Shows loading state during AI assessment
+     */
+    showLoading() {
+        this.progressBar.style.display = 'block';
+        this.form.classList.add('loading');
+    }
+
+    /**
+     * Hides loading state
+     */
+    hideLoading() {
+        this.progressBar.style.display = 'none';
+        this.form.classList.remove('loading');
+    }
+
+    /**
+     * Saves the assessment results to user history
+     * @param {Object} result - The assessment result to save
+     */
+    async saveAssessmentHistory(result) {
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/api/career-assessment/history`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({
+                    userId: this.currentUser?.id,
+                    assessmentResult: result,
+                    timestamp: new Date().toISOString()
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to save assessment history');
+            }
+
+            // Reload history after saving
+            await this.loadUserHistory();
+        } catch (error) {
+            console.error('Error saving assessment history:', error);
+            // Continue without blocking the user experience
+        }
+    }
+
     renderInterestCheckboxes() {
         const container = document.getElementById('interests-checkboxes');
         if (!container) return;

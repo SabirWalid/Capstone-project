@@ -523,8 +523,23 @@
   <script src="js/chatbot.js"></script>
   <script>
     // Initialize enhanced career test when page loads and store it globally
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Load test user data
+      const response = await fetch('test-user.json');
+      const userData = await response.json();
+      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('token', 'test-token-123'); // Mock token for testing
+      
+      // Initialize career test
       window.careerTest = new EnhancedCareerTest();
+      
+      // Add test event listener to log form submissions
+      document.getElementById('career-test-form').addEventListener('submit', function(e) {
+        console.log('Form submitted:', {
+          skills: document.getElementById('skills').value,
+          interests: Array.from(document.querySelectorAll('input[name="interests"]:checked')).map(cb => cb.value)
+        });
+      });
     });
   </script>
 </body>
