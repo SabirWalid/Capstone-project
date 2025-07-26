@@ -96,24 +96,80 @@ app.get('/', async (req, res) => {
     }
 });
 
-// Test route for quick API check
+// Test routes for debugging
 app.get('/api/test', (req, res) => {
-    res.json({ message: 'API is working' });
+    res.json({ 
+        message: 'API is working',
+        cors: {
+            allowedOrigins,
+            origin: req.headers.origin,
+            allowedOrigin: allowedOrigins.includes(req.headers.origin)
+        }
+    });
+});
+
+app.post('/api/test/auth', (req, res) => {
+    console.log('Auth test received:', {
+        headers: req.headers,
+        body: req.body,
+        method: req.method,
+        origin: req.headers.origin
+    });
+    res.json({ 
+        message: 'Auth endpoint reached',
+        received: {
+            headers: {
+                authorization: req.headers.authorization,
+                'content-type': req.headers['content-type'],
+                origin: req.headers.origin
+            },
+            body: req.body
+        }
+    });
 });
 
 // Configure CORS for production
-const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['http://localhost:3000'];
+const allowedOrigins = [
+    'https://sabir-techpreneurs.netlify.app',
+    'http://localhost:3000',
+    'http://localhost:5000'
+];
+
 app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true
+    origin: function(origin, callback) {
+        // Allow requests with no origin (like mobile apps, curl requests)
+        if (!origin) {
+            return callback(null, true);
+        }
+        
+        // Remove trailing slash if it exists
+        const normalizedOrigin = origin.endsWith('/') ? origin.slice(0, -1) : origin;
+        
+        if (allowedOrigins.indexOf(normalizedOrigin) !== -1) {
+            callback(null, true);
+        } else {
+            console.log('Blocked by CORS:', normalizedOrigin);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
+// Security headers middleware
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
+    res.header('Access-Control-Expose-Headers', 'Content-Length');
+    res.header('Access-Control-Allow-Headers', 'Accept, Authorization, Content-Type, X-Requested-With, Range');
+    if (req.method === 'OPTIONS') {
+        return res.status(200).send();
+    }
+    next();
+});
+
+// Body parsing middleware
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: true }));

@@ -4,7 +4,17 @@ const config = {
         ? 'http://localhost:5000/api'
         : 'https://capstone-project-g2g8.onrender.com/api',
     
-    // Other configuration options...
-}
+    // Request configuration
+    fetchOptions: {
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    }
+};
+
+// Prevent accidental modifications
+Object.freeze(config);
 
 export default config;
