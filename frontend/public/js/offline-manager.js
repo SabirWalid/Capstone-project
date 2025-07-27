@@ -324,10 +324,11 @@ class OfflineManager {
   }
 
   // Cache course for offline access
-  async cacheCourse(courseId) {
+  async cacheCourse(courseId, courseData = null) {
     try {
       console.log('=== Starting cacheCourse ===');
       console.log('Course ID:', courseId);
+      console.log('Course data provided:', !!courseData);
       
       if (!courseId) {
         throw new Error('Course ID is required');
@@ -347,29 +348,33 @@ class OfflineManager {
         throw new Error('Database not initialized - please wait for offline manager to initialize');
       }
       
-      // Fetch course data with full URL
-      const apiUrl = `http://localhost:5000/api/courses/${courseId}`;
-      console.log('Fetching from URL:', apiUrl);
-      
-      const response = await fetch(apiUrl, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        cache: 'no-cache'
-      });
-      
-      console.log('Response status:', response.status);
-      console.log('Response ok:', response.ok);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API response error:', response.status, errorText);
-        throw new Error(`Failed to fetch course: ${response.status} ${response.statusText} - ${errorText}`);
+      // If course data is not provided, fetch it from the API
+      let course = courseData;
+      if (!courseData) {
+        // Fetch course data with full URL
+        const apiUrl = `http://localhost:5000/api/courses/${courseId}`;
+        console.log('No course data provided, fetching from URL:', apiUrl);
+        
+        const response = await fetch(apiUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          cache: 'no-cache'
+        });
+        
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('API response error:', response.status, errorText);
+          throw new Error(`Failed to fetch course: ${response.status} ${response.statusText} - ${errorText}`);
+        }
+        
+        course = await response.json();
       }
-      
-      const course = await response.json();
-      console.log('Course data received:', {
+      console.log('Course data to cache:', {
         id: course._id,
         title: course.title,
         category: course.category
@@ -384,6 +389,8 @@ class OfflineManager {
         console.warn('Course missing _id field, using courseId as fallback');
         course._id = courseId;
       }
+      
+      console.log('Using course _id:', course._id);
       
       // Store course with offline metadata
       const courseWithOfflineData = {
