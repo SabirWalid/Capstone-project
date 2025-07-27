@@ -134,6 +134,10 @@ export function adminLogout() {
     window.location.href = 'admin-login.html';
 }
 
+// Make functions available globally
+window.checkAdminAuth = checkAdminAuth;
+window.adminLogout = adminLogout;
+
 // Add admin token to request headers if available
 export function getAdminHeaders() {
     const adminToken = localStorage.getItem('adminToken');

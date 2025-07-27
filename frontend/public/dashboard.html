@@ -1657,8 +1657,21 @@
       // Real API methods - connected to backend
       async fetchEnrolledCourses() {
         try {
-          const enrollments = await this.apiCall('/enrollments');
-          return enrollments.length;
+          // First try with the direct path
+          let enrollments;
+          try {
+            enrollments = await this.apiCall('/enrollments');
+          } catch (e) {
+            // If direct path fails, try checking the response
+            console.log('Trying alternative path for enrollments');
+            const response = await fetch(`${this.apiBaseUrl}/enrollments`);
+            if (!response.ok) {
+              throw new Error(`API call failed: ${response.status}`);
+            }
+            enrollments = await response.json();
+          }
+          console.log('Enrollments loaded:', enrollments);
+          return Array.isArray(enrollments) ? enrollments.length : 0;
         } catch (error) {
           console.error('Error fetching enrolled courses:', error);
           return 0;
@@ -1667,8 +1680,21 @@
 
       async fetchNewOpportunities() {
         try {
-          const opportunities = await this.apiCall('/opportunities');
-          return opportunities.length;
+          // Try different API paths to handle both formats
+          let opportunities;
+          try {
+            opportunities = await this.apiCall('/opportunities');
+          } catch (e) {
+            console.log('Trying alternative path for opportunities');
+            opportunities = await this.apiCall('/api/opportunities');
+          }
+          
+          // Handle both direct array and nested response formats
+          const data = Array.isArray(opportunities) ? opportunities : 
+                      (opportunities.opportunities || []);
+                      
+          console.log('Opportunities loaded:', data.length);
+          return data.length;
         } catch (error) {
           console.error('Error fetching opportunities:', error);
           return 0;
@@ -1677,8 +1703,21 @@
 
       async fetchTotalResources() {
         try {
-          const resources = await this.apiCall('/resources');
-          return resources.length;
+          // Try different API paths to handle both formats
+          let resources;
+          try {
+            resources = await this.apiCall('/resources');
+          } catch (e) {
+            console.log('Trying alternative path for resources');
+            resources = await this.apiCall('/api/resources');
+          }
+          
+          // Handle both direct array and nested response formats
+          const data = Array.isArray(resources) ? resources : 
+                     (resources.resources || []);
+                     
+          console.log('Resources loaded:', data.length);
+          return data.length;
         } catch (error) {
           console.error('Error fetching resources:', error);
           return 0;
@@ -1770,22 +1809,48 @@
 
       // Helper method for API calls with retry mechanism
       async apiCall(endpoint, retries = 3) {
-        for (let i = 0; i < retries; i++) {
-          try {
-            const response = await fetch(`${this.apiBaseUrl}${endpoint}`);
-            if (!response.ok) {
-              throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+        // Check if the endpoint starts with a slash and ensure it's formatted correctly
+        const formattedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+        
+        // Try multiple base URLs to handle both local and production environments
+        const baseUrls = [
+          this.apiBaseUrl,
+          'http://localhost:5000/api',
+          'https://sabir-techpreneurs.onrender.com/api',
+          'http://localhost:5000',
+          'https://sabir-techpreneurs.onrender.com'
+        ];
+        
+        // Loop through all base URLs until one works
+        for (const baseUrl of baseUrls) {
+          for (let i = 0; i < retries; i++) {
+            try {
+              console.log(`Trying API call: ${baseUrl}${formattedEndpoint}`);
+              const response = await fetch(`${baseUrl}${formattedEndpoint}`);
+              
+              if (!response.ok) {
+                console.warn(`API call to ${baseUrl}${formattedEndpoint} failed: ${response.status}`);
+                throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+              }
+              
+              const data = await response.json();
+              console.log(`API call to ${baseUrl}${formattedEndpoint} succeeded:`, data);
+              return data;
+            } catch (error) {
+              console.error(`API call attempt ${i + 1} to ${baseUrl}${formattedEndpoint} failed:`, error);
+              
+              if (i === retries - 1) {
+                console.log(`All retries failed for ${baseUrl}${formattedEndpoint}, trying next base URL`);
+                break; // Try the next base URL
+              }
+              
+              // Wait before retrying (exponential backoff)
+              await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
             }
-            return await response.json();
-          } catch (error) {
-            console.error(`API call attempt ${i + 1} failed:`, error);
-            if (i === retries - 1) {
-              throw error; // Last attempt failed
-            }
-            // Wait before retrying (exponential backoff)
-            await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
           }
         }
+        
+        throw new Error(`All API call attempts failed for endpoint: ${endpoint}`);
       }
 
       // Helper method to format time ago

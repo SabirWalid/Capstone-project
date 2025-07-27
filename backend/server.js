@@ -129,6 +129,10 @@ const resourceRoutes = require('./routes/resources');
 const mentorRoutes = require('./routes/mentor');
 const mentorAuthRoutes = require('./routes/mentorAuth');
 const publicRoutes = require('./routes/public');
+const adminResourceRoutes = require('./routes/adminResources');
+const adminMentorRoutes = require('./routes/adminMentors');
+const adminForumRoutes = require('./routes/adminForum');
+const adminOpportunityRoutes = require('./routes/adminOpportunities');
 
 // Use routes
 app.use('/api/auth', authRoutes);
@@ -141,6 +145,11 @@ app.use('/api/resources', resourceRoutes);
 app.use('/api/mentor', mentorRoutes);
 app.use('/api/mentor/auth', mentorAuthRoutes);
 app.use('/api/public', publicRoutes);
+app.use('/api/enrollments', require('./routes/enrollments'));
+app.use('/api/admin/resources', adminResourceRoutes);
+app.use('/api/admin/mentors', adminMentorRoutes);
+app.use('/api/admin/forum', adminForumRoutes);
+app.use('/api/admin/opportunities', adminOpportunityRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

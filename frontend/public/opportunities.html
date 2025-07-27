@@ -638,12 +638,41 @@
 
             async loadOpportunities() {
                 try {
-                    const response = await fetch('http://localhost:5000/api/opportunities');
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                    // Try multiple base URLs to handle both local and production environments
+                    const baseUrls = [
+                        'http://localhost:5000/api/opportunities',
+                        'https://sabir-techpreneurs.onrender.com/api/opportunities'
+                    ];
+                    
+                    let opportunitiesData = null;
+                    
+                    for (const url of baseUrls) {
+                        try {
+                            console.log(`Trying to fetch opportunities from: ${url}`);
+                            const response = await fetch(url);
+                            if (!response.ok) {
+                                console.warn(`Failed to fetch from ${url}: ${response.status}`);
+                                continue; // Try next URL
+                            }
+                            
+                            const data = await response.json();
+                            console.log(`Successfully fetched from ${url}:`, data);
+                            
+                            // Handle different response formats
+                            opportunitiesData = data.opportunities || data;
+                            break; // Success - exit the loop
+                        } catch (err) {
+                            console.warn(`Error fetching from ${url}:`, err);
+                        }
                     }
-                    this.opportunities = await response.json();
+                    
+                    if (!opportunitiesData) {
+                        throw new Error('Could not load opportunities from any source');
+                    }
+                    
+                    this.opportunities = Array.isArray(opportunitiesData) ? opportunitiesData : [];
                     this.filteredOpportunities = [...this.opportunities];
+                    console.log('Loaded opportunities:', this.opportunities.length);
                 } catch (error) {
                     console.error('Error loading opportunities:', error);
                     this.showError('Failed to load opportunities. Please try again later.');

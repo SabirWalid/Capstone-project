@@ -389,6 +389,152 @@
             color: white;
             text-decoration: none;
         }
+        
+        /* Offline Styles */
+        .offline-indicator {
+            display: inline-flex;
+            align-items: center;
+            background: #ffeeba;
+            color: #856404;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            margin-left: 1rem;
+            font-size: 0.85rem;
+            animation: fadeIn 0.5s ease;
+            border: 1px solid #ffc107;
+        }
+        
+        .offline-indicator .material-icons {
+            font-size: 16px;
+            margin-right: 4px;
+        }
+        
+        .offline-notice {
+            background: #fff3cd;
+            color: #856404;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            border-left: 4px solid #ffc107;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .offline-notice .material-icons {
+            margin-right: 0.5rem;
+        }
+        
+        .offline-btn {
+            background: #e9ecef;
+            color: #495057;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            margin-left: 0.5rem;
+        }
+        
+        .offline-btn:hover {
+            background: #dee2e6;
+        }
+        
+        .offline-btn .material-icons {
+            font-size: 1rem;
+            margin-right: 4px;
+        }
+        
+        .offline-btn.saved {
+            background: #d4edda;
+            color: #155724;
+            cursor: default;
+        }
+        
+        .offline-badge {
+            display: inline-flex;
+            align-items: center;
+            background: #d4edda;
+            color: #155724;
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+        
+        .offline-badge .material-icons {
+            font-size: 0.8rem;
+            margin-right: 2px;
+        }
+        
+        .resource-card.offline-available {
+            border-left: 3px solid #28a745;
+        }
+        
+        .resource-actions {
+            display: flex;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        
+        /* Toast Message Styles */
+        .toast-message {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #fff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            padding: 1rem;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            transform: translateY(100px);
+            opacity: 0;
+            max-width: 350px;
+        }
+        
+        .toast-message.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast-message.success {
+            border-left: 4px solid #28a745;
+        }
+        
+        .toast-message.error {
+            border-left: 4px solid #dc3545;
+        }
+        
+        .toast-message.info {
+            border-left: 4px solid #17a2b8;
+        }
+        
+        .toast-content {
+            display: flex;
+            align-items: center;
+        }
+        
+        .toast-content .material-icons {
+            margin-right: 0.5rem;
+            font-size: 1.25rem;
+        }
+        
+        .toast-message.success .material-icons {
+            color: #28a745;
+        }
+        
+        .toast-message.error .material-icons {
+            color: #dc3545;
+        }
+        
+        .toast-message.info .material-icons {
+            color: #17a2b8;
+        }
 
         .no-resources {
             text-align: center;
@@ -677,15 +823,131 @@
 
             async loadResources() {
                 try {
-                    const response = await fetch('http://localhost:5000/api/resources');
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                    // Check if offline
+                    if (!navigator.onLine) {
+                        console.log('Device is offline - loading cached resources');
+                        await this.loadOfflineResources();
+                        return;
                     }
-                    this.resources = await response.json();
+                    
+                    // Try multiple base URLs to handle both local and production environments
+                    const baseUrls = [
+                        'http://localhost:5000/api/resources',
+                        'https://sabir-techpreneurs.onrender.com/api/resources'
+                    ];
+                    
+                    let resourcesData = null;
+                    
+                    for (const url of baseUrls) {
+                        try {
+                            console.log(`Trying to fetch resources from: ${url}`);
+                            const response = await fetch(url);
+                            if (!response.ok) {
+                                console.warn(`Failed to fetch from ${url}: ${response.status}`);
+                                continue; // Try next URL
+                            }
+                            
+                            const data = await response.json();
+                            console.log(`Successfully fetched from ${url}:`, data);
+                            
+                            // Handle different response formats
+                            resourcesData = data.resources || data;
+                            break; // Success - exit the loop
+                        } catch (err) {
+                            console.warn(`Error fetching from ${url}:`, err);
+                        }
+                    }
+                    
+                    if (!resourcesData) {
+                        console.log('Could not fetch resources online - trying offline cache');
+                        await this.loadOfflineResources();
+                        return;
+                    }
+                    
+                    this.resources = Array.isArray(resourcesData) ? resourcesData : [];
                     this.filteredResources = [...this.resources];
+                    console.log('Loaded resources:', this.resources.length);
+                    
+                    // Cache resources for offline use
+                    this.cacheResourcesForOffline(this.resources);
+                    
                 } catch (error) {
                     console.error('Error loading resources:', error);
-                    this.showError('Failed to load resources. Please try again later.');
+                    // Try to load from offline cache as fallback
+                    try {
+                        await this.loadOfflineResources();
+                    } catch (offlineError) {
+                        console.error('Failed to load offline resources:', offlineError);
+                        this.showError('Failed to load resources. Please try again later.');
+                    }
+                }
+            }
+            
+            async loadOfflineResources() {
+                console.log('Loading resources from offline cache');
+                this.showOfflineIndicator();
+                
+                try {
+                    let offlineResources = [];
+                    
+                    // Try to use OfflineManager if available
+                    if (window.offlineManager) {
+                        await window.offlineManager.ensureReady();
+                        offlineResources = await window.offlineManager.getOfflineResources();
+                        console.log('Loaded resources from OfflineManager:', offlineResources.length);
+                    } else {
+                        // Fallback to localStorage
+                        const cachedData = localStorage.getItem('offlineResources');
+                        if (cachedData) {
+                            offlineResources = JSON.parse(cachedData);
+                            console.log('Loaded resources from localStorage:', offlineResources.length);
+                        }
+                    }
+                    
+                    if (offlineResources.length > 0) {
+                        this.resources = offlineResources;
+                        this.filteredResources = [...this.resources];
+                        console.log('Successfully loaded offline resources:', this.resources.length);
+                    } else {
+                        this.showError('No offline resources available. Connect to the internet to load resources.');
+                        this.resources = [];
+                        this.filteredResources = [];
+                    }
+                } catch (error) {
+                    console.error('Error loading offline resources:', error);
+                    this.showError('Error loading cached resources.');
+                    this.resources = [];
+                    this.filteredResources = [];
+                }
+            }
+            
+            async cacheResourcesForOffline(resources) {
+                try {
+                    // Save to localStorage as backup
+                    localStorage.setItem('offlineResources', JSON.stringify(resources));
+                    
+                    // If OfflineManager is available, use it to cache resources
+                    if (window.offlineManager) {
+                        await window.offlineManager.ensureReady();
+                        console.log('Caching resources for offline use with OfflineManager');
+                        
+                        // Cache all resources in the database for quick access
+                        const tx = window.offlineManager.db.transaction(['cachedResources'], 'readwrite');
+                        const store = tx.objectStore('cachedResources');
+                        
+                        for (const resource of resources) {
+                            // Only store basic data - no need to cache entire content
+                            await store.put({
+                                ...resource,
+                                cachedAt: Date.now(),
+                                offlineAvailable: true
+                            });
+                        }
+                        
+                        console.log(`Cached ${resources.length} resources for offline use`);
+                    }
+                } catch (error) {
+                    console.error('Error caching resources for offline:', error);
                 }
             }
 
@@ -758,12 +1020,31 @@
                 });
 
                 const typeIcon = this.getTypeIcon(resource.type);
+                
+                // Check if resource is available offline
+                const isOffline = resource.offlineAvailable || false;
+                const offlineIndicator = isOffline ? 
+                    `<div class="offline-badge">
+                        <span class="material-icons">offline_pin</span> Available Offline
+                     </div>` : '';
+                
+                // Create offline button
+                const offlineButton = isOffline ? 
+                    `<button class="offline-btn saved" disabled title="Already saved offline">
+                        <span class="material-icons">check</span> Saved Offline
+                     </button>` : 
+                    `<button class="offline-btn" 
+                        onclick="window.resourceManager.saveResourceForOffline('${resource._id || resource.id}', event)" 
+                        title="Save for offline use">
+                        <span class="material-icons">cloud_download</span> Save Offline
+                     </button>`;
 
                 return `
-                    <div class="resource-card" data-id="${resource._id || resource.id}">
+                    <div class="resource-card ${isOffline ? 'offline-available' : ''}" data-id="${resource._id || resource.id}">
                         <div class="resource-content">
                             <div class="resource-type-badge">
                                 ${typeIcon} ${resource.type || 'Resource'}
+                                ${offlineIndicator}
                             </div>
                             <h3 class="resource-title">${this.escapeHtml(resource.title || 'Untitled Resource')}</h3>
                             <p class="resource-description">${this.escapeHtml(resource.description || 'No description available.')}</p>
@@ -774,14 +1055,17 @@
                                 </div>
                                 ${resource.category ? `<span style="color: var(--tertiary-accent); font-weight: 600;">${this.escapeHtml(resource.category)}</span>` : ''}
                             </div>
-                            <a href="${this.escapeHtml(resource.url || '#')}" 
-                               class="access-btn" 
-                               target="_blank" 
-                               rel="noopener noreferrer"
-                               onclick="window.resourceManager.trackDownload('${resource._id || resource.id}')">
-                                <span class="material-icons">download</span>
-                                Access Resource
-                            </a>
+                            <div class="resource-actions">
+                                <a href="${this.escapeHtml(resource.url || '#')}" 
+                                   class="access-btn" 
+                                   target="_blank" 
+                                   rel="noopener noreferrer"
+                                   onclick="window.resourceManager.trackDownload('${resource._id || resource.id}')">
+                                    <span class="material-icons">open_in_new</span>
+                                    Access Resource
+                                </a>
+                                ${offlineButton}
+                            </div>
                         </div>
                     </div>
                 `;
@@ -803,14 +1087,29 @@
             trackDownload(resourceId) {
                 // Track resource access for analytics
                 if (resourceId && resourceId !== 'undefined') {
-                    fetch(`http://localhost:5000/api/resources/${resourceId}/download`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    }).catch(error => {
-                        console.warn('Failed to track resource access:', error);
-                    });
+                    // Try both localhost and production URLs
+                    const urls = [
+                        `http://localhost:5000/api/resources/${resourceId}/download`,
+                        `https://sabir-techpreneurs.onrender.com/api/resources/${resourceId}/download`
+                    ];
+                    
+                    // Try each URL in sequence
+                    for (const url of urls) {
+                        fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        }).then(response => {
+                            if (response.ok) {
+                                console.log(`Successfully tracked download for resource: ${resourceId}`);
+                                return true;
+                            }
+                            return false;
+                        }).catch(error => {
+                            console.warn(`Failed to track resource access at ${url}:`, error);
+                        });
+                    }
                 }
             }
 
@@ -875,6 +1174,194 @@
                 
                 await this.loadResources();
                 this.renderResources();
+            }
+            
+            // Show offline indicator in the header
+            showOfflineIndicator() {
+                const headerTitle = document.querySelector('h1.page-title');
+                
+                // Remove any existing indicator first
+                const existingIndicator = document.querySelector('.offline-indicator');
+                if (existingIndicator) {
+                    existingIndicator.remove();
+                }
+                
+                // Create new indicator
+                const indicator = document.createElement('div');
+                indicator.className = 'offline-indicator';
+                indicator.innerHTML = `
+                    <span class="material-icons">wifi_off</span>
+                    <span>Offline Mode</span>
+                `;
+                
+                // Add to DOM
+                if (headerTitle) {
+                    headerTitle.appendChild(indicator);
+                } else {
+                    // Fallback to appending to header
+                    const header = document.querySelector('.resources-header');
+                    if (header) {
+                        header.appendChild(indicator);
+                    }
+                }
+                
+                // Add offline notice at the top
+                const container = document.getElementById('resourcesContainer');
+                if (container) {
+                    const notice = document.createElement('div');
+                    notice.className = 'offline-notice';
+                    notice.innerHTML = `
+                        <span class="material-icons">wifi_off</span>
+                        <span>You are offline. Showing resources available for offline use.</span>
+                    `;
+                    container.insertBefore(notice, container.firstChild);
+                }
+            }
+            
+            // Save a resource for offline use
+            async saveResourceForOffline(resourceId, event) {
+                if (event) event.preventDefault();
+                
+                console.log(`Saving resource ${resourceId} for offline use`);
+                
+                try {
+                    // Find the button that was clicked and show loading state
+                    const button = event?.target.closest('button') || 
+                                   document.querySelector(`.resource-card[data-id="${resourceId}"] .offline-btn`);
+                    
+                    if (button) {
+                        const originalHTML = button.innerHTML;
+                        button.innerHTML = '<span class="material-icons rotating">sync</span> Saving...';
+                        button.disabled = true;
+                        
+                        // Add the rotating animation style if not already added
+                        if (!document.querySelector('style#offline-animations')) {
+                            const style = document.createElement('style');
+                            style.id = 'offline-animations';
+                            style.textContent = `
+                                @keyframes rotating {
+                                    from { transform: rotate(0deg); }
+                                    to { transform: rotate(360deg); }
+                                }
+                                .rotating {
+                                    animation: rotating 1s linear infinite;
+                                }
+                            `;
+                            document.head.appendChild(style);
+                        }
+                    }
+                    
+                    // Find the resource in our current list
+                    const resource = this.resources.find(r => r._id === resourceId || r.id === resourceId);
+                    if (!resource) {
+                        throw new Error('Resource not found');
+                    }
+                    
+                    // Save to IndexedDB using OfflineManager if available
+                    if (window.offlineManager) {
+                        await window.offlineManager.ensureReady();
+                        await window.offlineManager.cacheResource(resourceId);
+                        console.log(`Resource ${resourceId} cached with OfflineManager`);
+                    } else {
+                        // Fallback to localStorage
+                        let offlineResources = JSON.parse(localStorage.getItem('offlineResources') || '[]');
+                        
+                        // Mark as offline available
+                        resource.offlineAvailable = true;
+                        
+                        // Add to offline resources if not already there
+                        const existingIndex = offlineResources.findIndex(r => r._id === resourceId || r.id === resourceId);
+                        if (existingIndex >= 0) {
+                            offlineResources[existingIndex] = resource;
+                        } else {
+                            offlineResources.push(resource);
+                        }
+                        
+                        localStorage.setItem('offlineResources', JSON.stringify(offlineResources));
+                        console.log(`Resource ${resourceId} cached with localStorage`);
+                    }
+                    
+                    // Update UI to show resource is available offline
+                    this.markResourceAsOffline(resourceId);
+                    
+                    // Show success message
+                    this.showMessage('Resource saved for offline use', 'success');
+                    
+                } catch (error) {
+                    console.error('Error saving resource for offline use:', error);
+                    this.showMessage('Failed to save resource for offline use', 'error');
+                }
+            }
+            
+            // Mark a resource as available offline in the UI
+            markResourceAsOffline(resourceId) {
+                // Find the card and update it
+                const card = document.querySelector(`.resource-card[data-id="${resourceId}"]`);
+                if (card) {
+                    card.classList.add('offline-available');
+                    
+                    // Update the button
+                    const button = card.querySelector('.offline-btn');
+                    if (button) {
+                        button.innerHTML = '<span class="material-icons">check</span> Saved Offline';
+                        button.classList.add('saved');
+                        button.disabled = true;
+                        button.title = 'Available offline';
+                    }
+                    
+                    // Add the indicator if not present
+                    if (!card.querySelector('.offline-badge')) {
+                        const typeBadge = card.querySelector('.resource-type-badge');
+                        if (typeBadge) {
+                            const indicator = document.createElement('div');
+                            indicator.className = 'offline-badge';
+                            indicator.innerHTML = '<span class="material-icons">offline_pin</span> Available Offline';
+                            typeBadge.appendChild(indicator);
+                        }
+                    }
+                }
+                
+                // Also update our internal resource list
+                const resourceIndex = this.resources.findIndex(r => r._id === resourceId || r.id === resourceId);
+                if (resourceIndex >= 0) {
+                    this.resources[resourceIndex].offlineAvailable = true;
+                }
+                
+                const filteredIndex = this.filteredResources.findIndex(r => r._id === resourceId || r.id === resourceId);
+                if (filteredIndex >= 0) {
+                    this.filteredResources[filteredIndex].offlineAvailable = true;
+                }
+            }
+            
+            // Show toast message
+            showMessage(message, type = 'info') {
+                // Remove any existing message first
+                const existingMessage = document.querySelector('.toast-message');
+                if (existingMessage) {
+                    existingMessage.remove();
+                }
+                
+                // Create message element
+                const toast = document.createElement('div');
+                toast.className = `toast-message ${type}`;
+                toast.innerHTML = `
+                    <div class="toast-content">
+                        <span class="material-icons">${type === 'error' ? 'error' : type === 'success' ? 'check_circle' : 'info'}</span>
+                        <span>${message}</span>
+                    </div>
+                `;
+                
+                // Add to DOM
+                document.body.appendChild(toast);
+                
+                // Show with animation
+                setTimeout(() => toast.classList.add('show'), 10);
+                
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 300);
+                }, 5000);
             }
         }
 

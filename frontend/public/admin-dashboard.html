@@ -19,6 +19,55 @@
       --text-secondary: #636e72; /* Secondary text color */
       --shadow: 0 10px 30px rgba(44, 95, 93, 0.08);
     }
+    
+    /* Hide admin tab content by default, only show active tab */
+    .admin-content .tab-content {
+      display: none !important;
+    }
+    .admin-content .tab-content.active {
+      display: block !important;
+    }
+    
+    /* Ensure resources section tabs work properly */
+    #resources-section .tab-content {
+      display: none !important;
+    }
+    #resources-section .tab-content.active {
+      display: block !important;
+    }
+    
+    /* Fix for tab navigation in resources section */
+    #overview, #add, #manage {
+      display: none;
+    }
+    #overview.active, #add.active, #manage.active {
+      display: block !important;
+    }
+    
+    /* Make sure spinner is visible */
+    .loading-overlay {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      background: rgba(255, 255, 255, 0.8);
+    }
+    
+    .spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border-left-color: #09f;
+      animation: spin 1s linear infinite;
+      margin-bottom: 10px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
     body {
       background: var(--primary-bg);
       min-height: 100vh;
@@ -2040,25 +2089,31 @@
 
   <!-- Admin Resources Section -->
   <div id="resources-section" class="form-section" style="display:none;">
-    <div class="admin-container">
+    <div class="admin-container" style="width: 100%; max-width: 1200px; margin: 0 auto;">
         <div class="admin-header">
             <div>
                 <h1>⚙️ Admin Resources</h1>
                 <p>Manage your resource library</p>
             </div>
+            <div>
+                <button onclick="manuallyLoadResources()" class="btn btn-primary">
+                    <span class="material-icons" style="font-size: 16px; vertical-align: middle;">refresh</span>
+                    Refresh Resources
+                </button>
+            </div>
         </div>
 
         <div class="admin-nav">
             <div class="nav-tabs">
-                <button class="nav-tab active" data-tab="overview">📊 Overview</button>
-                <button class="nav-tab" data-tab="add">➕ Add Resource</button>
-                <button class="nav-tab" data-tab="manage">📝 Manage Resources</button>
+                <button class="nav-tab active" data-tab="overview" id="tab-overview" onclick="switchResourceTab('overview')">📊 Overview</button>
+                <button class="nav-tab" data-tab="add" id="tab-add" onclick="switchResourceTab('add')">➕ Add Resource</button>
+                <button class="nav-tab" data-tab="manage" id="tab-manage" onclick="switchResourceTab('manage')">📝 Manage Resources</button>
             </div>
         </div>
 
         <div class="admin-content">
             <!-- Overview Tab -->
-            <div id="overview" class="tab-content active">
+            <div id="overview" class="tab-content active" style="display: block;">
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-number" id="totalResources">0</div>
@@ -2091,7 +2146,7 @@
             </div>
 
             <!-- Add Resource Tab -->
-            <div id="add" class="tab-content">
+            <div id="add" class="tab-content" style="display: none;">
                 <div class="add-resource-form">
                     <h2 style="margin-bottom: 25px; color: #333;">➕ Add New Resource</h2>
                     <form id="addResourceForm">
@@ -2157,7 +2212,7 @@
             </div>
 
             <!-- Manage Resources Tab -->
-            <div id="manage" class="tab-content">
+            <div id="manage" class="tab-content" style="display: none;">
                 <div class="resources-table">
                     <div class="table-header">
                         <h3>All Resources</h3>
@@ -2174,6 +2229,13 @@
                                 <option value="Image">Image</option>
                                 <option value="Link">Link</option>
                             </select>
+                        </div>
+                    </div>
+                    <div id="resources-list" style="min-height: 200px;">
+                        <!-- Resources will be loaded here -->
+                        <div class="loading-overlay">
+                            <div class="spinner"></div>
+                            <p>Loading resources...</p>
                         </div>
                     </div>
                     <div id="manageResourcesContainer" style="position: relative;">
@@ -2251,6 +2313,23 @@
         </div>
     </div>
 
+    <!-- Confirm Delete Modal -->
+    <div id="confirmDeleteModal" class="modal">
+        <div class="modal-content" role="dialog" aria-modal="true" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3 class="modal-title">🗑️ Confirm Delete</h3>
+                <button class="close-btn" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this resource? This action cannot be undone.</p>
+                <input type="hidden" id="delete-resource-id">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="confirmDeleteResource()">Delete</button>
+            </div>
+        </div>
+    </div>
 
           <!-- Settings Section -->
           <div id="settings-section" class="form-section" style="display:none;">
@@ -2545,8 +2624,23 @@
           loadAdminProfile();
         }
         if (section === 'resources') {
-          console.log('🔄 Loading resources...');
-          loadResources();
+          console.log('🔄 Loading resources section...');
+          
+          // Make sure the resources section is visible
+          const resourcesSection = document.getElementById('resources-section');
+          if (resourcesSection) {
+            // Ensure the whole section is visible
+            resourcesSection.style.display = 'block';
+            
+            // Initialize the resources section (this sets up tabs and loads data)
+            initResourcesSection();
+            
+            // Ensure the overview tab is active
+            console.log('Setting overview tab as active');
+            switchResourceTab('overview');
+          } else {
+            console.error('Resources section not found in DOM!');
+          }
         }
         if (section === 'forum') {
           console.log('🔄 Loading forum...');
@@ -3317,9 +3411,381 @@
       }
     }
 
-    function loadResources() {
-      console.log('Loading resources...');
-      // Resources section has its own management system
+    function initResourcesSection() {
+      console.log('Initializing resources section...');
+      
+      // Make sure the resources section is visible
+      const resourcesSection = document.getElementById('resources-section');
+      if (resourcesSection) {
+        resourcesSection.style.display = 'block';
+        console.log('Made resources section visible');
+      }
+      
+      // Show loading indicator
+      const resourcesContainer = document.getElementById('resources-list');
+      if (resourcesContainer) {
+        resourcesContainer.innerHTML = '<div class="loading-overlay"><div class="spinner"></div><p>Loading resources...</p></div>';
+      }
+      
+      // Also show loading state in the recent resources container
+      const recentContainer = document.getElementById('recentResourcesContainer');
+      if (recentContainer) {
+        recentContainer.innerHTML = '<div class="loading-overlay"><div class="spinner"></div><p>Loading recent resources...</p></div>';
+      }
+      
+      // Set up tab navigation
+      setupResourceTabs();
+      
+      // Check if the helper function exists and call it
+      if (typeof window.loadResources === 'function') {
+        // If the admin-helpers.js is loaded, use its function
+        try {
+          console.log('Calling loadResources from admin-helpers.js...');
+          window.loadResources();
+        } catch (error) {
+          console.error('Error calling loadResources from admin-helpers:', error);
+          
+          // Fallback - use fetch directly
+          fetchResourcesDirectly();
+        }
+      } else {
+        // Fallback - use fetch directly
+        fetchResourcesDirectly();
+      }
+      
+      // Make sure we initially show the Overview tab by calling switchResourceTab
+      console.log('Switching to overview tab');
+      switchResourceTab('overview');
+    }
+    
+    function manuallyLoadResources(event) {
+      console.log('Manually loading resources...');
+      
+      // Visual feedback
+      const btn = event ? event.target.closest('button') : document.querySelector('button[onclick="manuallyLoadResources()"]');
+      const originalText = btn ? btn.innerHTML : 'Refresh Resources';
+      if (btn) {
+        btn.innerHTML = '<span class="material-icons rotating">refresh</span> Loading...';
+        btn.disabled = true;
+      }
+      
+      // Add rotation animation
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes rotating {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .rotating {
+          animation: rotating 1s linear infinite;
+          display: inline-block;
+        }
+      `;
+      document.head.appendChild(style);
+      
+      // Clear the resources list to show it's reloading
+      const resourcesContainer = document.getElementById('resources-list');
+      if (resourcesContainer) {
+        resourcesContainer.innerHTML = '<div class="alert alert-info">Reloading resources...</div>';
+      }
+      
+      // Also show loading state in the recent resources container
+      const recentContainer = document.getElementById('recentResourcesContainer');
+      if (recentContainer) {
+        recentContainer.innerHTML = '<div class="loading-overlay"><div class="spinner"></div><p>Loading resources...</p></div>';
+      }
+      
+      // Make sure the resources section is visible
+      const resourcesSection = document.getElementById('resources-section');
+      if (resourcesSection) {
+        resourcesSection.style.display = 'block';
+      }
+      
+      console.log('Trying to load resources...');
+      
+      // Try to load resources using our unified function
+      try {
+        if (typeof window.loadResources === 'function') {
+          console.log('Calling window.loadResources()...');
+          window.loadResources();
+        } else {
+          console.log('Calling local initResourcesSection()...');
+          initResourcesSection();
+        }
+      } catch (e) {
+        console.error('Failed to initialize resources section:', e);
+        
+        // Fallback to direct fetch
+        try {
+          console.log('Falling back to fetchResourcesDirectly()...');
+          fetchResourcesDirectly();
+        } catch (e2) {
+          console.error('Failed to fetch resources directly:', e2);
+          
+          // Display error message
+          if (resourcesContainer) {
+            resourcesContainer.innerHTML = '<div class="alert alert-danger">Failed to load resources. Please try again later.</div>';
+          }
+        }
+      }
+      
+      // Restore button state after delay
+      setTimeout(() => {
+        if (btn) {
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+        }
+        style.remove();
+      }, 1000);
+    }
+    
+    // Fallback function to fetch resources directly
+    async function fetchResourcesDirectly() {
+      console.log('Fetching resources directly...');
+      
+      // Make sure resources section is visible
+      const resourcesSection = document.getElementById('resources-section');
+      if (resourcesSection) {
+        resourcesSection.style.display = 'block';
+      }
+      
+      // Show loading indicators
+      const resourcesContainer = document.getElementById('resources-list');
+      if (resourcesContainer) {
+        resourcesContainer.innerHTML = '<div class="loading-overlay"><div class="spinner"></div><p>Loading resources...</p></div>';
+      }
+      
+      const recentContainer = document.getElementById('recentResourcesContainer');
+      if (recentContainer) {
+        recentContainer.innerHTML = '<div class="loading-overlay"><div class="spinner"></div><p>Loading recent resources...</p></div>';
+      }
+      
+      // Check if we're offline
+      if (!navigator.onLine) {
+        console.log('Device is offline - loading cached resources');
+        
+        try {
+          // Try to load from offline cache
+          let cachedResources = [];
+          
+          // Check if we have admin-resources.js file loaded
+          if (typeof loadOfflineResources === 'function') {
+            cachedResources = loadOfflineResources();
+          } else {
+            // Fallback to direct localStorage access
+            const cached = localStorage.getItem('offlineResources');
+            if (cached) {
+              cachedResources = JSON.parse(cached);
+            }
+          }
+          
+          if (cachedResources && cachedResources.length > 0) {
+            console.log(`Loaded ${cachedResources.length} resources from offline cache`);
+            displayResources(cachedResources);
+            
+            // Show offline indicator
+            const offlineAlert = document.createElement('div');
+            offlineAlert.className = 'alert alert-warning';
+            offlineAlert.innerHTML = '<i class="material-icons" style="vertical-align: middle; margin-right: 8px;">wifi_off</i> You are currently offline. Showing cached resources.';
+            
+            if (resourcesSection && !document.querySelector('#resources-section .offline-alert')) {
+              offlineAlert.classList.add('offline-alert');
+              resourcesSection.insertBefore(offlineAlert, resourcesSection.querySelector('.admin-container'));
+            }
+            
+            return;
+          } else {
+            // No cached resources
+            if (resourcesContainer) {
+              resourcesContainer.innerHTML = '<div class="alert alert-warning">You are offline and no resources are cached. Connect to the internet to load resources.</div>';
+            }
+            
+            if (recentContainer) {
+              recentContainer.innerHTML = '<div class="alert alert-warning">You are offline and no resources are cached.</div>';
+            }
+            return;
+          }
+        } catch (error) {
+          console.error('Error loading offline resources:', error);
+        }
+      }
+      
+      // If we're online, fetch from server
+      try {
+        const baseUrls = [
+          '/api/admin/resources',
+          'http://localhost:5000/api/admin/resources',
+          'https://sabir-techpreneurs.onrender.com/api/admin/resources'
+        ];
+        
+        let resources = null;
+        let successUrl = '';
+        
+        for (const url of baseUrls) {
+          try {
+            const token = localStorage.getItem('adminToken');
+            console.log(`Trying to fetch resources from: ${url}`);
+            
+            const response = await fetch(url, {
+              headers: {
+                'Authorization': token ? `Bearer ${token}` : '',
+                'Accept': 'application/json'
+              }
+            });
+            
+            if (!response.ok) {
+              console.warn(`Failed to fetch from ${url}: ${response.status}`);
+              continue;
+            }
+            
+            resources = await response.json();
+            console.log('Resources data fetched:', resources);
+            successUrl = url;
+            
+            // Check if we got a valid response
+            if (resources) {
+              if (Array.isArray(resources)) {
+                console.log(`Successfully fetched ${resources.length} resources from ${url}`);
+              } else if (typeof resources === 'object') {
+                // It might be in a nested property like { resources: [...] }
+                console.log('Resources data is an object, might contain nested resources array');
+              }
+              break;
+            }
+          } catch (err) {
+            console.warn(`Error fetching from ${url}:`, err);
+          }
+        }
+        
+        if (resources) {
+          console.log(`Successfully fetched resources from ${successUrl}, displaying now...`);
+          
+          // Save to offline cache
+          if (typeof saveResourcesToOfflineCache === 'function') {
+            // Check if resources is an array or has a resources/data property
+            if (Array.isArray(resources)) {
+              saveResourcesToOfflineCache(resources);
+            } else if (resources.resources && Array.isArray(resources.resources)) {
+              saveResourcesToOfflineCache(resources.resources);
+            } else if (resources.data && Array.isArray(resources.data)) {
+              saveResourcesToOfflineCache(resources.data);
+            }
+          } else {
+            // Fallback to direct localStorage
+            try {
+              const resourcesArray = Array.isArray(resources) 
+                ? resources 
+                : (resources.resources || resources.data || []);
+                
+              localStorage.setItem('offlineResources', JSON.stringify(resourcesArray));
+              console.log(`Saved ${resourcesArray.length} resources to offline cache`);
+            } catch (e) {
+              console.error('Error saving to offline cache:', e);
+            }
+          }
+          
+          // Display the resources
+          displayResources(resources);
+          
+          // Update currentResources in window context
+          if (typeof window !== 'undefined') {
+            window.currentResources = Array.isArray(resources) 
+              ? resources 
+              : (resources.resources || resources.data || []);
+          }
+          
+          // Make sure the Overview tab is active and shown
+          const overviewTab = document.querySelector('#resources-section .nav-link[data-bs-target="#resourcesOverview"]');
+          if (overviewTab) {
+            overviewTab.click();
+          }
+        } else {
+          console.error('Failed to fetch resources from any endpoint');
+          
+          // Try to load from offline cache as fallback
+          let cachedResources = [];
+          
+          if (typeof loadOfflineResources === 'function') {
+            cachedResources = loadOfflineResources();
+          } else {
+            const cached = localStorage.getItem('offlineResources');
+            if (cached) {
+              cachedResources = JSON.parse(cached);
+            }
+          }
+          
+          if (cachedResources && cachedResources.length > 0) {
+            console.log(`Using ${cachedResources.length} cached resources as fallback`);
+            displayResources(cachedResources);
+            
+            // Show offline warning
+            const offlineAlert = document.createElement('div');
+            offlineAlert.className = 'alert alert-warning';
+            offlineAlert.innerHTML = '<i class="material-icons" style="vertical-align: middle; margin-right: 8px;">cloud_off</i> Could not connect to server. Showing cached resources.';
+            
+            if (resourcesSection && !document.querySelector('#resources-section .offline-alert')) {
+              offlineAlert.classList.add('offline-alert');
+              resourcesSection.insertBefore(offlineAlert, resourcesSection.querySelector('.admin-container'));
+            }
+          } else {
+            if (resourcesContainer) {
+              resourcesContainer.innerHTML = '<div class="alert alert-danger">Failed to load resources. Please try again later.</div>';
+            }
+            
+            if (recentContainer) {
+              recentContainer.innerHTML = '<div class="alert alert-danger">Failed to load recent resources.</div>';
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error in fetchResourcesDirectly:', error);
+        
+        // Try offline cache as last resort
+        try {
+          let cachedResources = [];
+          
+          if (typeof loadOfflineResources === 'function') {
+            cachedResources = loadOfflineResources();
+          } else {
+            const cached = localStorage.getItem('offlineResources');
+            if (cached) {
+              cachedResources = JSON.parse(cached);
+            }
+          }
+          
+          if (cachedResources && cachedResources.length > 0) {
+            console.log(`Error occurred. Using ${cachedResources.length} cached resources as fallback`);
+            displayResources(cachedResources);
+            
+            // Show error warning
+            const errorAlert = document.createElement('div');
+            errorAlert.className = 'alert alert-danger';
+            errorAlert.innerHTML = `<i class="material-icons" style="vertical-align: middle; margin-right: 8px;">error</i> Error loading resources: ${error.message}. Showing cached data.`;
+            
+            if (resourcesSection && !document.querySelector('#resources-section .error-alert')) {
+              errorAlert.classList.add('error-alert');
+              resourcesSection.insertBefore(errorAlert, resourcesSection.querySelector('.admin-container'));
+            }
+          } else {
+            if (resourcesContainer) {
+              resourcesContainer.innerHTML = '<div class="alert alert-danger">Error loading resources: ' + error.message + '</div>';
+            }
+            
+            if (recentContainer) {
+              recentContainer.innerHTML = '<div class="alert alert-danger">Error loading recent resources: ' + error.message + '</div>';
+            }
+          }
+        } catch (cacheError) {
+          console.error('Error loading from cache:', cacheError);
+          if (resourcesContainer) {
+            resourcesContainer.innerHTML = '<div class="alert alert-danger">Error loading resources: ' + error.message + '</div>';
+          }
+          
+          if (recentContainer) {
+            recentContainer.innerHTML = '<div class="alert alert-danger">Error loading recent resources: ' + error.message + '</div>';
+          }
+        }
+      }
     }
 
     function loadCourses() {
@@ -4342,22 +4808,73 @@ document.getElementById('mentor-form').onsubmit = async function(e) {
         loadResources();
       }
       // Tab navigation for resources section
-      const navTabs = document.querySelectorAll('.admin-nav .nav-tab');
-      const tabContents = document.querySelectorAll('.admin-content .tab-content');
-      navTabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-          navTabs.forEach(t => t.classList.remove('active'));
-          tab.classList.add('active');
-          tabContents.forEach(tc => tc.classList.remove('active'));
-          const target = tab.getAttribute('data-tab');
-          document.getElementById(target).classList.add('active');
-          // Refresh resource data when switching tabs
-          if (window.adminManager && window.adminManager.refresh) {
-            window.adminManager.refresh();
-          } else if (typeof loadResources === 'function') {
-            loadResources();
+      const setupResourceTabs = () => {
+        console.log('Setting up resource tabs...');
+        const navTabs = document.querySelectorAll('.admin-nav .nav-tab');
+        const tabContents = document.querySelectorAll('.admin-content .tab-content');
+        
+        // First check if resources section is visible
+        const resourcesSection = document.getElementById('resources-section');
+        if (resourcesSection && resourcesSection.style.display !== 'block') {
+          console.log('Resources section is not visible, no need to setup tabs yet');
+          return;
+        }
+        
+        console.log('Resources section is visible, setting up tabs');
+        
+        // Make sure only the active tab content is shown initially
+        tabContents.forEach(tc => {
+          if (!tc.classList.contains('active')) {
+            tc.style.display = 'none';
+          } else {
+            tc.style.display = 'block';
+            console.log('Active tab displayed:', tc.id);
           }
         });
+        
+        // Add click handlers to tabs
+        navTabs.forEach(tab => {
+          tab.addEventListener('click', function(event) {
+            // Prevent default navigation
+            event.preventDefault();
+            
+            const tabId = tab.getAttribute('data-tab');
+            console.log('Tab clicked:', tabId);
+            
+            // Update active tab
+            navTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            // Hide all tab content
+            tabContents.forEach(tc => {
+              tc.classList.remove('active');
+              tc.style.display = 'none';
+            });
+            
+            // Show selected tab content
+            const activeTab = document.getElementById(tabId);
+            if (activeTab) {
+              activeTab.classList.add('active');
+              activeTab.style.display = 'block';
+              console.log('Tab content displayed:', tabId);
+              
+              // Refresh resource data when switching tabs
+              if (tabId === 'add' || tabId === 'manage') {
+                if (window.adminManager && window.adminManager.refresh) {
+                  window.adminManager.refresh();
+                } else if (typeof loadResources === 'function') {
+                  loadResources();
+                }
+              }
+            } else {
+              console.error('Tab content not found:', tabId);
+            }
+          });
+        });
+      };
+      
+      // Initialize tab navigation
+      setupResourceTabs();
       });
     });
   </script>
@@ -4534,11 +5051,6 @@ document.getElementById('mentor-form').onsubmit = async function(e) {
         console.log('Showing default dashboard statistics');
       } catch (error) {
         console.error('Error setting default stats:', error);
-      }
-    }
-        if (activeUsersElement) {
-          activeUsersElement.textContent = '0';
-        }
       }
     }
 
@@ -4721,68 +5233,9 @@ document.getElementById('mentor-form').onsubmit = async function(e) {
         loadSampleForumMessages();
       }
     }
-
-    function loadSampleForumMessages() {
-      const sampleMessages = [
-        {
-          id: 1,
-          user: 'Ahmed Hassan',
-          avatar: 'A',
-          message: 'Hello everyone! I\'m new to the platform and looking for guidance on web development courses. Any recommendations?',
-          timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-          isRead: false,
-          type: 'question'
-        },
-        {
-          id: 2,
-          user: 'Fatima Al-Zahra',
-          avatar: 'F',
-          message: 'Thanks for the amazing Python course! The AI and machine learning modules were particularly helpful.',
-          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-          isRead: true,
-          type: 'feedback'
-        },
-        {
-          id: 3,
-          user: 'Omar Abdullahi',
-          avatar: 'O',
-          message: 'I\'m having trouble accessing the business development resources. Can someone help?',
-          timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
-          isRead: false,
-          type: 'support'
-        },
-        {
-          id: 4,
-          user: 'Leila Nazari',
-          avatar: 'L',
-          message: 'The UI/UX design workshop was excellent! When will the next session be available?',
-          timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
-          isRead: true,
-          type: 'question'
-        },
-        {
-          id: 5,
-          user: 'Yusuf Osman',
-          avatar: 'Y',
-          message: 'Looking for a study group for mobile development. Anyone interested?',
-          timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000), // 8 hours ago
-          isRead: true,
-          type: 'collaboration'
-        },
-        {
-          id: 6,
-          user: 'Amira Khoury',
-          avatar: 'A',
-          message: 'The project management course helped me land my first job! Thank you so much for this platform.',
-          timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000), // 12 hours ago
-          isRead: true,
-          type: 'success'
-        }
-      ];
       
       displayForumMessages(sampleMessages);
       updateForumStats(sampleMessages);
-    }
 
     function displayForumMessages(messages) {
       const messagesList = document.getElementById('forumMessagesList');
@@ -4882,9 +5335,9 @@ document.getElementById('mentor-form').onsubmit = async function(e) {
       const hours = Math.floor(diff / (1000 * 60 * 60));
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       
-      if (minutes < 60) {
+      if (minutes < 0) {
         return `${minutes}m ago`;
-      } else if (hours < 24) {
+      } else if (hours < 0) {
         return `${hours}h ago`;
       } else {
         return `${days}d ago`;
@@ -5080,7 +5533,6 @@ document.getElementById('mentor-form').onsubmit = async function(e) {
     document.addEventListener('DOMContentLoaded', function() {
       loadForumSettings();
     });
-    }
 
     // Content management functions
     function manageCourses() {
@@ -5204,69 +5656,9 @@ document.getElementById('mentor-form').onsubmit = async function(e) {
           verified: true,
           createdAt: '2024-01-15T10:30:00Z',
           lastLogin: '2024-07-24T08:15:00Z',
-          country: 'Syria',
+          country: 'Sudan',
           skills: ['JavaScript', 'React', 'Node.js']
         },
-        {
-          id: 2,
-          name: 'Fatima Al-Zahra',
-          email: 'fatima.alzahra@email.com',
-          role: 'user',
-          status: 'active',
-          verified: true,
-          createdAt: '2024-02-10T14:22:00Z',
-          lastLogin: '2024-07-23T16:45:00Z',
-          country: 'Iraq',
-          skills: ['Python', 'Data Science', 'Machine Learning']
-        },
-        {
-          id: 3,
-          name: 'Omar Abdullahi',
-          email: 'omar.abdullahi@email.com',
-          role: 'user',
-          status: 'active',
-          verified: false,
-          createdAt: '2024-03-05T09:18:00Z',
-          lastLogin: '2024-07-22T12:30:00Z',
-          country: 'Somalia',
-          skills: ['Business Development', 'Marketing', 'Sales']
-        },
-        {
-          id: 4,
-          name: 'Leila Nazari',
-          email: 'leila.nazari@email.com',
-          role: 'user',
-          status: 'active',
-          verified: true,
-          createdAt: '2024-01-28T11:45:00Z',
-          lastLogin: '2024-07-24T07:20:00Z',
-          country: 'Afghanistan',
-          skills: ['UI/UX Design', 'Graphic Design', 'Adobe Creative Suite']
-        },
-        {
-          id: 5,
-          name: 'Yusuf Osman',
-          email: 'yusuf.osman@email.com',
-          role: 'user',
-          status: 'inactive',
-          verified: true,
-          createdAt: '2024-04-12T16:33:00Z',
-          lastLogin: '2024-06-15T14:10:00Z',
-          country: 'Sudan',
-          skills: ['Mobile Development', 'Flutter', 'Dart']
-        },
-        {
-          id: 6,
-          name: 'Amira Khoury',
-          email: 'amira.khoury@email.com',
-          role: 'user',
-          status: 'active',
-          verified: true,
-          createdAt: '2024-05-20T13:15:00Z',
-          lastLogin: '2024-07-24T09:40:00Z',
-          country: 'Lebanon',
-          skills: ['Project Management', 'Agile', 'Scrum']
-        }
       ];
       
       return sampleUsers;
@@ -5410,69 +5802,7 @@ document.getElementById('mentor-form').onsubmit = async function(e) {
         loadUsers(); // Refresh the list
       }
     }
-        }
 
-        const data = await response.json();
-        const { users, analytics } = data;
-
-        // Update user statistics
-        document.getElementById('userStatsTotal').textContent = analytics.totalUsers || 0;
-        document.getElementById('userStatsActive').textContent = analytics.activeUsers || 0;
-        document.getElementById('userStatsRecent').textContent = analytics.recentUsers || 0;
-        document.getElementById('userStatsVerified').textContent = analytics.verifiedUsers || 0;
-
-        // Display users list
-        const usersList = document.getElementById('usersList');
-        if (users.length === 0) {
-          usersList.innerHTML = '<p class="text-center text-muted">No users found</p>';
-          return;
-        }
-
-        usersList.innerHTML = `
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Status</th>
-                  <th>Verified</th>
-                  <th>Joined</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${users.map(user => `
-                  <tr>
-                    <td>${user.name || 'N/A'}</td>
-                    <td>${user.email}</td>
-                    <td>
-                      <span class="badge bg-${user.status === 'active' ? 'success' : 'secondary'}">
-                        ${user.status || 'active'}
-                      </span>
-                    </td>
-                    <td>
-                      <span class="badge bg-${user.isVerified ? 'success' : 'warning'}">
-                        ${user.isVerified ? 'Yes' : 'No'}
-                      </span>
-                    </td>
-                    <td>${new Date(user.createdAt).toLocaleDateString()}</td>
-                    <td>
-                      <button class="btn btn-sm btn-outline-primary" onclick="editUser('${user._id}')">Edit</button>
-                      <button class="btn btn-sm btn-outline-danger" onclick="deactivateUser('${user._id}')">Deactivate</button>
-                    </td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        `;
-
-      } catch (error) {
-        console.error('Error loading users:', error);
-        document.getElementById('usersList').innerHTML = '<p class="text-center text-danger">Error loading users</p>';
-      }
-    }
 
     // Load Analytics function
     async function loadAnalytics() {
@@ -5542,10 +5872,10 @@ document.getElementById('mentor-form').onsubmit = async function(e) {
         console.error('Error loading analytics:', error);
         
         // Fallback to sample data with indication
-        animateCount('analyticsUsers', 156);
-        animateCount('analyticsCourses', 28);
-        animateCount('analyticsOpportunities', 45);
-        animateCount('analyticsMentors', 12);
+        animateCount('analyticsUsers', 0);
+        animateCount('analyticsCourses', 0);
+        animateCount('analyticsOpportunities', 0);
+        animateCount('analyticsMentors', 0);
         
         document.getElementById('analyticsContent').innerHTML = `
           <div class="alert alert-warning" role="alert">
@@ -5590,10 +5920,10 @@ document.getElementById('mentor-form').onsubmit = async function(e) {
     async function loadDetailedAnalytics() {
       try {
         const analyticsData = {
-          dailyUsers: [45, 52, 48, 61, 55, 67, 73],
-          courseEngagement: 85,
-          forumPosts: 234,
-          mentorshipSessions: 89
+          dailyUsers: [],
+          courseEngagement: 0,
+          forumPosts:0,
+          mentorshipSessions: 0
         };
 
         document.getElementById('analyticsContent').innerHTML = `
@@ -5650,15 +5980,6 @@ document.getElementById('mentor-form').onsubmit = async function(e) {
     // Load recent activities
     async function loadRecentActivities() {
       try {
-        const activities = [
-          { activity: 'New user registration', user: 'Ahmed Hassan', type: 'User', time: '2 minutes ago', status: 'success' },
-          { activity: 'Course published', user: 'Admin', type: 'Content', time: '15 minutes ago', status: 'success' },
-          { activity: 'Mentorship session completed', user: 'Sarah Ahmed', type: 'Mentorship', time: '1 hour ago', status: 'success' },
-          { activity: 'Forum post moderated', user: 'Moderator', type: 'Forum', time: '2 hours ago', status: 'info' },
-          { activity: 'Resource uploaded', user: 'Admin', type: 'Content', time: '3 hours ago', status: 'success' },
-          { activity: 'User profile updated', user: 'Fatima Ali', type: 'User', time: '4 hours ago', status: 'info' }
-        ];
-
         const tableBody = document.getElementById('recentActivitiesTable');
         tableBody.innerHTML = activities.map(activity => `
           <tr>
@@ -5759,8 +6080,310 @@ document.getElementById('mentor-form').onsubmit = async function(e) {
       if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
       return `${Math.floor(diffInSeconds / 86400)}d ago`;
     }
+    
+    // Display Functions for Content Sections
+    
+    // Function to display courses
+    function displayCourses(courses) {
+      const coursesContainer = document.getElementById('courses-list');
+      if (!coursesContainer) {
+        console.error('Courses list container not found');
+        return;
+      }
+      
+      if (!courses || courses.length === 0) {
+        coursesContainer.innerHTML = '<div class="alert alert-info">No courses found.</div>';
+        return;
+      }
+      
+      coursesContainer.innerHTML = courses.map(course => `
+        <div class="card mb-3">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h5 class="card-title mb-0">${course.title || 'Untitled Course'}</h5>
+              <span class="badge bg-${course.published ? 'success' : 'warning'}">${course.published ? 'Published' : 'Draft'}</span>
+            </div>
+            <p class="card-text text-muted small mb-2">${course.category || 'Uncategorized'}</p>
+            <p class="card-text">${course.description || 'No description available'}</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <span class="badge bg-light text-dark me-1">Modules: ${course.modules?.length || 0}</span>
+                <span class="badge bg-light text-dark">Students: ${course.enrollments || 0}</span>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-sm btn-outline-primary" onclick="editCourse('${course._id}')">Edit</button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteCourse('${course._id}')">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    // Function to display mentors
+    function displayMentors(mentors) {
+      const mentorsContainer = document.getElementById('mentors-list');
+      if (!mentorsContainer) {
+        console.error('Mentors list container not found');
+        return;
+      }
+      
+      if (!mentors || mentors.length === 0) {
+        mentorsContainer.innerHTML = '<div class="alert alert-info">No mentors found.</div>';
+        return;
+      }
+      
+      mentorsContainer.innerHTML = mentors.map(mentor => `
+        <div class="card mb-3">
+          <div class="card-body">
+            <div class="d-flex align-items-center mb-3">
+              <div class="avatar me-3" style="width: 50px; height: 50px; border-radius: 50%; background: #007bff; color: white; display: flex; justify-content: center; align-items: center; font-weight: bold;">
+                ${mentor.name ? mentor.name.charAt(0) : 'M'}
+              </div>
+              <div>
+                <h5 class="card-title mb-0">${mentor.name || 'Unnamed Mentor'}</h5>
+                <p class="text-muted mb-0">${mentor.title || mentor.expertise || 'Mentor'}</p>
+              </div>
+            </div>
+            <p class="card-text">${mentor.bio || 'No bio available'}</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                ${mentor.tags ? mentor.tags.map(tag => `<span class="badge bg-light text-dark me-1">${tag}</span>`).join('') : ''}
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-sm btn-outline-primary" onclick="editMentor('${mentor._id}')">Edit</button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteMentor('${mentor._id}')">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    // Function to display opportunities
+    function displayOpportunities(opportunities) {
+      const opportunitiesContainer = document.getElementById('opportunities-list');
+      if (!opportunitiesContainer) {
+        console.error('Opportunities list container not found');
+        return;
+      }
+      
+      if (!opportunities || opportunities.length === 0) {
+        opportunitiesContainer.innerHTML = '<div class="alert alert-info">No opportunities found.</div>';
+        return;
+      }
+      
+      opportunitiesContainer.innerHTML = opportunities.map(opportunity => `
+        <div class="card mb-3">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h5 class="card-title mb-0">${opportunity.title || 'Untitled Opportunity'}</h5>
+              <span class="badge bg-${opportunity.active ? 'success' : 'secondary'}">${opportunity.active ? 'Active' : 'Inactive'}</span>
+            </div>
+            <p class="card-text text-muted small mb-2">${opportunity.company || 'Unknown Company'} • ${opportunity.location || 'Remote'}</p>
+            <p class="card-text">${opportunity.description || 'No description available'}</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <span class="badge bg-light text-dark me-1">${opportunity.type || 'Job'}</span>
+                <span class="badge bg-light text-dark">${opportunity.category || 'Uncategorized'}</span>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-sm btn-outline-primary" onclick="editOpportunity('${opportunity._id}')">Edit</button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteOpportunity('${opportunity._id}')">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    // Function to display resources
+    function displayResources(resources) {
+      console.log('displayResources called with:', resources);
+      
+      // Make sure the resources section is visible
+      const resourcesSection = document.getElementById('resources-section');
+      if (resourcesSection) {
+        resourcesSection.style.display = 'block';
+      }
+      
+      // Handle the resources list container
+      const resourcesContainer = document.getElementById('resources-list');
+      if (!resourcesContainer) {
+        console.error('Resources list container not found');
+        return;
+      }
+      
+      // Also update the recent resources container in the Overview tab
+      const recentContainer = document.getElementById('recentResourcesContainer');
+      
+      // Handle different response formats - object with resources property or direct array
+      let resourcesArray = resources;
+      if (resources && typeof resources === 'object' && !Array.isArray(resources)) {
+        console.log('Resources is an object, checking for resources property');
+        resourcesArray = resources.resources || resources.data || [];
+      }
+      
+      if (!Array.isArray(resourcesArray)) {
+        console.error('Resources is not an array after normalization:', resourcesArray);
+        resourcesContainer.innerHTML = '<div class="alert alert-danger">Error: Invalid resources data format</div>';
+        if (recentContainer) {
+          recentContainer.innerHTML = '<div class="alert alert-danger">Error: Invalid resources data format</div>';
+        }
+        return;
+      }
+      
+      if (resourcesArray.length === 0) {
+        console.log('No resources to display');
+        resourcesContainer.innerHTML = '<div class="alert alert-info">No resources found.</div>';
+        if (recentContainer) {
+          recentContainer.innerHTML = '<div class="alert alert-info">No resources found.</div>';
+        }
+        return;
+      }
+      
+      console.log(`Displaying ${resourcesArray.length} resources`);
+      
+      // Display resources in the main container
+      resourcesContainer.innerHTML = resourcesArray.map(resource => `
+        <div class="card mb-3">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h5 class="card-title mb-0">${resource.title || 'Untitled Resource'}</h5>
+              <span class="badge bg-${resource.type === 'document' ? 'primary' : resource.type === 'video' ? 'success' : 'info'}">${resource.type || 'Resource'}</span>
+            </div>
+            <p class="card-text">${resource.description || 'No description available'}</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <a href="${resource.url || '#'}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                  <i class="material-icons" style="font-size: 1rem;">open_in_new</i> View
+                </a>
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-sm btn-outline-primary" onclick="editResource('${resource._id}')">Edit</button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteResource('${resource._id}')">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      
+      // Display recent resources in the overview tab
+      if (recentContainer) {
+        const recentResources = resourcesArray.slice(0, 5); // Just show the 5 most recent
+        
+        if (recentResources.length === 0) {
+          recentContainer.innerHTML = '<div class="alert alert-info">No recent resources.</div>';
+        } else {
+          recentContainer.innerHTML = `
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${recentResources.map(resource => `
+                    <tr>
+                      <td>${resource.title || 'Untitled'}</td>
+                      <td><span class="badge bg-${resource.type === 'document' ? 'primary' : resource.type === 'video' ? 'success' : 'info'}">${resource.type || 'Resource'}</span></td>
+                      <td>
+                        <div class="btn-group btn-group-sm">
+                          <a href="${resource.url || '#'}" target="_blank" class="btn btn-outline-secondary">View</a>
+                          <button class="btn btn-outline-primary" onclick="editResource('${resource._id}')">Edit</button>
+                        </div>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          `;
+        }
+      }
+      
+      // Make sure we show the resources section
+      document.getElementById('resourcesOverview').style.display = 'block';
+    }
 
     // Logout function
+    function setupResourceTabs() {
+      console.log('Setting up resource tabs');
+      
+      // Make sure all tabs have proper onclick handlers
+      const overviewTab = document.getElementById('tab-overview');
+      if (overviewTab) overviewTab.onclick = () => switchResourceTab('overview');
+      
+      const addTab = document.getElementById('tab-add');
+      if (addTab) addTab.onclick = () => switchResourceTab('add');
+      
+      const manageTab = document.getElementById('tab-manage');
+      if (manageTab) manageTab.onclick = () => switchResourceTab('manage');
+      
+      // Show the active tab by default
+      switchResourceTab('overview');
+      
+      console.log('Resource tabs setup complete');
+    }
+    
+    // Function to switch between resource tabs
+    function switchResourceTab(tabId) {
+      console.log('Switching to resource tab:', tabId);
+      
+      // Make sure the resources section is visible
+      const resourcesSection = document.getElementById('resources-section');
+      if (resourcesSection) {
+        resourcesSection.style.display = 'block';
+      }
+      
+      // Remove active class from all buttons and hide all content
+      document.querySelectorAll('#resources-section .nav-tab').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      document.querySelectorAll('#resources-section .tab-content').forEach(content => {
+        content.style.display = 'none';
+        content.classList.remove('active');
+      });
+      
+      // Add active class to clicked button
+      const activeButton = document.querySelector(`#resources-section .nav-tab[data-tab="${tabId}"]`);
+      if (activeButton) {
+        activeButton.classList.add('active');
+      }
+      
+      // Show active content
+      const activeContent = document.getElementById(tabId);
+      if (activeContent) {
+        activeContent.style.display = 'block';
+        activeContent.classList.add('active');
+        console.log(`Activated tab content: ${tabId}`);
+      } else {
+        console.error(`Tab content for ${tabId} not found!`);
+      }
+    }
+    
+    // Function to close the edit modal
+    function closeEditModal() {
+      console.log('Closing edit modal');
+      const modal = document.getElementById('editModal');
+      if (modal) {
+        modal.style.display = 'none';
+      }
+    }
+    
+    // Function to close the delete confirmation modal
+    function closeDeleteModal() {
+      console.log('Closing delete modal');
+      const modal = document.getElementById('confirmDeleteModal');
+      if (modal) {
+        modal.style.display = 'none';
+      }
+    }
+    
     function logout() {
       localStorage.removeItem('adminToken');
       localStorage.removeItem('adminData');
@@ -5770,9 +6393,150 @@ document.getElementById('mentor-form').onsubmit = async function(e) {
     // Debugging: Check if everything is loaded properly
     document.addEventListener('DOMContentLoaded', function() {
       console.log('Admin dashboard ready');
+      
+      // Fix resources tab system to make sure it works
+      fixResourceTabs();
+      
+      // Load dashboard data when page loads
+      loadCourses();
+      loadMentors();
+      loadOpportunities();
+      
+      // We'll initialize resources section when that tab is clicked
+      // but we can preload the data
+      console.log('Preloading resources data in the background');
+      setTimeout(() => {
+        if (typeof window.loadResources === 'function') {
+          window.loadResources();
+        } else {
+          fetchResourcesDirectly();
+        }
+      }, 1000);
     });
+    
+    // Fix tab system to ensure tabs work
+    function fixResourceTabs() {
+      // Make sure tab buttons have click handlers
+      const tabButtons = document.querySelectorAll('#resources-section .nav-tab');
+      console.log(`Found ${tabButtons.length} resource tab buttons`);
+      
+      tabButtons.forEach(button => {
+        const tabId = button.getAttribute('data-tab');
+        console.log(`Adding click handler to ${tabId} tab`);
+        
+        // Remove any existing click handlers to prevent duplicates
+        const newButton = button.cloneNode(true);
+        button.parentNode.replaceChild(newButton, button);
+        
+        // Add new click handler
+        newButton.addEventListener('click', function() {
+          console.log(`Tab button clicked: ${tabId}`);
+          switchResourceTab(tabId);
+        });
+      });
+      
+      // Ensure CSS rules are properly set
+      const style = document.createElement('style');
+      style.textContent = `
+        #overview, #add, #manage { display: none !important; }
+        #overview.active, #add.active, #manage.active { display: block !important; }
+      `;
+      document.head.appendChild(style);
+    }
   </script>
   <script src="js/admin-helpers.js"></script>
+  <script src="js/admin-course.js"></script>
+  <script src="js/admin-resources.js"></script>
   <script src="js/api.js"></script>
+  
+  <!-- Edit Resource Modal -->
+  <div id="editResourceModal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Edit Resource</h3>
+        <span class="close" onclick="closeEditResourceModal()">&times;</span>
+      </div>
+      <form id="editResourceForm" onsubmit="saveEditedResource(event)">
+        <input type="hidden" id="edit-resource-id">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-title">Title *</label>
+            <input type="text" id="edit-title" name="title" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label for="edit-type">Type *</label>
+            <select id="edit-type" name="type" class="form-select" required>
+              <option value="">Select Type</option>
+              <option value="PDF">PDF</option>
+              <option value="Video">Video</option>
+              <option value="Document">Document</option>
+              <option value="Presentation">Presentation</option>
+              <option value="Audio">Audio</option>
+              <option value="Image">Image</option>
+              <option value="Link">Link</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-description">Description *</label>
+          <textarea id="edit-description" name="description" class="form-textarea" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-url">URL *</label>
+          <input type="url" id="edit-url" name="url" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label for="edit-category">Category</label>
+          <select id="edit-category" name="category" class="form-select">
+            <option value="">Select Category</option>
+            <option value="Development">Development</option>
+            <option value="Design">Design</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Business">Business</option>
+            <option value="Finance">Finance</option>
+            <option value="Technology">Technology</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edit-author">Author</label>
+            <input type="text" id="edit-author" name="author" class="form-input">
+          </div>
+          <div class="form-group">
+            <label for="edit-date">Publication Date</label>
+            <input type="date" id="edit-date" name="date" class="form-input">
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeEditResourceModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Confirm Delete Modal -->
+  <div id="confirmDeleteModal" class="modal" style="display:none;">
+    <div class="modal-content" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3>Confirm Delete</h3>
+        <span class="close" onclick="closeDeleteModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete this resource? This action cannot be undone.</p>
+        <input type="hidden" id="delete-resource-id">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+        <button type="button" class="btn btn-danger" onclick="confirmDeleteResource()">Delete</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

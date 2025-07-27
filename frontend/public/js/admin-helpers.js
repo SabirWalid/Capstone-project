@@ -57,6 +57,12 @@ async function loadCourses() {
     }
 }
 
+// Export these functions to window so they can be called globally
+window.loadCourses = loadCourses;
+window.loadMentors = loadMentors;
+window.loadOpportunities = loadOpportunities;
+window.loadResources = loadResources;
+
 // Function to refresh dashboard data
 async function refreshDashboard() {
     try {
@@ -86,13 +92,61 @@ async function loadOpportunities() {
 }
 
 async function loadResources() {
+    console.log('loadResources called from admin-helpers.js');
     try {
         helpers.showLoading('resourcesContainer');
+        
+        // Clear any previous error messages
+        const resourcesContainer = document.getElementById('resources-list');
+        if (resourcesContainer) {
+            resourcesContainer.innerHTML = '<div class="loading-overlay"><div class="spinner"></div><p>Loading resources...</p></div>';
+        }
+        
+        console.log('Fetching resources data...');
         const data = await api.resources.getAll();
-        // Your existing resources display logic
-        displayResources(data);
+        console.log('Resources data received:', data);
+        
+        // Handle different response formats
+        let resourcesArray = data;
+        if (data && typeof data === 'object' && !Array.isArray(data)) {
+            console.log('Resources is an object, checking for resources property');
+            resourcesArray = data.resources || data.data || [];
+        }
+        
+        // Display resources
+        if (typeof displayResources === 'function') {
+            console.log('Calling displayResources with normalized data');
+            displayResources(resourcesArray);
+        } else {
+            console.error('displayResources function not found');
+            if (resourcesContainer) {
+                resourcesContainer.innerHTML = '<div class="alert alert-danger">Error: Display function not available</div>';
+            }
+        }
     } catch (error) {
-        helpers.showError('resourcesContainer', 'Failed to load resources. Please try again.');
         console.error('Error loading resources:', error);
+        
+        // Try to display error in both possible containers
+        ['resourcesContainer', 'resources-list'].forEach(containerId => {
+            const container = document.getElementById(containerId);
+            if (container) {
+                helpers.showError(containerId, 'Failed to load resources. Please try again. Error: ' + error.message);
+            }
+        });
+        
+        // Fall back to direct HTML error display
+        const resourcesContainer = document.getElementById('resources-list');
+        if (resourcesContainer) {
+            resourcesContainer.innerHTML = `
+                <div class="alert alert-danger">
+                    <strong>Error loading resources:</strong> ${error.message}
+                    <button class="btn btn-sm btn-outline-danger mt-2" onclick="loadResources()">Retry</button>
+                </div>
+            `;
+        }
     }
 }
+
+// Make helpers available globally
+window.helpers = helpers;
+

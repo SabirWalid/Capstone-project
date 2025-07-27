@@ -43,7 +43,7 @@ const requireAuth = (req, res, next) => {
 };
 
 // Get all resources (admin view)
-router.get('/', requireAuth, async (req, res) => {
+router.get('/', adminAuth, async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;

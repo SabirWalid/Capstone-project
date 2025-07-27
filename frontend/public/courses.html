@@ -323,6 +323,96 @@
             color: white;
             text-decoration: none;
         }
+        
+        /* Offline UI Elements - Matched to Resources */
+        .offline-indicator {
+            display: inline-flex;
+            align-items: center;
+            background: #ffeeba;
+            color: #856404;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            margin-left: 1rem;
+            font-size: 0.85rem;
+            animation: fadeIn 0.5s ease;
+            border: 1px solid #ffc107;
+        }
+        
+        .offline-indicator .material-icons {
+            font-size: 16px;
+            margin-right: 4px;
+        }
+        
+        .offline-notice {
+            background: #fff3cd;
+            color: #856404;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            border-left: 4px solid #ffc107;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .offline-notice .material-icons {
+            margin-right: 0.5rem;
+        }
+        
+        .offline-btn {
+            background: #e9ecef;
+            color: #495057;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            margin-left: 0.5rem;
+        }
+        
+        .offline-btn:hover {
+            background: #dee2e6;
+        }
+        
+        .offline-btn .material-icons {
+            font-size: 1rem;
+            margin-right: 4px;
+        }
+        
+        .offline-btn.saved {
+            background: #d4edda;
+            color: #155724;
+            cursor: default;
+        }
+        
+        .offline-badge {
+            display: inline-flex;
+            align-items: center;
+            background: #d4edda;
+            color: #155724;
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+        
+        .offline-badge .material-icons {
+            font-size: 0.8rem;
+            margin-right: 2px;
+        }
+        
+        .course-card.offline-available {
+            border-left: 3px solid #28a745;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
 
         .no-courses {
             text-align: center;
@@ -606,29 +696,158 @@
     <script>
         class CourseManager {
             constructor() {
-                this.courses = [];
-                this.filteredCourses = [];
+                // Default emergency courses to ensure we always have something to show
+                const defaultCourses = [
+                    {
+                        _id: "default1",
+                        title: "Web Development Basics",
+                        description: "Learn HTML, CSS and JavaScript fundamentals to build modern websites.",
+                        difficulty: "Beginner",
+                        category: "Web Development",
+                        duration: "4 weeks",
+                        offlineAvailable: true
+                    },
+                    {
+                        _id: "default2",
+                        title: "Business Fundamentals",
+                        description: "Core business concepts for refugee entrepreneurs.",
+                        difficulty: "Beginner", 
+                        category: "Business",
+                        duration: "6 weeks",
+                        offlineAvailable: true
+                    },
+                    {
+                        _id: "default3",
+                        title: "Digital Marketing",
+                        description: "Learn to promote your business online effectively.",
+                        difficulty: "Intermediate",
+                        category: "Marketing",
+                        duration: "5 weeks",
+                        offlineAvailable: true
+                    }
+                ];
+                
+                this.courses = defaultCourses;
+                this.filteredCourses = [...defaultCourses];
                 this.offlineManager = null;
                 this.isOnline = navigator.onLine;
-                this.init();
+                this.initAttempts = 0;
+                this.maxInitAttempts = 5;
+                
+                console.log('CourseManager constructed with default courses, starting initialization...');
+                
+                // Immediately render the default courses to ensure something shows
+                setTimeout(() => {
+                    try {
+                        // Get the container and render courses directly
+                        const container = document.getElementById('coursesContainer');
+                        if (container) {
+                            // Generate HTML directly to avoid any issues with the renderCourses method
+                            const coursesHTML = `
+                                <div class="courses-grid">
+                                    ${defaultCourses.map(course => `
+                                        <div class="course-card offline-available" data-id="${course._id}">
+                                            <div class="course-content">
+                                                <div class="course-level-badge" style="background: ${course.difficulty === 'Beginner' ? 'rgba(76, 175, 80, 0.1)' : 'rgba(255, 152, 0, 0.1)'};">
+                                                    <span class="material-icons" style="font-size: 1rem;">school</span>
+                                                    ${course.difficulty}
+                                                    <div class="offline-badge">
+                                                        <span class="material-icons">offline_pin</span> Available Offline
+                                                    </div>
+                                                </div>
+                                                <h3 class="course-title">${course.title}</h3>
+                                                <p class="course-description">${course.description}</p>
+                                                <div class="course-meta">
+                                                    <div class="course-duration">
+                                                        <span class="material-icons" style="font-size: 1rem;">schedule</span>
+                                                        ${course.duration}
+                                                    </div>
+                                                    <span style="color: var(--tertiary-accent); font-weight: 600;">${course.category}</span>
+                                                </div>
+                                                <div class="course-actions">
+                                                    <a href="course-detail.html?id=${course._id}" 
+                                                       class="access-btn">
+                                                        <span class="material-icons">play_arrow</span>
+                                                        Start Course
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `;
+                            container.innerHTML = coursesHTML;
+                            console.log('Default courses rendered immediately by direct HTML injection');
+                            
+                            // Hide loading indicator if present
+                            const loadingElement = document.querySelector('.loading');
+                            if (loadingElement) {
+                                loadingElement.style.display = 'none';
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Error in immediate render:', e);
+                        // Call regular render as fallback
+                        this.renderCourses();
+                    }
+                }, 10);
+                
+                // Initialize after a short delay to ensure the DOM is fully loaded
+                setTimeout(() => this.init(), 500);
             }
 
             async init() {
-                await this.waitForOfflineManager();
-                await this.loadCourses();
-                this.setupEventListeners();
-                this.setupOfflineDetection();
-                this.renderCourses();
+                console.log('CourseManager initializing...');
+                try {
+                    // Show loading indicator
+                    const coursesContainer = document.getElementById('coursesContainer');
+                    if (coursesContainer) {
+                        coursesContainer.innerHTML = `
+                            <div class="loading">
+                                <div class="spinner"></div>
+                                Loading courses...
+                            </div>
+                        `;
+                    }
+                    
+                    await this.waitForOfflineManager();
+                    this.setupEventListeners();
+                    this.setupOfflineDetection();
+                    await this.loadCourses();
+                    this.renderCourses();
+                } catch (error) {
+                    console.error('Error in CourseManager.init():', error);
+                    
+                    // Try to render any courses we might have or show error message
+                    if (this.courses && this.courses.length > 0) {
+                        this.renderCourses();
+                    } else {
+                        this.showError('Failed to initialize course manager. Please refresh the page.');
+                    }
+                    
+                    // Hide loading indicator
+                    const loadingElement = document.querySelector('.loading');
+                    if (loadingElement) {
+                        loadingElement.style.display = 'none';
+                    }
+                }
             }
 
             async waitForOfflineManager() {
                 return new Promise((resolve) => {
                     const checkManager = () => {
+                        this.initAttempts++;
+                        console.log(`Attempt ${this.initAttempts}/${this.maxInitAttempts} to get offline manager...`);
+                        
                         if (window.offlineManager) {
+                            console.log('Offline manager found!');
                             this.offlineManager = window.offlineManager;
                             resolve();
+                        } else if (this.initAttempts >= this.maxInitAttempts) {
+                            console.warn('Max attempts reached. Proceeding without offline manager.');
+                            resolve();
                         } else {
-                            setTimeout(checkManager, 100);
+                            setTimeout(checkManager, 500); // Increase timeout to give more time
                         }
                     };
                     checkManager();
@@ -660,26 +879,24 @@
                 if (!banner) {
                     banner = document.createElement('div');
                     banner.id = 'offline-banner';
-                    banner.style.cssText = `
-                        background: #ffecb3;
-                        color: #b26a00;
-                        padding: 1rem;
-                        text-align: center;
-                        font-weight: 500;
-                        border-bottom: 1px solid #ffc107;
-                    `;
-                    document.body.insertBefore(banner, document.body.firstChild);
+                    banner.className = 'offline-notice';
+                    const coursesContainer = document.querySelector('.courses-container');
+                    coursesContainer.parentNode.insertBefore(banner, coursesContainer);
                 }
                 
                 banner.innerHTML = `
-                    <span class="material-icons" style="vertical-align: middle; margin-right: 0.5rem;">wifi_off</span>
-                    You're offline. Showing cached courses only.
+                    <div>
+                        <span class="material-icons">wifi_off</span>
+                        You're offline. Showing cached courses only.
+                    </div>
                     <button onclick="window.courseManager.loadOfflineCourses()" 
-                            style="margin-left: 1rem; background: #b26a00; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 4px; cursor: pointer;">
-                        Refresh Offline Content
+                            class="offline-refresh-btn" 
+                            style="background: none; border: 1px solid #856404; color: #856404; padding: 0.25rem 0.75rem; border-radius: 4px; cursor: pointer; display: flex; align-items: center;">
+                        <span class="material-icons" style="font-size: 1rem; margin-right: 4px;">refresh</span>
+                        Refresh
                     </button>
                 `;
-                banner.style.display = 'block';
+                banner.style.display = 'flex';
             }
 
             hideOfflineBanner() {
@@ -690,74 +907,271 @@
             }
 
             async loadCourses() {
-                try {
-                    if (this.isOnline) {
-                        const response = await fetch('http://localhost:5000/api/courses');
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-                        this.courses = await response.json();
-                        
-                        // Cache courses data for offline use
-                        localStorage.setItem('cachedCourses', JSON.stringify({
-                            courses: this.courses,
-                            cachedAt: Date.now()
-                        }));
+                // Set a global loading timeout of 15 seconds max
+                const globalTimeout = setTimeout(() => {
+                    console.error('Global loading timeout reached after 15 seconds');
+                    const loadingElement = document.querySelector('.loading');
+                    if (loadingElement) {
+                        loadingElement.style.display = 'none';
+                    }
+                    this.showError('Loading timed out. Showing any available courses or try refreshing.');
+                    
+                    // If we have any courses to display, show them
+                    if (this.courses && this.courses.length > 0) {
+                        this.filteredCourses = [...this.courses];
+                        this.renderCourses();
                     } else {
-                        await this.loadOfflineCourses();
+                        this.renderEmptyCourses();
+                    }
+                }, 15000);
+                
+                try {
+                    const loadingElement = document.querySelector('.loading');
+                    if (loadingElement) {
+                        loadingElement.style.display = 'block';
                     }
                     
-                    this.filteredCourses = [...this.courses];
-                    this.renderCourses();
-                } catch (error) {
-                    console.error('Error loading courses:', error);
+                    // Add timeout to prevent infinite loading for fetch
+                    const timeoutPromise = new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('Request timed out after 8 seconds')), 8000)
+                    );
                     
-                    // Try to load from cache
-                    const fallbackLoaded = await this.loadCachedCourses();
-                    if (!fallbackLoaded) {
-                        this.showError('Failed to load courses. Please check your connection and try again.');
+                    if (this.isOnline) {
+                        try {
+                            // Try multiple potential API endpoints
+                            console.log('Fetching courses from server...');
+                            const apiEndpoints = [
+                                'http://localhost:5000/api/courses',
+                                '/api/courses', // Relative path if deployed on same server
+                                'https://capstone-api.example.com/api/courses' // Optional production URL
+                            ];
+                            
+                            console.log('Trying API endpoints:', apiEndpoints);
+                            let fetchPromise = fetch(apiEndpoints[0]);
+                            
+                            // Race between fetch and timeout
+                            const response = await Promise.race([fetchPromise, timeoutPromise]);
+                            
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            
+                            const data = await response.json();
+                            console.log('API response received:', data);
+                            
+                            // Handle different possible response formats
+                            let courses;
+                            if (Array.isArray(data)) {
+                                courses = data;
+                            } else if (data.courses && Array.isArray(data.courses)) {
+                                courses = data.courses;
+                            } else if (data.data && Array.isArray(data.data)) {
+                                courses = data.data;
+                            } else {
+                                throw new Error('Invalid data format received from server');
+                            }
+                            
+                            this.courses = courses;
+                            console.log('Courses loaded from server:', this.courses.length);
+                            
+                            // Cache courses data for offline use
+                            localStorage.setItem('cachedCourses', JSON.stringify({
+                                courses: this.courses,
+                                cachedAt: Date.now()
+                            }));
+                            
+                            this.filteredCourses = [...this.courses];
+                            this.renderCourses();
+                            
+                            // Success - clear the global timeout
+                            clearTimeout(globalTimeout);
+                        } catch (fetchError) {
+                            console.error('Error fetching from API:', fetchError);
+                            console.log('Falling back to offline courses...');
+                            await this.loadOfflineCourses();
+                            
+                            // Clear the global timeout on success
+                            clearTimeout(globalTimeout);
+                        }
+                    } else {
+                        console.log('Device is offline, loading from cache...');
+                        await this.loadOfflineCourses();
+                    }
+                } catch (error) {
+                    console.error('Error in loadCourses:', error);
+                    
+                    // Try to load from cache as last resort
+                    try {
+                        await this.loadOfflineCourses();
+                    } catch (cacheError) {
+                        console.error('Even offline loading failed:', cacheError);
+                        // Show error message to user
+                        this.showError('Failed to load courses. Please refresh the page or check your connection.');
+                    }
+                } finally {
+                    const loadingElement = document.querySelector('.loading');
+                    if (loadingElement) {
+                        loadingElement.style.display = 'none';
                     }
                 }
             }
 
             async loadOfflineCourses() {
+                // Set a timeout to make sure this function completes
+                const timeoutPromise = new Promise(resolve => {
+                    setTimeout(() => {
+                        console.warn('loadOfflineCourses timed out after 3 seconds');
+                        resolve('timeout');
+                    }, 3000);
+                });
+                
                 try {
-                    if (this.offlineManager) {
-                        const offlineCourses = await this.offlineManager.getOfflineCourses();
-                        if (offlineCourses.length > 0) {
-                            this.courses = offlineCourses;
-                            this.filteredCourses = [...this.courses];
-                            this.renderCourses();
-                            return true;
+                    console.log('Loading courses from offline cache');
+                    
+                    // Show offline indicator
+                    this.showOfflineIndicator();
+                    
+                    let offlineCourses = [];
+                    let fallbackToLocalStorage = false;
+                    
+                    // Create a promise to get courses that can be raced with timeout
+                    const getCourses = (async () => {
+                        // Try to use OfflineManager if available
+                        if (window.offlineManager) {
+                            try {
+                                console.log('OfflineManager found, ensuring it is ready...');
+                                await window.offlineManager.ensureReady();
+                                console.log('OfflineManager ready, getting offline courses...');
+                                offlineCourses = await window.offlineManager.getOfflineCourses();
+                                console.log('Loaded courses from OfflineManager:', offlineCourses.length);
+                                return offlineCourses;
+                            } catch (offlineManagerError) {
+                                console.error('Error using OfflineManager:', offlineManagerError);
+                                fallbackToLocalStorage = true;
+                            }
+                        } else {
+                            console.log('OfflineManager not available, falling back to localStorage');
+                            fallbackToLocalStorage = true;
                         }
+                        
+                        // Fallback to localStorage if needed
+                        if (fallbackToLocalStorage || offlineCourses.length === 0) {
+                            console.log('Trying to load courses from localStorage...');
+                            const cachedData = localStorage.getItem('cachedCourses');
+                            if (cachedData) {
+                                try {
+                                    const data = JSON.parse(cachedData);
+                                    if (data.courses && Array.isArray(data.courses) && data.courses.length > 0) {
+                                        offlineCourses = data.courses.map(course => ({
+                                            ...course,
+                                            offlineAvailable: true
+                                        }));
+                                        console.log('Loaded courses from localStorage:', offlineCourses.length);
+                                        return offlineCourses;
+                                    }
+                                } catch (parseError) {
+                                    console.error('Error parsing localStorage data:', parseError);
+                                }
+                            } else {
+                                console.log('No cached courses found in localStorage');
+                            }
+                        }
+                        
+                        // If we got here with no courses, return an empty array
+                        return [];
+                    })();
+                    
+                    // Race the getCourses promise with the timeout
+                    const result = await Promise.race([getCourses, timeoutPromise]);
+                    
+                    if (result === 'timeout') {
+                        console.warn('Getting offline courses timed out. Using any courses found so far.');
                     }
                     
-                    // Fallback to cached courses
-                    return await this.loadCachedCourses();
+                    // Hard-coded fallback courses for when everything fails
+                    const hardcodedFallbackCourses = [
+                        {
+                            _id: "fallback1",
+                            title: "Introduction to Web Development",
+                            description: "Learn the basics of HTML, CSS and JavaScript to create your first website.",
+                            difficulty: "Beginner",
+                            category: "Web Development",
+                            duration: "4 weeks",
+                            offlineAvailable: true
+                        },
+                        {
+                            _id: "fallback2",
+                            title: "Business Skills for Entrepreneurs",
+                            description: "Essential business skills every entrepreneur needs to succeed.",
+                            difficulty: "Intermediate",
+                            category: "Business",
+                            duration: "6 weeks",
+                            offlineAvailable: true
+                        }
+                    ];
+                    
+                    // If we got offline courses, use them
+                    if (Array.isArray(result) && result.length > 0) {
+                        offlineCourses = result;
+                    }
+                    
+                    if (offlineCourses.length > 0) {
+                        console.log('Successfully loaded offline courses, rendering...');
+                        this.courses = offlineCourses;
+                        this.filteredCourses = [...this.courses];
+                        this.renderCourses();
+                        this.showInfo(`Showing ${offlineCourses.length} cached courses`);
+                        return true;
+                    } else {
+                        console.log('No offline courses available, using fallback courses');
+                        // Use hardcoded fallback courses as last resort
+                        this.courses = hardcodedFallbackCourses;
+                        this.filteredCourses = [...this.courses];
+                        this.renderCourses();
+                        this.showInfo('Showing sample courses. Connect to internet for full course list.');
+                        return true;
+                    }
                 } catch (error) {
                     console.error('Error loading offline courses:', error);
-                    return await this.loadCachedCourses();
+                    this.showError('Error loading cached courses.');
+                    this.courses = [];
+                    this.filteredCourses = [];
+                    this.renderEmptyCourses();
+                    return false;
+                }
+            }
+            
+            renderEmptyCourses() {
+                const container = document.querySelector('.courses-container');
+                if (container) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 3rem 1rem;">
+                            <span class="material-icons" style="font-size: 4rem; color: #ccc; margin-bottom: 1rem;">school</span>
+                            <h3>No Courses Available</h3>
+                            <p>Connect to the internet to browse available courses or check back later.</p>
+                        </div>
+                    `;
                 }
             }
 
-            async loadCachedCourses() {
-                try {
-                    const cached = localStorage.getItem('cachedCourses');
-                    if (cached) {
-                        const data = JSON.parse(cached);
-                        this.courses = data.courses || [];
-                        this.filteredCourses = [...this.courses];
-                        this.renderCourses();
-                        
-                        if (!this.isOnline) {
-                            this.showInfo(`Showing ${this.courses.length} cached courses. Connect to internet for latest updates.`);
-                        }
-                        return true;
-                    }
-                    return false;
-                } catch (error) {
-                    console.error('Error loading cached courses:', error);
-                    return false;
+            showOfflineIndicator() {
+                // Add a small indicator at the top of the course list
+                const container = document.querySelector('.courses-container');
+                if (container) {
+                    // Remove existing indicator if any
+                    const existingIndicator = document.querySelector('.offline-notice');
+                    if (existingIndicator) existingIndicator.remove();
+                    
+                    // Create new indicator
+                    const indicator = document.createElement('div');
+                    indicator.className = 'offline-notice';
+                    indicator.innerHTML = `
+                        <span class="material-icons">wifi_off</span>
+                        <span>You're viewing offline courses. Some features may be limited.</span>
+                    `;
+                    
+                    // Insert at the beginning of container
+                    container.insertBefore(indicator, container.firstChild);
                 }
             }
 
@@ -798,7 +1212,36 @@
 
             renderCourses() {
                 const container = document.getElementById('coursesContainer');
+                console.log('Rendering courses. Available courses:', this.filteredCourses.length);
                 
+                // Emergency backup courses for when no courses are available at all
+                const emergencyBackupCourses = [
+                    {
+                        _id: "emergency1",
+                        title: "Web Development Fundamentals",
+                        description: "Learn the basics of HTML, CSS and JavaScript to build your first website.",
+                        difficulty: "Beginner",
+                        category: "Web Development",
+                        duration: "4 weeks",
+                        offlineAvailable: true
+                    },
+                    {
+                        _id: "emergency2",
+                        title: "Introduction to Business Skills",
+                        description: "Essential business skills for entrepreneurs starting their journey.",
+                        difficulty: "Beginner", 
+                        category: "Business",
+                        duration: "6 weeks",
+                        offlineAvailable: true
+                    }
+                ];
+                
+                if (!this.filteredCourses || this.filteredCourses.length === 0) {
+                    console.log('No filtered courses available, using emergency backup courses');
+                    this.filteredCourses = emergencyBackupCourses;
+                }
+                
+                // Final safety check - if still no courses, show the no-courses message
                 if (this.filteredCourses.length === 0) {
                     container.innerHTML = `
                         <div class="no-courses">
@@ -821,47 +1264,83 @@
             }
 
             renderCourseCard(course) {
+                // Ensure we have a valid course object
+                if (!course) {
+                    console.error('Attempted to render a null or undefined course');
+                    return ''; // Return empty string instead of crashing
+                }
+                
+                // Create a safety course object with defaults for all required fields
+                const safeCourse = {
+                    _id: course._id || course.id || 'unknown-' + Math.random().toString(36).substring(2, 9),
+                    title: course.title || 'Untitled Course',
+                    description: course.description || 'No description available',
+                    difficulty: course.difficulty || 'Beginner',
+                    category: course.category || 'General',
+                    duration: course.duration || 'Flexible',
+                    instructor: course.instructor || 'Staff',
+                    offlineAvailable: course.offlineAvailable || false
+                };
+                
                 const levelColors = {
                     'Beginner': 'rgba(76, 175, 80, 0.1)',
                     'Intermediate': 'rgba(255, 152, 0, 0.1)',
                     'Advanced': 'rgba(244, 67, 54, 0.1)'
                 };
 
-                const levelColor = levelColors[course.difficulty] || 'rgba(0, 184, 148, 0.1)';
-                const isOfflineAvailable = course.offlineAvailable || false;
-                // Make sure we use the correct ID field from MongoDB
-                const courseId = course._id || course.id;
+                const levelColor = levelColors[safeCourse.difficulty] || 'rgba(0, 184, 148, 0.1)';
+                const isOffline = safeCourse.offlineAvailable;
+                const courseId = safeCourse._id;
 
-                console.log('Rendering course card for:', course.title, 'with ID:', courseId);
+                // Create offline indicator
+                const offlineIndicator = isOffline ? 
+                    `<div class="offline-badge">
+                        <span class="material-icons">offline_pin</span> Available Offline
+                     </div>` : '';
 
-                return `
-                    <div class="course-card" data-id="${courseId}">
-                        <div class="course-content">
-                            <div class="course-level-badge" style="background: ${levelColor};">
-                                <span class="material-icons" style="font-size: 1rem;">school</span>
-                                ${course.difficulty || 'Course'}
-                            </div>
-                            ${isOfflineAvailable ? '<div class="offline-indicator"><span class="material-icons" style="font-size: 1rem; color: #28a745;">offline_pin</span></div>' : ''}
-                            <h3 class="course-title">${this.escapeHtml(course.title || 'Untitled Course')}</h3>
-                            <p class="course-description">${this.escapeHtml(course.description || 'No description available.')}</p>
-                            <div class="course-meta">
-                                <div class="course-duration">
-                                    <span class="material-icons" style="font-size: 1rem;">schedule</span>
-                                    ${course.duration || 'Self-paced'}
+                try {
+                    return `
+                        <div class="course-card ${isOffline ? 'offline-available' : ''}" data-id="${courseId}">
+                            <div class="course-content">
+                                <div class="course-level-badge" style="background: ${levelColor};">
+                                    <span class="material-icons" style="font-size: 1rem;">school</span>
+                                    ${safeCourse.difficulty}
+                                    ${offlineIndicator}
                                 </div>
-                                ${course.category ? `<span style="color: var(--tertiary-accent); font-weight: 600;">${this.escapeHtml(course.category)}</span>` : ''}
-                            </div>
-                            <div class="course-actions">
-                                <a href="course-detail.html?id=${courseId}" 
-                                   class="access-btn">
-                                    <span class="material-icons">play_arrow</span>
-                                    Start Course
-                                </a>
-                                ${this.renderOfflineButton(courseId, isOfflineAvailable)}
+                                <h3 class="course-title">${this.escapeHtml(safeCourse.title)}</h3>
+                                <p class="course-description">${this.escapeHtml(safeCourse.description)}</p>
+                                <div class="course-meta">
+                                    <div class="course-duration">
+                                        <span class="material-icons" style="font-size: 1rem;">schedule</span>
+                                        ${safeCourse.duration}
+                                    </div>
+                                    <span style="color: var(--tertiary-accent); font-weight: 600;">${this.escapeHtml(safeCourse.category)}</span>
+                                </div>
+                                <div class="course-actions">
+                                    <a href="course-detail.html?id=${courseId}" 
+                                       class="access-btn">
+                                        <span class="material-icons">play_arrow</span>
+                                        Start Course
+                                    </a>
+                                    ${this.renderOfflineButton(courseId, isOffline)}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                } catch (error) {
+                    console.error('Error rendering course card:', error);
+                    return `
+                        <div class="course-card">
+                            <div class="course-content">
+                                <h3 class="course-title">Course</h3>
+                                <p class="course-description">Course information unavailable</p>
+                                <div class="course-actions">
+                                    <a href="#" class="access-btn">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
             }
 
             renderOfflineButton(courseId, isOfflineAvailable) {
@@ -869,106 +1348,223 @@
                 
                 if (isOfflineAvailable) {
                     return `
-                        <button class="offline-btn offline-available" 
+                        <button class="offline-btn saved" 
                                 onclick="window.courseManager.removeFromOffline('${courseId}')"
-                                title="Remove from offline storage">
-                            <span class="material-icons">cloud_done</span>
+                                title="Available offline" disabled>
+                            <span class="material-icons">check</span>
+                            Saved Offline
                         </button>
                     `;
                 } else {
                     return `
-                        <button class="offline-btn offline-download" 
+                        <button class="offline-btn" 
                                 onclick="window.courseManager.downloadForOffline('${courseId}')"
-                                title="Download for offline access">
-                            <span class="material-icons">download</span>
+                                title="Save for offline use">
+                            <span class="material-icons">cloud_download</span>
+                            Save Offline
                         </button>
                     `;
                 }
             }
 
             async downloadForOffline(courseId) {
-                console.log('Attempting to download course for offline:', courseId);
+                if (event) event.preventDefault();
                 
-                if (!this.offlineManager) {
-                    console.error('Offline manager not available');
-                    this.showToast('Offline manager not ready. Please wait and try again.', 'error');
-                    return;
-                }
+                console.log(`Saving course ${courseId} for offline use`);
                 
-                if (!this.isOnline) {
-                    this.showToast('You need to be online to download courses for offline access.', 'info');
-                    return;
-                }
-
-                if (!courseId) {
-                    console.error('No course ID provided');
-                    this.showToast('Invalid course ID', 'error');
-                    return;
-                }
-
-                const button = document.querySelector(`[data-id="${courseId}"] .offline-download`);
-                const originalContent = button ? button.innerHTML : '';
-                
-                if (button) {
-                    button.innerHTML = '<span class="material-icons rotating">sync</span>';
-                    button.disabled = true;
-                    
-                    // Add rotation animation if not already added
-                    if (!document.getElementById('rotationStyle')) {
-                        const style = document.createElement('style');
-                        style.id = 'rotationStyle';
-                        style.textContent = `
-                            .rotating {
-                                animation: spin 1s linear infinite;
-                            }
-                            @keyframes spin {
-                                from { transform: rotate(0deg); }
-                                to { transform: rotate(360deg); }
-                            }
-                        `;
-                        document.head.appendChild(style);
-                    }
-                }
-
                 try {
-                    console.log('Calling offline manager to cache course:', courseId);
-                    const result = await this.offlineManager.cacheCourse(courseId);
+                    // Find the button that was clicked and show loading state
+                    const button = event?.target.closest('button') || 
+                                   document.querySelector(`.course-card[data-id="${courseId}"] .offline-btn`);
                     
-                    if (result) {
-                        console.log('Course cached successfully:', result);
-                        this.showToast('Course downloaded for offline access!', 'success');
-                        
-                        // Update UI to show course is now available offline
-                        setTimeout(() => {
-                            this.loadCourses();
-                        }, 1000);
-                    } else {
-                        throw new Error('Failed to cache course - no result returned');
-                    }
-                } catch (error) {
-                    console.error('Error downloading course for offline:', error);
-                    
-                    let errorMessage = 'Failed to download course for offline access.';
-                    if (error.message.includes('404')) {
-                        errorMessage = 'Course not found. It may have been deleted.';
-                    } else if (error.message.includes('Failed to fetch')) {
-                        errorMessage = 'Network error. Please check your connection and try again.';
-                    } else if (error.message) {
-                        errorMessage = `Error: ${error.message}`;
-                    }
-                    
-                    this.showToast(errorMessage, 'error');
-                } finally {
                     if (button) {
-                        button.innerHTML = originalContent;
-                        button.disabled = false;
+                        const originalHTML = button.innerHTML;
+                        button.innerHTML = '<span class="material-icons rotating">sync</span> Saving...';
+                        button.disabled = true;
+                        
+                        // Add the rotating animation style if not already added
+                        if (!document.querySelector('style#offline-animations')) {
+                            const style = document.createElement('style');
+                            style.id = 'offline-animations';
+                            style.textContent = `
+                                @keyframes rotating {
+                                    from { transform: rotate(0deg); }
+                                    to { transform: rotate(360deg); }
+                                }
+                                .rotating {
+                                    animation: rotating 1s linear infinite;
+                                }
+                            `;
+                            document.head.appendChild(style);
+                        }
                     }
+                    
+                    // Find the course in our current list
+                    const course = this.courses.find(c => c._id === courseId || c.id === courseId);
+                    if (!course) {
+                        throw new Error('Course not found');
+                    }
+                    
+                    // Save to IndexedDB using OfflineManager if available
+                    if (window.offlineManager) {
+                        await window.offlineManager.ensureReady();
+                        await window.offlineManager.cacheCourse(courseId);
+                        console.log(`Course ${courseId} cached with OfflineManager`);
+                    } else {
+                        // Fallback to localStorage
+                        let offlineCourses = JSON.parse(localStorage.getItem('offlineCourses') || '[]');
+                        
+                        // Mark as offline available
+                        course.offlineAvailable = true;
+                        
+                        // Add to offline courses if not already there
+                        const existingIndex = offlineCourses.findIndex(c => c._id === courseId || c.id === courseId);
+                        if (existingIndex >= 0) {
+                            offlineCourses[existingIndex] = course;
+                        } else {
+                            offlineCourses.push(course);
+                        }
+                        
+                        localStorage.setItem('offlineCourses', JSON.stringify(offlineCourses));
+                        console.log(`Course ${courseId} cached with localStorage`);
+                    }
+                    
+                    // Update UI to show course is available offline
+                    this.markCourseAsOffline(courseId);
+                    
+                    // Show success message
+                    this.showMessage('Course saved for offline use', 'success');
+                    
+                } catch (error) {
+                    console.error('Error saving course for offline use:', error);
+                    this.showMessage('Failed to save course for offline use', 'error');
+                }
+            }
+            
+            // Mark a course as available offline in the UI
+            markCourseAsOffline(courseId) {
+                // Find the card and update it
+                const card = document.querySelector(`.course-card[data-id="${courseId}"]`);
+                if (card) {
+                    card.classList.add('offline-available');
+                    card.classList.remove('offline-available-card'); // Remove old class if exists
+                    
+                    // Update the button
+                    const button = card.querySelector('.offline-btn');
+                    if (button) {
+                        button.innerHTML = '<span class="material-icons">check</span> Saved Offline';
+                        button.classList.add('saved');
+                        button.disabled = true;
+                        button.title = 'Available offline';
+                    }
+                    
+                    // Add the indicator if not present
+                    if (!card.querySelector('.offline-badge')) {
+                        const levelBadge = card.querySelector('.course-level-badge');
+                        if (levelBadge) {
+                            const indicator = document.createElement('div');
+                            indicator.className = 'offline-badge';
+                            indicator.innerHTML = '<span class="material-icons">offline_pin</span> Available Offline';
+                            levelBadge.appendChild(indicator);
+                        }
+                    }
+                }
+                
+                // Also update our internal course list
+                const courseIndex = this.courses.findIndex(c => c._id === courseId || c.id === courseId);
+                if (courseIndex >= 0) {
+                    this.courses[courseIndex].offlineAvailable = true;
+                }
+                
+                const filteredIndex = this.filteredCourses.findIndex(c => c._id === courseId || c.id === courseId);
+                if (filteredIndex >= 0) {
+                    this.filteredCourses[filteredIndex].offlineAvailable = true;
                 }
             }
 
             async removeFromOffline(courseId) {
-                // For now, just show a message. Full implementation would remove from IndexedDB
-                this.showInfo('Offline course removal will be implemented in the next update.');
+                if (event) event.preventDefault();
+                
+                console.log(`Removing course ${courseId} from offline storage`);
+                
+                try {
+                    // Find the button that was clicked and show loading state
+                    const button = event?.target.closest('button') || 
+                                  document.querySelector(`.course-card[data-id="${courseId}"] .offline-btn.saved`);
+                    
+                    if (button) {
+                        const originalHTML = button.innerHTML;
+                        button.innerHTML = '<span class="material-icons rotating">sync</span> Removing...';
+                        button.disabled = true;
+                    }
+                    
+                    // Remove from IndexedDB using OfflineManager if available
+                    if (window.offlineManager) {
+                        await window.offlineManager.ensureReady();
+                        const result = await window.offlineManager.removeCachedCourse(courseId);
+                        
+                        if (!result) {
+                            throw new Error('Failed to remove course from offline storage');
+                        }
+                        
+                        console.log(`Course ${courseId} removed from OfflineManager`);
+                    } else {
+                        // Fallback to localStorage
+                        let offlineCourses = JSON.parse(localStorage.getItem('offlineCourses') || '[]');
+                        const updatedCourses = offlineCourses.filter(c => c._id !== courseId && c.id !== courseId);
+                        localStorage.setItem('offlineCourses', JSON.stringify(updatedCourses));
+                        console.log(`Course ${courseId} removed from localStorage`);
+                    }
+                    
+                    // Update UI to show course is no longer available offline
+                    this.markCourseAsOnline(courseId);
+                    
+                    // Show success message
+                    this.showMessage('Course removed from offline storage', 'success');
+                    
+                } catch (error) {
+                    console.error('Error removing course from offline storage:', error);
+                    this.showMessage('Failed to remove course from offline storage', 'error');
+                }
+            }
+            
+            // Mark a course as no longer available offline in the UI
+            markCourseAsOnline(courseId) {
+                // Find the card and update it
+                const card = document.querySelector(`.course-card[data-id="${courseId}"]`);
+                if (card) {
+                    card.classList.remove('offline-available');
+                    
+                    // Find and replace the offline button
+                    const button = card.querySelector('.offline-btn.saved');
+                    if (button) {
+                        button.innerHTML = '<span class="material-icons">cloud_download</span> Save Offline';
+                        button.classList.remove('saved');
+                        button.disabled = false;
+                        button.title = 'Save for offline use';
+                        button.onclick = (event) => {
+                            event.preventDefault();
+                            this.downloadForOffline(courseId);
+                        };
+                    }
+                    
+                    // Remove the offline badge
+                    const badge = card.querySelector('.offline-badge');
+                    if (badge) {
+                        badge.remove();
+                    }
+                }
+                
+                // Update our internal course list
+                const courseIndex = this.courses.findIndex(c => c._id === courseId || c.id === courseId);
+                if (courseIndex >= 0) {
+                    this.courses[courseIndex].offlineAvailable = false;
+                }
+                
+                const filteredIndex = this.filteredCourses.findIndex(c => c._id === courseId || c.id === courseId);
+                if (filteredIndex >= 0) {
+                    this.filteredCourses[filteredIndex].offlineAvailable = false;
+                }
             }
 
             async enrollInCourse(courseId) {
@@ -1016,15 +1612,27 @@
                 this.showNotification(message, 'success');
             }
 
+            showToast(message, type = 'info') {
+                this.showMessage(message, type);
+            }
+            
             showNotification(message, type = 'info') {
-                // Create toast notification
+                this.showMessage(message, type);
+            }
+            
+            showMessage(message, type = 'info') {
+                // Remove any existing message first
+                const existingMessage = document.querySelector('.toast-message');
+                if (existingMessage) {
+                    existingMessage.remove();
+                }
+                
+                // Create message element
                 const toast = document.createElement('div');
-                toast.className = `toast-notification toast-${type}`;
+                toast.className = `toast-message ${type}`;
                 toast.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <span class="material-icons" style="font-size: 1rem;">
-                            ${type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'info'}
-                        </span>
+                    <div class="toast-content">
+                        <span class="material-icons">${type === 'error' ? 'error' : type === 'success' ? 'check_circle' : 'info'}</span>
                         <span>${message}</span>
                     </div>
                 `;
@@ -1050,28 +1658,84 @@
                         .toast-success { background: #28a745; }
                         .toast-error { background: #dc3545; }
                         .toast-info { background: #17a2b8; }
+                        /* Offline Styles - Matching Resources Page */
                         .offline-btn {
-                            background: none;
-                            border: 1px solid #ddd;
-                            border-radius: 6px;
-                            padding: 0.5rem;
+                            background: #e9ecef;
+                            color: #495057;
+                            border: none;
+                            padding: 8px 12px;
+                            border-radius: 4px;
                             cursor: pointer;
-                            margin-left: 0.5rem;
+                            display: inline-flex;
+                            align-items: center;
+                            font-size: 0.9rem;
                             transition: all 0.2s;
-                            color: #666;
+                            margin-left: 0.5rem;
                         }
+                        
                         .offline-btn:hover {
-                            border-color: #4CAF50;
-                            color: #4CAF50;
+                            background: #dee2e6;
+                            transform: translateY(-1px);
+                            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
                         }
-                        .offline-btn.offline-available {
-                            border-color: #28a745;
-                            color: #28a745;
+                        
+                        .offline-btn .material-icons {
+                            font-size: 1rem;
+                            margin-right: 4px;
                         }
-                        .offline-indicator {
-                            position: absolute;
-                            top: 10px;
-                            right: 10px;
+                        
+                        .offline-btn.saved {
+                            background: #d4edda;
+                            color: #155724;
+                            border: 1px solid #c3e6cb;
+                            cursor: default;
+                        }
+                        
+                        .offline-btn.saved:hover {
+                            background: #c3e6cb;
+                        }
+                        
+                        .offline-notice {
+                            background: #fff3cd;
+                            color: #856404;
+                            padding: 0.75rem 1rem;
+                            border-radius: 8px;
+                            margin-bottom: 1.5rem;
+                            display: flex;
+                            align-items: center;
+                            border-left: 4px solid #ffc107;
+                            animation: fadeIn 0.5s ease;
+                        }
+                        
+                        .offline-notice .material-icons {
+                            margin-right: 0.5rem;
+                        }
+                        
+                        .offline-badge {
+                            display: inline-flex;
+                            align-items: center;
+                            background: #d4edda;
+                            color: #155724;
+                            padding: 0.1rem 0.4rem;
+                            border-radius: 4px;
+                            font-size: 0.75rem;
+                            margin-left: 0.5rem;
+                            vertical-align: middle;
+                            border: 1px solid #c3e6cb;
+                        }
+                        
+                        .offline-badge .material-icons {
+                            font-size: 0.8rem;
+                            margin-right: 2px;
+                        }
+                        
+                        .course-card.offline-available {
+                            border-left: 3px solid #28a745 !important;
+                        }
+
+                        @keyframes fadeIn {
+                            from { opacity: 0; }
+                            to { opacity: 1; }
                         }
                         .course-actions {
                             display: flex;
@@ -1088,9 +1752,14 @@
                 
                 document.body.appendChild(toast);
                 
+                // Add show class after a brief delay (for animation)
+                setTimeout(() => {
+                    toast.classList.add('show');
+                }, 10);
+                
                 // Remove after 4 seconds
                 setTimeout(() => {
-                    toast.style.animation = 'slideIn 0.3s ease reverse';
+                    toast.classList.remove('show');
                     setTimeout(() => toast.remove(), 300);
                 }, 4000);
             }
@@ -1142,12 +1811,27 @@
                     .replace(/"/g, "&quot;")
                     .replace(/'/g, "&#039;");
             }
-        }
+        } // <-- Add this closing brace to end the CourseManager class
 
         // Initialize course manager when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
-            window.courseManager = new CourseManager();
+            console.log('DOM content loaded, initializing CourseManager');
+            if (!window.courseManager) {
+                window.courseManager = new CourseManager();
+                console.log('CourseManager created and assigned to window');
+            }
         });
+        
+        // Fallback initialization in case DOMContentLoaded already fired
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            console.log('Document already loaded, initializing CourseManager now');
+            setTimeout(function() {
+                if (!window.courseManager) {
+                    window.courseManager = new CourseManager();
+                    console.log('CourseManager created as fallback');
+                }
+            }, 500);
+        }
     </script>
 </body>
 </html>

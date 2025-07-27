@@ -16,6 +16,8 @@ const api = {
         if (token) {
             defaultHeaders['Authorization'] = `Bearer ${token}`;
         }
+        
+        console.log(`API Request to: ${BASE_URL}${endpoint}`);
 
         try {
             const response = await fetch(`${BASE_URL}${endpoint}`, {
@@ -37,6 +39,7 @@ const api = {
                 } catch {
                     errorMessage = errorData || `HTTP error! status: ${response.status}`;
                 }
+                console.warn(`API call failed: ${errorMessage}`);
                 throw new Error(errorMessage);
             }
 
@@ -101,7 +104,27 @@ const api = {
     },
 
     resources: {
-        getAll: () => api.fetch('/api/admin/resources'),
+        getAll: () => {
+            console.log('Fetching all resources from API');
+            return api.fetch('/api/admin/resources')
+                .then(data => {
+                    console.log('Resources API response:', data);
+                    console.log('Resources response type:', typeof data);
+                    if (Array.isArray(data)) {
+                        console.log('Response is an array with length:', data.length);
+                    } else if (data && typeof data === 'object') {
+                        console.log('Response is an object with keys:', Object.keys(data));
+                        if (data.resources) {
+                            console.log('Found resources property with length:', data.resources.length);
+                        }
+                    }
+                    return data;
+                })
+                .catch(err => {
+                    console.error('Resources API error:', err);
+                    throw err;
+                });
+        },
         getOne: (id) => api.fetch(`/api/admin/resources/${id}`),
         create: (data) => api.fetch('/api/admin/resources', {
             method: 'POST',
