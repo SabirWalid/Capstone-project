@@ -9,36 +9,32 @@ const limiter = rateLimit({
 
 // Security middleware
 module.exports = function(app) {
-    // Apply rate limiting
-    app.use('/api/', limiter);
-
-    // Security headers
-    app.use(helmet());
+    // Apply basic security headers only in production
+    if (process.env.NODE_ENV === 'production') {
+        // Apply rate limiting
+        app.use('/api/', limiter);
+        
+        // Basic security headers
+        app.use(helmet({
+            contentSecurityPolicy: false,
+            crossOriginResourcePolicy: { policy: "cross-origin" },
+            crossOriginOpenerPolicy: { policy: "unsafe-none" }
+        }));
+    }
     
-    // XSS Protection
-    app.use(helmet.xssFilter());
-    
-    // Prevent click-jacking
-    app.use(helmet.frameguard({ action: 'deny' }));
-    
-    // Hide powered by express
-    app.use(helmet.hidePoweredBy());
-    
-    // Prevent MIME type sniffing
-    app.use(helmet.noSniff());
-    
-    // Content Security Policy
-    app.use(helmet.contentSecurityPolicy({
+    // Everything else is temporarily disabled for debugging
+};
         directives: {
             defaultSrc: ["'self'"],
             scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
             styleSrc: ["'self'", "'unsafe-inline'", 'https:'],
-            imgSrc: ["'self'", 'data:', 'https:'],
-            connectSrc: ["'self'", 'https://api.your-backend.com'],
-            fontSrc: ["'self'", 'https:'],
+            imgSrc: ["'self'", 'data:', 'https:', 'blob:'],
+            connectSrc: ["'self'", process.env.NODE_ENV === 'development' ? '*' : 'https://*.onrender.com'],
+            fontSrc: ["'self'", 'https:', 'data:'],
             objectSrc: ["'none'"],
             mediaSrc: ["'self'"],
-            frameSrc: ["'none'"],
+            frameSrc: ["'self'"],
+            upgradeInsecureRequests: []
         },
     }));
 };

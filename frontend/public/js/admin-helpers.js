@@ -50,11 +50,26 @@ async function loadCourses() {
     try {
         helpers.showLoading('coursesContainer');
         const data = await api.courses.getAll();
-        // Your existing course display logic
         displayCourses(data);
     } catch (error) {
         helpers.showError('coursesContainer', 'Failed to load courses. Please try again.');
         console.error('Error loading courses:', error);
+    }
+}
+
+// Function to refresh dashboard data
+async function refreshDashboard() {
+    try {
+        await Promise.all([
+            loadCourses(),
+            loadMentors(),
+            loadOpportunities(),
+            loadResources()
+        ]);
+        helpers.showToast('Dashboard refreshed successfully');
+    } catch (error) {
+        console.error('Error refreshing dashboard:', error);
+        helpers.showToast('Failed to refresh dashboard', 'error');
     }
 }
 

@@ -1,5 +1,5 @@
 // API Configuration
-const BASE_URL = window.location.hostname === 'localhost' 
+const BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:5000' 
     : 'https://sabir-techpreneurs.onrender.com';
 
@@ -7,10 +7,15 @@ const BASE_URL = window.location.hostname === 'localhost'
 const api = {
     // Base fetch function with error handling
     async fetch(endpoint, options = {}) {
+        const token = localStorage.getItem('adminToken');
         const defaultHeaders = {
-            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
         };
+        
+        if (token) {
+            defaultHeaders['Authorization'] = `Bearer ${token}`;
+        }
 
         try {
             const response = await fetch(`${BASE_URL}${endpoint}`, {
@@ -18,16 +23,30 @@ const api = {
                 headers: {
                     ...defaultHeaders,
                     ...options.headers
-                }
+                },
+                credentials: 'include', // This is important for cookies/sessions
+                mode: 'cors' // Explicitly state we're using CORS
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorData = await response.text();
+                let errorMessage;
+                try {
+                    const jsonError = JSON.parse(errorData);
+                    errorMessage = jsonError.message || jsonError.error || `HTTP error! status: ${response.status}`;
+                } catch {
+                    errorMessage = errorData || `HTTP error! status: ${response.status}`;
+                }
+                throw new Error(errorMessage);
             }
 
             return await response.json();
         } catch (error) {
-            console.error('API Error:', error);
+            console.error('API Error:', {
+                message: error.message,
+                endpoint: endpoint,
+                headers: defaultHeaders
+            });
             throw error;
         }
     },

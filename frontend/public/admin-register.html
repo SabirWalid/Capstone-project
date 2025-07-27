@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Register - Refugee Techpreneurs</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="js/app-config.js"></script>
+  <script type="module" src="js/config.js"></script>
+  <script type="module" src="js/adminAuth.js"></script>
   <style>
     :root {
       --primary-bg: #f8fffe;
@@ -111,43 +114,26 @@
     </div>
     <form id="admin-register-form">
       <div class="mb-3">
-        <input type="text" id="admin-register-name" class="form-control" placeholder="Full Name" required>
+        <input type="text" id="admin-name" class="form-control" placeholder="Full Name" required>
       </div>
       <div class="mb-3">
-        <input type="email" id="admin-register-email" class="form-control" placeholder="Administrator Email" required>
+        <input type="email" id="admin-email" class="form-control" placeholder="Administrator Email" required>
       </div>
       <div class="mb-3">
-        <input type="password" id="admin-register-password" class="form-control" placeholder="Password" required>
+        <input type="password" id="admin-password" class="form-control" placeholder="Password" required>
+      </div>
+      <div class="mb-3">
+        <input type="password" id="admin-confirm-password" class="form-control" placeholder="Confirm Password" required>
       </div>
       <button class="btn btn-success w-100">Create Admin Account</button>
-      <div id="admin-register-msg" class="mt-3"></div>
+      <div id="admin-register-error" class="mt-3 error-msg" style="display: none;"></div>
     </form>
     <div class="admin-footer">
       <a href="admin-login.html">Already have an account? Sign in here</a>
     </div>
   </div>
-  <script>
-    document.getElementById('admin-register-form').onsubmit = async function(e) {
-      e.preventDefault();
-      console.log('Admin registration form submitted'); // Debugging line
-      const name = document.getElementById('admin-register-name').value;
-      const email = document.getElementById('admin-register-email').value;
-      const password = document.getElementById('admin-register-password').value;
-      const res = await fetch('http://localhost:5000/api/admin/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password })
-      });
-      const data = await res.json();
-      const msgElement = document.getElementById('admin-register-msg');
-      if (data.success) {
-        msgElement.textContent = 'Registration successful! You can now log in.';
-        msgElement.className = 'mt-3 success-msg';
-      } else {
-        msgElement.textContent = data.error || 'Registration failed';
-        msgElement.className = 'mt-3 error-msg';
-      }
-    };
+  <script type="module">
+    // The form submit handler is defined in adminAuth.js
   </script>
 </body>
 </html>

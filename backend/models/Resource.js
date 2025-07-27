@@ -37,6 +37,11 @@ const resourceSchema = new mongoose.Schema({
         maxlength: [100, 'Category cannot be more than 100 characters'],
         default: 'General'
     },
+    creator: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Admin',
+        required: true
+    },
     tags: [{
         type: String,
         trim: true,

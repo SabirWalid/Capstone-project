@@ -37,7 +37,13 @@ router.get('/', async (req, res) => {
         const resources = await Resource.find(query)
             .sort(sortOptions)
             .select('-__v')
-            .populate('creator', 'name avatar');
+            .populate('creator', 'name avatar')
+            .lean()
+            .exec()
+            .then(resources => resources.map(resource => ({
+                ...resource,
+                creator: resource.creator || { name: 'System', avatar: null }
+            })));
             
         const totalCount = await Resource.countDocuments(query);
         

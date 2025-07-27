@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Opportunity = require('../models/Opportunity');
+const Application = require('../models/Application');
 
 // Get all approved opportunities for users
 router.get('/', async (req, res) => {
@@ -25,10 +26,15 @@ router.get('/', async (req, res) => {
       .sort({ createdAt: -1 })
       .lean();
 
-    // Add application counts
+    // Add application counts with error handling
     const opportunitiesWithCounts = await Promise.all(opportunities.map(async (opp) => {
-      const applicationCount = await Application.countDocuments({ opportunity: opp._id });
-      return { ...opp, applicationCount };
+      try {
+        const applicationCount = await Application.countDocuments({ opportunity: opp._id });
+        return { ...opp, applicationCount };
+      } catch (error) {
+        console.warn(`Warning: Could not get application count for opportunity ${opp._id}:`, error.message);
+        return { ...opp, applicationCount: 0 };
+      }
     }));
 
     res.json({
@@ -37,6 +43,17 @@ router.get('/', async (req, res) => {
       filters: { type, search, category, location }
     });
   } catch (err) {
+    // Log the error for debugging
+    console.error('Error fetching opportunities:', err);
+    
+    // Send appropriate error response
+    res.status(500).json({
+      error: 'Error fetching opportunities',
+      message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error',
+      opportunities: [],
+      total: 0,
+      filters: { type, search, category, location }
+    });
     console.error('Error fetching opportunities:', err);
     res.status(500).json({ error: 'Failed to fetch opportunities' });
   }
