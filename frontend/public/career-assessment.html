@@ -180,11 +180,11 @@
             
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`${window.appConfig.apiUrl}/api/career/ai-assessment`, {
+                const response = await fetch(`${window.appConfig.apiUrl}/api/career-assessment`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'x-auth-token': token
                     },
                     body: JSON.stringify(formData)
                 });

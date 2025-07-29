@@ -14,27 +14,35 @@ class EnhancedCareerTest {
      * - Creates custom interests storage
      * - Configures API endpoints
      */
-    constructor() {
-        console.log('EnhancedCareerTest constructor called');
-        // Get current user data from localStorage
+    constructor(options = {}) {
+        // Default test configuration
+        this.config = {
+            container: document.getElementById('career-test-container'),
+            resultsContainer: document.getElementById('career-suggestion'),
+            apiBaseUrl: 'http://localhost:5000',
+            offlineMode: false,
+            ...options
+        };
+        
+        // Apply configuration
+        this.container = this.config.container;
+        this.suggestionDiv = this.config.resultsContainer;
+        this.apiBaseUrl = this.getApiBaseUrl() || this.config.apiBaseUrl;
+        
+        // Set up user context
         this.currentUser = this.getUserFromStorage();
-        // Initialize array to store user's test history
         this.testHistory = [];
-        // Create Set to store user's custom interests
-        this.customInterests = new Set(); // Enables unique interest tracking
         
-        // Initialize DOM elements
-        this.form = document.getElementById('career-test-form');
-        this.skillsInput = document.getElementById('skills');
-        this.interestsContainer = document.getElementById('interests-checkboxes');
-        this.progressBar = document.getElementById('form-progress');
-        this.suggestionDiv = document.getElementById('career-suggestion');
+        // Set up UI elements
+        this.form = null;
+        this.skillsInput = null;
+        this.progressBar = null;
         
-        // Set API base URL based on current environment
-        this.apiBaseUrl = window.appConfig.apiUrl;
-        console.log('API Base URL:', this.apiBaseUrl);
+        // Interest tracking
+        this.selectedInterests = new Set();
+        this.customInterests = new Set();
         
-        // Initialize predefined tech interests
+        // Predefined interest list for UI
         this.predefinedInterests = [
             'Web Development', 'Mobile Apps', 'Data Science', 'AI/Machine Learning',
             'Cybersecurity', 'Cloud Computing', 'DevOps', 'UX/UI Design',
@@ -55,8 +63,13 @@ class EnhancedCareerTest {
      * @returns {string} The base URL for API calls
      */
     getApiBaseUrl() {
-        // Get API URL from configuration
-        return window.appConfig.apiUrl;
+        // Get API URL from configuration if available
+        if (window.appConfig && window.appConfig.apiUrl) {
+            return window.appConfig.apiUrl;
+        }
+        
+        // Default fallback URL
+        return 'http://localhost:5000';
     }
 
     /**
@@ -77,27 +90,80 @@ class EnhancedCareerTest {
      */
     async init() {
         console.log('Initializing Enhanced Career Test components...');
+        
+        // Ensure container exists
+        if (!this.container) {
+            console.error('Career test container not found');
+            return;
+        }
+        
+        // Create basic structure
+        this.createTestInterface();
+        
+        // Set references to DOM elements
+        this.form = this.container.querySelector('#career-test-form');
+        this.skillsInput = this.container.querySelector('#skills');
+        this.progressBar = this.container.querySelector('.progress');
+        
         // Create the interest selection interface
         this.renderInterestCheckboxes();
+        
         // Set up form and interaction handlers
         this.setupEventListeners();
+        
         // Load previous test results for the user
         this.loadUserHistory();
+        
         // Initialize skill input suggestions
         this.setupSkillAutocomplete();
+        
         // Initialize AI assessment
         this.initializeAIAssessment();
+        
         console.log('Enhanced Career Test initialization complete');
     }
 
     /**
-     * Renders the interest selection interface
-     * Features:
-     * - Pre-defined interest categories
-     * - Custom interest input
-     * - Interactive selection UI
-     * - Interest grouping by category
+     * Creates the basic structure of the test interface
      */
+    createTestInterface() {
+        this.container.innerHTML = `
+            <div class="career-test-content">
+                <form id="career-test-form" class="needs-validation" novalidate>
+                    <div class="mb-4">
+                        <label for="skills" class="form-label">
+                            <i class="bi bi-tools"></i> Skills & Technologies
+                        </label>
+                        <input type="text" class="form-control" id="skills" 
+                               placeholder="Enter your skills separated by commas" required>
+                        <div class="form-text">
+                            Enter skills you have or are learning (e.g., JavaScript, Photoshop, Project Management)
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="bi bi-heart"></i> Interests & Passions
+                        </label>
+                        <div id="interests-checkboxes" class="interests-container"></div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i> Find My Ideal Career Path
+                        </button>
+                    </div>
+                    
+                    <div class="progress mt-3" style="display: none;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" aria-valuenow="100" aria-valuemin="0" 
+                             aria-valuemax="100" style="width: 100%"></div>
+                    </div>
+                </form>
+            </div>
+        `;
+    }
+
     /**
      * Initializes the AI assessment functionality
      * Sets up event handlers and UI elements for AI-powered career assessment
@@ -105,7 +171,6 @@ class EnhancedCareerTest {
     initializeAIAssessment() {
         // Add submit handler for AI assessment
         this.form.addEventListener('submit', async (e) => {
-            e.preventDefault();
             await this.processAIAssessment();
         });
     }
@@ -118,17 +183,17 @@ class EnhancedCareerTest {
         try {
             // Show loading state
             this.showLoading();
-            console.log('Starting career test assessment (database-only mode)');
+            console.log('Starting career test assessment');
 
             // Collect form data
             const skills = this.skillsInput.value.split(',').map(s => s.trim()).filter(s => s);
+            const interests = Array.from(document.querySelectorAll('input[name="interests"]:checked'))
+                .map(cb => cb.value);
             
-            // Get interests from both selected interest badges and custom interests
-            const selectedInterests = Array.from(this.selectedInterests || []);
-            const customInterestsList = Array.from(this.customInterests || []);
-            const interests = [...selectedInterests, ...customInterestsList];
-            
-            console.log('Selected interests:', interests);
+            // Add custom interests if any
+            if (this.customInterests && this.customInterests.size > 0) {
+                interests.push(...Array.from(this.customInterests));
+            }
 
             // Ensure we have at least one skill or interest to prevent errors
             if (skills.length === 0 && interests.length === 0) {
@@ -147,27 +212,16 @@ class EnhancedCareerTest {
             // Use primary career test endpoint
             let response = null;
             
-            try {
-                console.log(`Trying primary career test endpoint: ${this.apiBaseUrl}/api/career-test/test`);
-                response = await fetch(`${this.apiBaseUrl}/api/career-test/test`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-auth-token': localStorage.getItem('token')
-                    },
-                    body: JSON.stringify(assessmentData)
-                });
-                
-                console.log(`Primary endpoint response status:`, response.status);
-            } catch (fetchError) {
-                console.warn(`Error with primary endpoint:`, fetchError);
-            }
+            // Try multiple API endpoints to increase chance of success
+            const endpoints = [
+                '/api/career-test/test',
+                '/api/career/test'  // Alternate endpoint
+            ];
             
-            // If primary fails, try alternate endpoint
-            if (!response || !response.ok) {
+            for (const ep of endpoints) {
                 try {
-                    console.log(`Trying alternate endpoint: ${this.apiBaseUrl}/api/career/test`);
-                    response = await fetch(`${this.apiBaseUrl}/api/career/test`, {
+                    console.log(`Trying endpoint: ${this.apiBaseUrl}${ep}`);
+                    response = await fetch(`${this.apiBaseUrl}${ep}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -176,58 +230,29 @@ class EnhancedCareerTest {
                         body: JSON.stringify(assessmentData)
                     });
                     
-                    console.log(`Alternate endpoint response status:`, response.status);
-                } catch (fetchError) {
-                    console.warn(`Error with alternate endpoint:`, fetchError);
+                    if (response.ok) {
+                        break;  // Success, exit loop
+                    }
+                } catch (error) {
+                    console.warn(`Error with endpoint ${ep}:`, error);
                 }
             }
             
-            // Try fallback API URL if all endpoints failed
+            // If all API calls fail, use local fallback
             if (!response || !response.ok) {
-                if (window.appConfig && typeof window.appConfig.tryNextFallback === 'function') {
-                    const fallbackApiUrl = window.appConfig.tryNextFallback();
-                    this.apiBaseUrl = fallbackApiUrl;
-                    console.log(`Retrying with fallback API URL: ${fallbackApiUrl}`);
-                    
-                    try {
-                        // Try both endpoints with the fallback URL
-                        response = await fetch(`${fallbackApiUrl}/api/career-test/test`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'x-auth-token': localStorage.getItem('token')
-                            },
-                            body: JSON.stringify(assessmentData)
-                        });
-                        
-                        if (!response.ok) {
-                            response = await fetch(`${fallbackApiUrl}/api/career/test`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'x-auth-token': localStorage.getItem('token')
-                                },
-                                body: JSON.stringify(assessmentData)
-                            });
-                        }
-                    } catch (fallbackError) {
-                        console.warn('Fallback API URLs all failed:', fallbackError);
-                    }
-                }
-            }
-
-            if (!response || !response.ok) {
-                console.warn(`Career Test API Error. Using local fallback mechanism.`);
-                // Use local fallback
+                console.warn('Career Test API Error. Using local fallback mechanism.');
                 const fallbackResult = this.getLocalFallbackResults(skills, interests);
                 console.log('Using local fallback data:', fallbackResult);
+                
                 // Display results
                 this.displayResults(fallbackResult);
+                
                 // Save to history locally
                 this.saveHistoryLocally(fallbackResult);
                 return;
             }
 
+            // API call succeeded
             const result = await response.json();
             console.log('Career test results received:', result);
             
@@ -506,12 +531,9 @@ class EnhancedCareerTest {
                             timestamp: new Date().toISOString()
                         }),
                         signal: controller.signal
-                    }).catch(error => {
-                        console.warn(`Network error with endpoint ${ep}:`, error.message);
-                        return null;
                     });
                     
-                    if (response && response.ok) {
+                    if (response.ok) {
                         console.log(`Successfully saved history with endpoint ${ep}`);
                         success = true;
                         break;
@@ -548,7 +570,6 @@ class EnhancedCareerTest {
                                 });
                                 
                                 if (response.ok) {
-                                    console.log(`Successfully saved history with fallback endpoint ${ep}`);
                                     success = true;
                                     break;
                                 }
@@ -633,18 +654,6 @@ class EnhancedCareerTest {
                 ${interest}
             </span>`
         ).join('');
-        
-        // Add a style tag for interest badges
-        const styleTag = document.createElement('style');
-        styleTag.textContent = `
-            .interest-badge.selected {
-                background-color: #007bff !important;
-                color: white !important;
-                border-color: #0069d9 !important;
-                box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
-            }
-        `;
-        document.head.appendChild(styleTag);
 
         // Add custom interest input section
         const customInterestHTML = `
@@ -705,15 +714,13 @@ class EnhancedCareerTest {
             // Deselect
             this.selectedInterests.delete(interest);
             element.classList.remove('selected');
-            element.classList.remove('bg-primary');
             element.classList.add('bg-light', 'text-dark');
         } else {
             // Select
             this.selectedInterests.add(interest);
-            element.classList.add('selected', 'bg-primary', 'text-white');
+            element.classList.add('selected');
             element.classList.remove('bg-light', 'text-dark');
         }
-        console.log('Toggled interest:', interest, 'Selected interests:', Array.from(this.selectedInterests));
         this.updateInterestCounter();
     }
 
@@ -946,14 +953,8 @@ class EnhancedCareerTest {
                 .map(s => s.trim())
                 .filter(s => s.length > 0);
             
-            // Get interests from both selected interest badges and custom interests
-            const selectedInterests = Array.from(this.selectedInterests || []);
-            const customInterestsList = Array.from(this.customInterests || []);
-            const interests = [...selectedInterests, ...customInterestsList]; // Include custom interests
-            
-            console.log('Skills:', skills);
-            console.log('Selected interests:', selectedInterests);
-            console.log('Custom interests:', customInterestsList);
+            const interests = Array.from(this.selectedInterests || [])
+                .concat(Array.from(this.customInterests || [])); // Include custom interests
 
             console.log('Skills:', skills);
             console.log('Interests:', interests);
@@ -1053,223 +1054,259 @@ class EnhancedCareerTest {
         }
     }
 
-    
+    /**
+     * Displays the career match results with detailed insights
+     * 
+     * Result Components:
+     * 1. Overall Match Score:
+     *    - Percentage match with career path
+     *    - Confidence level in the match
+     * 
+     * 2. Skill Analysis:
+     *    - Matched skills with confidence levels
+     *    - Missing critical skills
+     *    - Skill development suggestions
+     * 
+     * 3. Career Path Details:
+     *    - Career description
+     *    - Required qualifications
+     *    - Industry insights
+     *    - Salary ranges
+     * 
+     * 4. Learning Recommendations:
+     *    - Suggested courses
+     *    - Learning path progression
+     *    - Skill development timeline
+     * 
+     * @param {Object} data - Career match results data
+     */
     displayEnhancedResults(data) {
         const container = document.getElementById('career-suggestion');
         
         if (!data.matches || data.matches.length === 0) {
-            container.innerHTML = `
-                <div class="alert alert-warning">
-                    <h5>No Strong Matches Found</h5>
-                    <p>Don't worry! Here are some suggestions:</p>
-                    <ul>
-                        <li>Try adding more specific skills or interests</li>
-                        <li>Consider related skills you might have</li>
-                        <li>Explore our course catalog to develop new skills</li>
-                    </ul>
-                    <p class="mb-0">Analyzed ${data.totalCareersAnalyzed || 0} career paths</p>
-                </div>
-            `;
+            this.displayError('No career matches found. Please try with different skills or interests.');
             return;
         }
-
-        const resultsHTML = `
-            <div class="card mt-4">
-                <div class="card-header" style="background-color: var(--tertiary-accent); color: white;">
-                    <h4 class="mb-0">Your Career Match Results</h4>
-                    <small>Found ${data.matchesFound} matches from ${data.totalCareersAnalyzed} career paths</small>
-                </div>
-                <div class="card-body">
-                    ${data.matches.map((match, index) => this.renderCareerMatch(match, index)).join('')}
-                    
-                    <div class="mt-4 p-3 rounded" style="background-color: var(--primary-bg);">
-                        <h6>Next Steps:</h6>
-                        <ul class="mb-0">
-                            <li>Start with the highest-scored career path</li>
-                            <li>Enroll in recommended beginner courses</li>
-                            <li>Connect with mentors in your chosen field</li>
-                            <li>Explore related career opportunities</li>
-                        </ul>
-                    </div>
-                </div>
+        
+        // Sort matches by score
+        const sortedMatches = [...data.matches].sort((a, b) => b.score - a.score);
+        
+        let resultsHTML = `
+            <div class="results-header mb-4">
+                <h3>Your Career Path Recommendations</h3>
+                <p class="text-muted">Based on your skills, interests, and market trends</p>
             </div>
         `;
-
+        
+        // Add top matches section
+        resultsHTML += `
+            <div class="career-matches">
+                ${sortedMatches.map((match, index) => this.renderCareerMatch(match, index)).join('')}
+            </div>
+            
+            <div class="career-history mt-5">
+                <button class="btn btn-outline-secondary" id="show-history-btn">
+                    <i class="bi bi-clock-history"></i> View Past Assessments
+                </button>
+            </div>
+        `;
+        
+        // Update the container
         container.innerHTML = resultsHTML;
+        container.style.display = 'block';
+        
+        // Add interaction handlers
         this.addResultInteractions();
     }
 
     renderCareerMatch(match, index) {
-        const confidenceColor = match.confidence >= 80 ? 'success' : 
-                               match.confidence >= 60 ? 'warning' : 'info';
+        const matchLevel = match.score >= 90 ? 'Excellent' : 
+                           match.score >= 75 ? 'Strong' : 
+                           match.score >= 60 ? 'Good' : 'Moderate';
         
-        const salaryInfo = match.salaryRange ? 
-            `<small class="text-muted">Salary: $${match.salaryRange.min?.toLocaleString()} - $${match.salaryRange.max?.toLocaleString()} ${match.salaryRange.currency}</small>` : '';
-
+        const matchColor = match.score >= 90 ? 'success' : 
+                           match.score >= 75 ? 'primary' : 
+                           match.score >= 60 ? 'info' : 'secondary';
+                           
         return `
-            <div class="career-match-card border rounded p-3 mb-3 ${index === 0 ? 'border-success' : ''}">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h5 class="mb-1" style="color: var(--secondary-bg);">
-                        ${match.title}
-                        ${index === 0 ? '<span class="badge ms-2" style="background-color: var(--tertiary-accent); color: white;">Best Match</span>' : ''}
-                    </h5>
-                    <div class="text-end">
-                        <div class="badge bg-${confidenceColor} fs-6">${match.score}% Match</div>
-                        <div class="small text-muted">Confidence: ${match.confidence}%</div>
+            <div class="career-match card mb-4 ${index === 0 ? 'border-success shadow' : ''}">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="mb-0">${match.title}</h4>
+                        ${index === 0 ? '<span class="badge bg-success">Top Match</span>' : ''}
+                    </div>
+                    <div class="match-score">
+                        <span class="badge bg-${matchColor} p-2">${match.score}% Match</span>
+                        <span class="match-level ms-2">${matchLevel}</span>
                     </div>
                 </div>
                 
-                <p class="text-muted mb-2">${match.description}</p>
-                ${salaryInfo}
-                
-                <div class="row mt-3">
-                    <div class="col-md-6">
-                        <h6>Matched Skills:</h6>
-                        <div class="matched-skills">
-                            ${match.matchedSkills.map(skill => 
-                                `<span class="badge me-1 mb-1" style="background-color: var(--secondary-bg); color: white;" title="${skill.type} match (${Math.round(skill.confidence * 100)}%)">${skill.skill}</span>`
+                <div class="card-body">
+                    <p class="career-description">${match.description || 'No description available'}</p>
+                    
+                    <div class="matched-skills mb-3">
+                        <h5>Skills Matched:</h5>
+                        <div>
+                            ${(match.matchedSkills || []).map(skill => 
+                                `<span class="badge bg-light text-dark border me-2 mb-2">${skill}</span>`
                             ).join('')}
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <h6>Matched Interests:</h6>
-                        <div class="matched-interests">
-                            ${match.matchedInterests.map(interest => 
-                                `<span class="badge me-1 mb-1" style="background-color: var(--tertiary-accent); color: white;" title="${interest.type} match (${Math.round(interest.confidence * 100)}%)">${interest.interest}</span>`
-                            ).join('')}
-                        </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <button class="btn btn-outline-primary btn-sm view-details" data-career-id="${match.id || index}">
+                            View Details
+                        </button>
+                        <button class="btn btn-outline-success btn-sm bookmark-career" data-career-id="${match.id || index}">
+                            <i class="bi bi-bookmark"></i> Save
+                        </button>
                     </div>
-                </div>
-                
-                <div class="mt-3">
-                    <h6>Recommended Learning Path:</h6>
-                    <div class="course-recommendations">
-                        ${match.courses.map(course => `
-                            <div class="course-item d-flex justify-content-between align-items-center p-2 border rounded mb-1">
-                                <div>
-                                    <strong>${course.title}</strong>
-                                    <span class="badge bg-secondary ms-2">${course.difficulty}</span>
-                                </div>
-                                <small class="text-muted">${course.duration}</small>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-                
-                <div class="mt-3 d-flex gap-2">
-                    <button class="btn btn-sm" style="background-color: var(--tertiary-accent); color: white;" onclick="careerTest.bookmarkCareer('${match.career}')">
-                        Bookmark
-                    </button>
-                    <button class="btn btn-outline-primary btn-sm" onclick="careerTest.viewCareerDetails('${match.career}')">
-                        View Details
-                    </button>
-                    <button class="btn btn-sm" style="background-color: var(--secondary-bg); color: white;" onclick="careerTest.startLearningPath('${match.career}')">
-                        Start Learning
-                    </button>
                 </div>
             </div>
         `;
     }
 
     addResultInteractions() {
-        // Add smooth scrolling to results
-        document.getElementById('career-suggestion').scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start' 
+        // Add click handlers for buttons
+        document.querySelectorAll('.view-details').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const careerId = e.target.getAttribute('data-career-id');
+                this.viewCareerDetails(careerId);
+            });
+        });
+        
+        document.querySelectorAll('.bookmark-career').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const careerId = e.target.getAttribute('data-career-id');
+                this.bookmarkCareer(careerId);
+            });
         });
     }
 
     async bookmarkCareer(careerId) {
-        if (!this.currentUser) {
-            alert('Please log in to bookmark careers');
-            return;
+        if (!this.currentUser || !localStorage.getItem('token')) {
+            this.showError('Please log in to bookmark careers');
+            return false;
         }
-
+        
         try {
             const response = await fetch(`${this.apiBaseUrl}/api/career/bookmarks`, {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'x-auth-token': localStorage.getItem('token')
                 },
-                body: JSON.stringify({ 
-                    userId: this.currentUser._id, 
-                    careerId 
-                })
+                body: JSON.stringify({ careerId })
             });
-
-            const data = await response.json();
-            if (data.success) {
-                this.showToast('Career bookmarked successfully!');
+            
+            if (response.ok) {
+                return true;
             }
+            return false;
         } catch (error) {
-            console.error('Bookmark error:', error);
-            this.showToast('Failed to bookmark career', 'error');
+            console.error('Error bookmarking career:', error);
+            return false;
+        }
+    }
+
+    /**
+     * Fetches detailed information about a specific career
+     * @param {string} careerId - The ID of the career to fetch details for
+     */
+    async getCareerDetails(careerId) {
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/api/career/${careerId}`);
+            if (response.ok) {
+                return await response.json();
+            }
+            return null;
+        } catch (error) {
+            console.error('Error getting career details:', error);
+            return null;
         }
     }
 
     async viewCareerDetails(careerId) {
-        try {
-            const response = await fetch(`${this.apiBaseUrl}/api/career/${careerId}`);
-            const career = await response.json();
-            
-            // Create modal to show career details
+        const career = await this.getCareerDetails(careerId);
+        if (career) {
             this.showCareerModal(career);
-        } catch (error) {
-            console.error('Error fetching career details:', error);
+        } else {
+            this.showError('Unable to load career details');
         }
     }
 
     showCareerModal(career) {
+        const modalId = 'careerDetailModal';
+        
+        // Remove existing modal if present
+        const existingModal = document.getElementById(modalId);
+        if (existingModal) {
+            existingModal.remove();
+        }
+        
+        // Create modal HTML
         const modalHTML = `
-            <div class="modal fade" id="careerModal" tabindex="-1">
+            <div class="modal fade" id="${modalId}" tabindex="-1" aria-labelledby="${modalId}Label" aria-hidden="true">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">${career.title}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            <h5 class="modal-title" id="${modalId}Label">${career.title}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <p>${career.description}</p>
-                            
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h6>Required Skills:</h6>
-                                    ${career.skills.map(skill => 
-                                        `<span class="badge bg-primary me-1">${skill.name}</span>`
-                                    ).join('')}
+                            <div class="career-details">
+                                <h6>Description</h6>
+                                <p>${career.description || 'No description available'}</p>
+                                
+                                <div class="row mt-4">
+                                    <div class="col-md-6">
+                                        <h6>Required Skills</h6>
+                                        <ul class="list-group">
+                                            ${(career.requiredSkills || []).map(skill => 
+                                                `<li class="list-group-item">${skill}</li>`
+                                            ).join('')}
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Salary Range</h6>
+                                        <p>${career.salaryRange || 'Information not available'}</p>
+                                        
+                                        <h6 class="mt-3">Job Growth</h6>
+                                        <p>${career.jobGrowth || 'Information not available'}</p>
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <h6>Key Interests:</h6>
-                                    ${career.interests.map(interest => 
-                                        `<span class="badge bg-info me-1">${interest.name}</span>`
-                                    ).join('')}
+                                
+                                <div class="learning-path mt-4">
+                                    <h6>Recommended Learning Path</h6>
+                                    <ol class="list-group list-group-numbered">
+                                        ${(career.learningPath || []).map(step => 
+                                            `<li class="list-group-item">${step}</li>`
+                                        ).join('')}
+                                    </ol>
                                 </div>
-                            </div>
-                            
-                            <div class="mt-3">
-                                <h6>Job Outlook: <span class="badge bg-success">${career.jobOutlook}</span></h6>
-                                <h6>Industries: ${career.industry.join(', ')}</h6>
                             </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" onclick="careerTest.startLearningPath('${career._id}')">Start Learning Path</button>
+                            <button type="button" class="btn btn-primary start-learning" data-career-id="${career.id}">
+                                Start Learning Path
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         `;
-
-        // Remove existing modal
-        const existingModal = document.getElementById('careerModal');
-        if (existingModal) existingModal.remove();
-
-        // Add new modal
+        
+        // Add modal to document
         document.body.insertAdjacentHTML('beforeend', modalHTML);
         
+        // Add event listener for the start learning button
+        document.querySelector(`#${modalId} .start-learning`).addEventListener('click', () => {
+            this.startLearningPath(career.id);
+        });
+        
         // Show modal
-        const modal = new bootstrap.Modal(document.getElementById('careerModal'));
+        const modal = new bootstrap.Modal(document.getElementById(modalId));
         modal.show();
     }
 
@@ -1279,18 +1316,23 @@ class EnhancedCareerTest {
     }
 
     async loadUserHistory() {
-        if (!this.currentUser || !localStorage.getItem('token')) return;
-
+        // Skip API calls if no user is logged in
+        if (!this.currentUser || !localStorage.getItem('token')) {
+            console.log('Using local history only - user not logged in');
+            this.testHistory = this.getHistoryFromLocalStorage() || [];
+            return;
+        }
+        
+        // Try to get history from API, then fall back to local storage if needed
         try {
-            // Try multiple endpoints for loading history
+            let response = null;
+            
+            // Try multiple endpoints for history
             const endpoints = [
                 '/api/career/history',
                 '/api/career-assessment/history',
                 '/api/career-test/history'
             ];
-            
-            let response = null;
-            let data = null;
             
             for (const ep of endpoints) {
                 try {
@@ -1302,16 +1344,16 @@ class EnhancedCareerTest {
                     });
                     
                     if (response.ok) {
-                        data = await response.json();
-                        console.log(`Successfully loaded history from ${ep}`);
-                        break;
+                        const data = await response.json();
+                        this.testHistory = data?.tests || [];
+                        return;
                     }
                 } catch (endpointError) {
                     console.warn(`Error loading history from ${ep}:`, endpointError);
                 }
             }
             
-            if (!data) {
+            if (!this.testHistory || this.testHistory.length === 0) {
                 // Try with a different API URL
                 if (window.appConfig && typeof window.appConfig.tryNextFallback === 'function') {
                     const fallbackApiUrl = window.appConfig.tryNextFallback();
@@ -1325,7 +1367,8 @@ class EnhancedCareerTest {
                         });
                         
                         if (response.ok) {
-                            data = await response.json();
+                            const data = await response.json();
+                            this.testHistory = data?.tests || [];
                         }
                     } catch (fallbackError) {
                         console.warn('Failed to load history using fallback API URL:', fallbackError);
@@ -1333,8 +1376,10 @@ class EnhancedCareerTest {
                 }
             }
             
-            // Set history from API response or use empty array as fallback
-            this.testHistory = data?.tests || [];
+            // If still no history from API, use local
+            if (!this.testHistory || this.testHistory.length === 0) {
+                this.loadLocalHistory();
+            }
             
             // Check if we have locally stored history that needs to be merged
             this.mergeLocalHistory();
@@ -1344,24 +1389,22 @@ class EnhancedCareerTest {
             this.loadLocalHistory();
         }
     }
-    
-    /**
-     * Loads history from local storage when API fails
-     */
+
     loadLocalHistory() {
+        this.testHistory = this.getHistoryFromLocalStorage() || [];
+    }
+    
+    getHistoryFromLocalStorage() {
         try {
             const localHistory = JSON.parse(localStorage.getItem('careerAssessmentHistory') || '[]');
-            if (localHistory.length > 0) {
-                console.log('Loaded history from local storage:', localHistory.length, 'entries');
-                // Format local history to match API format
-                this.testHistory = localHistory.map(item => ({
-                    testDate: item.timestamp,
-                    results: item.result
-                }));
-            }
-        } catch (localLoadError) {
-            console.error('Failed to load history from local storage:', localLoadError);
-            this.testHistory = [];
+            return localHistory.map(item => ({
+                testDate: item.timestamp,
+                results: item.result,
+                fromLocal: true
+            }));
+        } catch (parseError) {
+            console.error('Error parsing local history:', parseError);
+            return [];
         }
     }
     
@@ -1429,17 +1472,15 @@ class EnhancedCareerTest {
                         entry.pendingSync = false;
                     }
                 } catch (syncError) {
-                    console.warn('Error syncing entry:', syncError);
+                    console.error('Error syncing entry:', syncError);
                 }
             }
             
+            // Update localStorage with the new sync status
             if (syncedCount > 0) {
-                console.log(`Successfully synced ${syncedCount} out of ${pendingEntries.length} history entries`);
-                
-                // Update local storage to remove synced entries
                 const localHistory = JSON.parse(localStorage.getItem('careerAssessmentHistory') || '[]');
-                const updatedHistory = localHistory.filter(item => item.pendingSync);
-                localStorage.setItem('careerAssessmentHistory', JSON.stringify(updatedHistory));
+                localStorage.setItem('careerAssessmentHistory', JSON.stringify(localHistory));
+                console.log(`${syncedCount}/${pendingEntries.length} history entries synced with server`);
             }
         } catch (error) {
             console.error('Error syncing local history:', error);
@@ -1447,7 +1488,7 @@ class EnhancedCareerTest {
     }
 
     toggleHistory() {
-        const historyContainer = document.getElementById('test-history') || this.createHistoryContainer();
+        const historyContainer = document.getElementById('history-container') || this.createHistoryContainer();
         
         if (historyContainer.style.display === 'none') {
             this.renderHistory();
@@ -1459,147 +1500,110 @@ class EnhancedCareerTest {
 
     createHistoryContainer() {
         const container = document.createElement('div');
-        container.id = 'test-history';
-        container.className = 'mt-4';
+        container.id = 'history-container';
+        container.className = 'mt-4 p-3 border rounded bg-light';
         container.style.display = 'none';
-        document.getElementById('career-test-form').parentNode.appendChild(container);
+        
+        this.form.parentNode.insertBefore(container, this.suggestionDiv);
         return container;
     }
 
     renderHistory() {
-        const container = document.getElementById('test-history');
+        const container = document.getElementById('history-container');
+        if (!container) return;
         
-        if (this.testHistory.length === 0) {
-            container.innerHTML = `
-                <div class="alert alert-info">
-                    <h5>Test History</h5>
-                    <p>No previous tests found. Take your first career test above!</p>
-                </div>
-            `;
+        if (!this.testHistory || this.testHistory.length === 0) {
+            container.innerHTML = '<div class="alert alert-info">No test history found</div>';
             return;
         }
-
-        const historyHTML = `
-            <div class="card">
-                <div class="card-header" style="background-color: var(--tertiary-accent); color: white;">
-                    <h5>Your Career Test History</h5>
+        
+        let historyHTML = `
+            <h4>Your Assessment History</h4>
+            <p class="text-muted">Previous career assessments</p>
+            <div class="list-group">
+        `;
+        
+        this.testHistory.forEach((item, index) => {
+            const date = new Date(item.testDate).toLocaleDateString();
+            const time = new Date(item.testDate).toLocaleTimeString();
+            
+            historyHTML += `
+                <div class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">Assessment #${this.testHistory.length - index}</h5>
+                        <small>${date} at ${time}</small>
+                    </div>
+                    <p class="mb-1">
+                        Top match: ${item.results?.matches?.[0]?.title || 'No matches found'}
+                        ${item.results?.matches?.[0]?.score ? 
+                            `<span class="badge bg-primary">${item.results.matches[0].score}% Match</span>` : ''}
+                    </p>
+                    <small>
+                        ${item.fromLocal ? 
+                            '<span class="badge bg-warning text-dark">Saved locally</span>' : 
+                            '<span class="badge bg-success">Synced to account</span>'}
+                    </small>
                 </div>
-                <div class="card-body">
-                    ${this.testHistory.map((test, index) => `
-                        <div class="test-history-item p-3 border rounded mb-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6>Test #${this.testHistory.length - index}</h6>
-                                <small class="text-muted">${new Date(test.testDate).toLocaleDateString()}</small>
-                            </div>
-                            <div class="top-results">
-                                ${test.results.slice(0, 3).map(result => `
-                                    <span class="badge me-2" style="background-color: var(--secondary-bg); color: white;">${result.careerPath.title || 'Career'} (${result.score}%)</span>
-                                `).join('')}
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
+            `;
+        });
+        
+        historyHTML += `
             </div>
         `;
-
+        
         container.innerHTML = historyHTML;
     }
 
     displayError(message) {
-        const container = document.getElementById('career-suggestion');
-        container.innerHTML = `
-            <div class="alert alert-danger">
-                <h5>Error</h5>
-                <p>${message}</p>
-                <button class="btn btn-outline-danger" onclick="location.reload()">
-                    Try Again
-                </button>
-            </div>
-        `;
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-danger';
+        errorDiv.textContent = message;
+        
+        // Remove existing errors
+        const existingErrors = document.querySelectorAll('.alert-danger');
+        existingErrors.forEach(el => el.remove());
+        
+        // Add to suggestion div
+        this.suggestionDiv.prepend(errorDiv);
+        this.suggestionDiv.style.display = 'block';
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => errorDiv.remove(), 5000);
     }
 
     showToast(message, type = 'success') {
-        const toastHTML = `
-            <div class="toast align-items-center text-white bg-${type === 'error' ? 'danger' : 'success'} border-0" role="alert">
-                <div class="d-flex">
-                    <div class="toast-body">${message}</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                </div>
+        const toastContainer = document.getElementById('toast-container') || this.createToastContainer();
+        
+        const toast = document.createElement('div');
+        toast.className = `toast show bg-${type} text-white`;
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toast.setAttribute('aria-atomic', 'true');
+        
+        toast.innerHTML = `
+            <div class="toast-header bg-${type} text-white">
+                <strong class="me-auto">Career Test</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                ${message}
             </div>
         `;
-
-        const toastContainer = document.getElementById('toast-container') || this.createToastContainer();
-        toastContainer.insertAdjacentHTML('beforeend', toastHTML);
         
-        const toastElement = toastContainer.lastElementChild;
-        const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
-        toast.show();
-
-        // Remove toast element after it's hidden
-        toastElement.addEventListener('hidden.bs.toast', () => {
-            toastElement.remove();
-        });
+        toastContainer.appendChild(toast);
+        
+        // Auto-remove after 3 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
     }
 
     createToastContainer() {
         const container = document.createElement('div');
         container.id = 'toast-container';
-        container.className = 'toast-container position-fixed top-0 end-0 p-3';
-        container.style.zIndex = '1100';
+        container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
         document.body.appendChild(container);
         return container;
     }
-}
-
-// Initialize enhanced career test
-let careerTest;
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('Initializing Enhanced Career Test...');
-    try {
-        careerTest = new EnhancedCareerTest();
-        console.log('Enhanced Career Test initialized successfully');
-    } catch (error) {
-        console.error('Error initializing Enhanced Career Test:', error);
-    }
-});
-
-// Add showError method if not already defined
-if (typeof EnhancedCareerTest.prototype.showError !== 'function') {
-    /**
-     * Shows error message to the user
-     * @param {string} message - Error message to display
-     */
-    EnhancedCareerTest.prototype.showError = function(message) {
-        console.error('Error:', message);
-        
-        // Create error alert element
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'alert alert-danger mt-3';
-        errorDiv.textContent = message;
-        
-        // Remove any existing error messages
-        const existingError = this.form ? this.form.querySelector('.alert-danger') : null;
-        if (existingError) {
-            existingError.remove();
-        }
-        
-        // Add the new error message after the form
-        if (this.form) {
-            this.form.parentNode.insertBefore(errorDiv, this.form.nextSibling);
-        } else {
-            // Fallback if form not found
-            const container = document.querySelector('.container') || document.body;
-            container.prepend(errorDiv);
-        }
-        
-        // Automatically remove after 5 seconds
-        setTimeout(() => {
-            errorDiv.remove();
-        }, 5000);
-    };
-}
-
-// Export for use in other scripts
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = EnhancedCareerTest;
 }

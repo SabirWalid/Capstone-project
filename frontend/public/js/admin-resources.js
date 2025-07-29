@@ -15,17 +15,30 @@ const productionApiUrl = 'https://sabir-techpreneurs.onrender.com/api';
 
 // Add a new resource
 async function addResource(event) {
+  console.log('Add resource function called');
   event.preventDefault();
   
   const form = document.getElementById('addResourceForm');
+  if (!form) {
+    console.error('Add resource form not found');
+    alert('Error: Resource form not found');
+    return;
+  }
+  
+  console.log('Form found, collecting data...');
   const formData = new FormData(form);
   const resourceData = Object.fromEntries(formData.entries());
+  console.log('Resource data:', resourceData);
   
   // Display loading state
   const submitBtn = form.querySelector('button[type="submit"]');
-  const originalBtnText = submitBtn.innerHTML;
-  submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
-  submitBtn.disabled = true;
+  if (!submitBtn) {
+    console.error('Submit button not found');
+  } else {
+    const originalBtnText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
+    submitBtn.disabled = true;
+  }
   
   try {
     // Get the admin token
@@ -609,11 +622,17 @@ function findResourceById(resourceId) {
 
 // Show a message to the user
 function showMessage(type, message) {
+  console.log(`Showing message: ${type} - ${message}`);
+  
   // Create message element
   const messageDiv = document.createElement('div');
   messageDiv.className = `alert alert-${type === 'error' ? 'danger' : type}`;
   messageDiv.role = 'alert';
   messageDiv.textContent = message;
+  
+  // Style for better visibility
+  messageDiv.style.marginBottom = '20px';
+  messageDiv.style.marginTop = '10px';
   
   // Add close button
   const closeButton = document.createElement('button');
@@ -624,13 +643,25 @@ function showMessage(type, message) {
   closeButton.onclick = () => messageDiv.remove();
   messageDiv.appendChild(closeButton);
   
-  // Find the appropriate container
+  // Try multiple potential containers
+  // First try the resources section
   const resourcesSection = document.getElementById('resources-section');
+  // Then try the add tab 
+  const addTab = document.getElementById('add');
+  // Then try the form itself
+  const resourceForm = document.getElementById('addResourceForm');
+  
   if (resourcesSection) {
-    // Insert at the top
+    // Insert at the top of resources section
     resourcesSection.insertBefore(messageDiv, resourcesSection.firstChild);
+  } else if (addTab) {
+    // Insert at the top of add tab
+    addTab.insertBefore(messageDiv, addTab.firstChild);
+  } else if (resourceForm) {
+    // Insert before the form
+    resourceForm.parentNode.insertBefore(messageDiv, resourceForm);
   } else {
-    // Fallback to body if resources section not found
+    // Last resort - add to body
     document.body.insertBefore(messageDiv, document.body.firstChild);
   }
   

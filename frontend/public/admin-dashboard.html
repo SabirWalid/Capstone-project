@@ -4865,6 +4865,26 @@ document.getElementById('mentor-form').onsubmit = async function(e) {
                 } else if (typeof loadResources === 'function') {
                   loadResources();
                 }
+                
+                // Ensure form event handlers are attached when tab is shown
+                if (tabId === 'add') {
+                  const addResourceForm = document.getElementById('addResourceForm');
+                  if (addResourceForm) {
+                    // Remove any existing handlers to prevent duplicates
+                    const newForm = addResourceForm.cloneNode(true);
+                    addResourceForm.parentNode.replaceChild(newForm, addResourceForm);
+                    newForm.addEventListener('submit', function(event) {
+                      event.preventDefault();
+                      if (typeof addResource === 'function') {
+                        addResource(event);
+                      } else {
+                        console.error('addResource function not found');
+                        alert('Error: Resource submission function not available');
+                      }
+                    });
+                    console.log('Form submission handler attached to resource form');
+                  }
+                }
               }
             } else {
               console.error('Tab content not found:', tabId);
@@ -4876,9 +4896,10 @@ document.getElementById('mentor-form').onsubmit = async function(e) {
       // Initialize tab navigation
       setupResourceTabs();
       });
-    });
+  
   </script>
   <script src="js/resources.js"></script>
+  <script src="js/admin-resources.js"></script>
   <!-- Bootstrap JS (for modal) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>

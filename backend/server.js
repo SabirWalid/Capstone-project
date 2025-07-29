@@ -1,5 +1,8 @@
 require('dotenv').config();
 
+// Force port to be 5000 regardless of environment variables
+process.env.PORT = '5000';
+
 // Initial environment check
 console.log('=== Server Starting ===');
 console.log('Environment:', process.env.NODE_ENV);
@@ -28,7 +31,7 @@ app.use(helmet({
 // CORS Configuration
 const allowedOrigins = [
     'https://sabir-techpreneurs.netlify.app',
-    'https://sabir-techpreneurs.onrender.com',
+    'https://capstone-project-g2g8.onrender.com',
     'http://localhost:3000',
     'http://localhost:5000',
     'http://127.0.0.1:5000',
@@ -133,6 +136,10 @@ const adminResourceRoutes = require('./routes/adminResources');
 const adminMentorRoutes = require('./routes/adminMentors');
 const adminForumRoutes = require('./routes/adminForum');
 const adminOpportunityRoutes = require('./routes/adminOpportunities');
+const careerAssessmentRoutes = require('./routes/careerAssessment');
+const careerTestRoutes = require('./routes/careerTest');
+const careerRoutes = require('./routes/career');
+const apiRoutes = require('./routes/api');      // General API fallback routes
 
 // Use routes
 app.use('/api/auth', authRoutes);
@@ -150,6 +157,14 @@ app.use('/api/admin/resources', adminResourceRoutes);
 app.use('/api/admin/mentors', adminMentorRoutes);
 app.use('/api/admin/forum', adminForumRoutes);
 app.use('/api/admin/opportunities', adminOpportunityRoutes);
+app.use('/api/career-assessment', careerAssessmentRoutes);
+app.use('/api/career-test', careerTestRoutes);
+app.use('/api/career', careerRoutes);
+
+// Add forwarding route for compatibility
+const careerTestForwardedRoutes = require('./routes/careerTestForwarded');
+app.use('/api/career', careerTestForwardedRoutes);
+app.use('/api', apiRoutes);                     // General API routes for fallback
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -180,7 +195,15 @@ app.use((err, req, res, next) => {
 });
 
 // Connect to MongoDB
-const mongoURI = process.env.MONGODB_URI || process.env.MONGO_URI;
+let mongoURI = process.env.MONGODB_URI || process.env.MONGO_URI;
+
+// If MongoDB URI is not provided in env vars, use a fallback for development
+if (!mongoURI) {
+    console.warn('No MongoDB URI found in environment variables, using fallback connection string');
+    // Use a default local MongoDB connection
+    mongoURI = 'mongodb://localhost:27017/techpreneursdb';
+}
+
 mongoose.connect(mongoURI)
     .then(() => {
         console.log('Connected to MongoDB successfully');
@@ -189,11 +212,20 @@ mongoose.connect(mongoURI)
         const PORT = process.env.PORT || 5000;
         app.listen(PORT, () => {
             console.log(`Server is running on port ${PORT}`);
+            console.log(`OpenAI API is completely disabled - using database fallbacks only`);
+            console.log(`API endpoints available at: http://localhost:${PORT}/api/`);
         });
     })
     .catch(err => {
         console.error('MongoDB connection error:', err);
-        process.exit(1);
+        console.log('Starting server without database - using local fallbacks only');
+        
+        // Start server anyway to allow frontend testing with local fallbacks
+        const PORT = process.env.PORT || 5000;
+        app.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT} (WITHOUT DATABASE)`);
+            console.log(`Using local fallback data only - some features will be limited`);
+        });
     });
 
 // Handle uncaught exceptions and unhandled rejections

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Career = require('../models/Career');
 const UserCareerProfile = require('../models/UserCareerProfile');
+const auth = require('../middleware/auth');
 
 // Fuzzy matching utilities
 const stringSimilarity = require('string-similarity');
@@ -145,9 +146,31 @@ router.post('/test', async (req, res) => {
         // Save results to user profile if requested
         if (saveResults && userId) {
             try {
-                let userProfile = await UserCareerProfile.findOne({ userId });
-                if (!userProfile) {
-                    userProfile = new UserCareerProfile({ userId });
+                // Check if userId is a valid MongoDB ObjectId
+                const mongoose = require('mongoose');
+                if (!mongoose.Types.ObjectId.isValid(userId)) {
+                    console.log(`Invalid ObjectId format for userId: ${userId}`);
+                    // Skip profile save if userId is invalid
+                } else {
+                    let userProfile = await UserCareerProfile.findOne({ userId });
+                    if (!userProfile) {
+                        userProfile = new UserCareerProfile({ userId });
+                    }
+
+                    // Update skills and interests
+                    userProfile.skills = userSkills.map(skill => ({ name: skill }));
+                    userProfile.interests = userInterests.map(interest => ({ name: interest }));
+
+                    // Add test results
+                    userProfile.careerTests.push({
+                        results: topMatches.map(match => ({
+                            careerPath: match.career,
+                            score: match.score,
+                            confidence: match.confidence
+                        }))
+                    });
+
+                    await userProfile.save();
                 }
 
                 // Update skills and interests
@@ -186,10 +209,26 @@ router.post('/test', async (req, res) => {
 });
 
 // Get user's career test history
-router.get('/history/:userId', async (req, res) => {
+router.get('/history', auth, async (req, res) => {
     try {
-        const { userId } = req.params;
-        const userProfile = await UserCareerProfile.findOne({ userId })
+        const userId = req.user.id;
+        
+        // Check if userId is a valid MongoDB ObjectId
+        const mongoose = require('mongoose');
+        let query = {};
+        
+        if (mongoose.Types.ObjectId.isValid(userId)) {
+            query = { userId };
+        } else {
+            console.log(`Invalid ObjectId format for userId: ${userId}`);
+            return res.json({ 
+                tests: [], 
+                bookmarkedCareers: [], 
+                message: "User profile not found or invalid user ID" 
+            });
+        }
+        
+        const userProfile = await UserCareerProfile.findOne(query)
             .populate('careerTests.results.careerPath')
             .populate('bookmarkedCareers');
 
@@ -210,9 +249,19 @@ router.get('/history/:userId', async (req, res) => {
 });
 
 // Bookmark a career
-router.post('/bookmark', async (req, res) => {
+router.post('/bookmarks', auth, async (req, res) => {
     try {
-        const { userId, careerId } = req.body;
+        const { careerId } = req.body;
+        const userId = req.user.id;
+        
+        // Check if userId is a valid MongoDB ObjectId
+        const mongoose = require('mongoose');
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Invalid user ID format' 
+            });
+        }
 
         let userProfile = await UserCareerProfile.findOne({ userId });
         if (!userProfile) {
@@ -227,7 +276,7 @@ router.post('/bookmark', async (req, res) => {
         res.json({ success: true, message: 'Career bookmarked successfully' });
     } catch (error) {
         console.error('Error bookmarking career:', error);
-        res.status(500).json({ error: 'Failed to bookmark career' });
+        res.status(500).json({ success: false, error: 'Failed to bookmark career' });
     }
 });
 
@@ -252,6 +301,16 @@ router.get('/career/:id', async (req, res) => {
 router.get('/recommendations/:userId', async (req, res) => {
     try {
         const { userId } = req.params;
+        
+        // Check if userId is a valid MongoDB ObjectId
+        const mongoose = require('mongoose');
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Invalid user ID format' 
+            });
+        }
+        
         const userProfile = await UserCareerProfile.findOne({ userId });
 
         if (!userProfile || userProfile.careerTests.length === 0) {
@@ -341,5 +400,31 @@ const careerMapping = [
     courses: ["Product Management Basics", "Agile Methodologies", "Business Strategy"]
   }
 ];
+
+// Get single career details
+router.get('/:id', async (req, res) => {
+    try {
+        const careerId = req.params.id;
+        const career = await Career.findById(careerId);
+        
+        if (!career) {
+            return res.status(404).json({ 
+                success: false, 
+                error: 'Career not found' 
+            });
+        }
+        
+        res.json({
+            success: true,
+            career
+        });
+    } catch (error) {
+        console.error('Error fetching career details:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Failed to fetch career details' 
+        });
+    }
+});
 
 module.exports = router;

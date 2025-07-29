@@ -36,9 +36,20 @@ router.post('/ai-assessment', auth, async (req, res) => {
         // Get AI career analysis
         const aiAnalysis = await analyzeCareerPath(userResponses);
 
+        // Check if userId is a valid MongoDB ObjectId
+        const mongoose = require('mongoose');
+        const userId = req.user.id;
+        
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid user ID format'
+            });
+        }
+
         // Save the assessment results to user's profile
         const userProfile = await UserCareerProfile.findOneAndUpdate(
-            { userId: req.user.id },
+            { userId },
             {
                 $set: {
                     assessmentResults: aiAnalysis,
@@ -67,7 +78,18 @@ router.post('/ai-assessment', auth, async (req, res) => {
 // Get user's career assessment history
 router.get('/assessment-history', auth, async (req, res) => {
     try {
-        const userProfile = await UserCareerProfile.findOne({ userId: req.user.id });
+        // Check if userId is a valid MongoDB ObjectId
+        const mongoose = require('mongoose');
+        const userId = req.user.id;
+        
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid user ID format'
+            });
+        }
+        
+        const userProfile = await UserCareerProfile.findOne({ userId });
         if (!userProfile) {
             return res.json({
                 success: true,
@@ -89,6 +111,60 @@ router.get('/assessment-history', auth, async (req, res) => {
         res.status(500).json({
             success: false,
             error: 'Error fetching assessment history',
+            details: error.message
+        });
+    }
+});
+
+// Save assessment history
+router.post('/save-history', auth, async (req, res) => {
+    try {
+        const { assessmentResult, timestamp } = req.body;
+        
+        if (!assessmentResult) {
+            return res.status(400).json({
+                success: false,
+                error: 'Assessment result is required'
+            });
+        }
+        
+        // Check if userId is a valid MongoDB ObjectId
+        const mongoose = require('mongoose');
+        const userId = req.user.id;
+        
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid user ID format'
+            });
+        }
+        
+        // Find and update user profile with new assessment history
+        const userProfile = await UserCareerProfile.findOneAndUpdate(
+            { userId },
+            {
+                $push: {
+                    careerTests: {
+                        testDate: timestamp || new Date(),
+                        results: Array.isArray(assessmentResult) 
+                            ? assessmentResult 
+                            : [assessmentResult],
+                        feedback: ''
+                    }
+                }
+            },
+            { upsert: true, new: true }
+        );
+        
+        res.json({
+            success: true,
+            message: 'Assessment history saved successfully'
+        });
+    } catch (error) {
+        console.error('Save Assessment History Error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error saving assessment history',
             details: error.message
         });
     }
